@@ -342,11 +342,13 @@
         function handleScanInput() {
             clearTimeout(scanTimeout);
 
+            // Se aumenta el retraso a 500ms (0.5s) para permitir una escritura manual
+            // más cómoda. La validación solo se activa después de una pausa considerable.
             scanTimeout = setTimeout(() => {
                 if (scannerInput.value.length > 0) {
                     processScan();
                 }
-            }, 100); 
+            }, 500); // Retraso ajustado para escritura manual.
         }
 
         // --- INICIALIZACIÓN ---
