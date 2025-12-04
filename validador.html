@@ -3,271 +3,1077 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Validación de Warehouse - OBC</title>
+    <title>Sistema de Validación WMS</title>
+    <meta name="theme-color" content="#ed5224">
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f9; display: flex; }
-        .sidebar { width: 250px; background-color: #333; color: white; padding: 20px; flex-shrink: 0; }
-        .main-content { flex-grow: 1; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header h1 { color: #444; }
-        .tab-bar { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
-        .tab { padding: 10px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; background-color: #eee; margin-right: 5px; border-top-left-radius: 5px; border-top-right-radius: 5px; }
-        .tab.active { background-color: white; border-color: #ddd; border-bottom: 2px solid white; font-weight: bold; }
-        .input-group { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .input-group label { display: block; margin-top: 10px; font-weight: bold; }
-        .input-group input, .input-group select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .scanner-input { font-size: 1.5em; text-transform: uppercase; }
-        .stats { display: flex; justify-content: space-around; margin-bottom: 30px; }
-        .stat-box { text-align: center; padding: 15px; border-radius: 8px; flex-grow: 1; margin: 0 10px; }
-        .stat-ok { background-color: #e6ffe6; border: 1px solid #00c000; }
-        .stat-error { background-color: #ffe6e6; border: 1px solid #c00000; }
-        .stat-rate { background-color: #f0f0ff; border: 1px solid #0000c0; }
-        .stat-number { font-size: 2em; font-weight: bold; }
-        .logs-container { display: flex; gap: 20px; }
-        .log-section { flex: 1; background-color: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .log-list { max-height: 250px; overflow-y: auto; list-style: none; padding: 0; }
-        .log-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #eee; font-size: 0.9em; }
-        .log-item:last-child { border-bottom: none; }
-        .log-ok { color: green; }
-        .log-reject { color: red; }
-        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-primary { background-color: #007bff; color: white; }
-        .btn-secondary { background-color: #ccc; color: #333; }
-        .btn-edit { background-color: transparent; color: #007bff; border: none; cursor: pointer; font-size: 0.8em; }
-        .btn-google { background-color: #db4437; color: white; margin-bottom: 10px; }
+        :root {
+            --primary-color: #ed5224;
+            --secondary-color: #333;
+            --background-color: #f7f7f7;
+            --text-color: #333;
+            --success-color: #4CAF50;
+            --error-color: #F44336;
+            --warning-color: #FF9800;
+            --border-radius: 8px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
 
-        /* Estilos de los Popups */
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .popup-content { background: white; padding: 30px; border-radius: 8px; width: 400px; text-align: center; }
-        .popup-header { font-size: 1.5em; margin-bottom: 20px; font-weight: bold; }
-        .popup-details { text-align: left; margin-bottom: 20px; background: #f0f0f0; padding: 15px; border-radius: 4px; }
-        .popup-buttons button { margin: 5px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--background-color); 
+            display: flex; 
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+        }
+
+        .sidebar { 
+            width: 280px; 
+            background-color: var(--secondary-color); 
+            color: white; 
+            padding: 20px; 
+            flex-shrink: 0; 
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        
+        .main-content { 
+            flex-grow: 1; 
+            padding: 20px; 
+            overflow-y: auto;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header h1 { 
+            color: var(--primary-color); 
+            font-size: 1.8em;
+        }
+
+        .card { 
+            background-color: white; 
+            padding: 20px; 
+            border-radius: var(--border-radius); 
+            box-shadow: var(--shadow); 
+            margin-bottom: 20px; 
+        }
+        
+        .btn { 
+            padding: 12px 18px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: all 0.2s;
+            font-size: 0.95em;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary { 
+            background-color: var(--primary-color); 
+            color: white; 
+        }
+
+        .btn-primary:hover { 
+            background-color: #c94017; 
+        }
+
+        .btn-secondary { 
+            background-color: #6c757d; 
+            color: white; 
+        }
+
+        .btn-google { 
+            background-color: #4285F4;
+            color: white; 
+            width: 100%;
+            margin-bottom: 15px; 
+        }
+        
+        .input-group { 
+            margin-bottom: 15px;
+        }
+
+        .input-group label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 600; 
+            font-size: 0.9em; 
+        }
+
+        .input-group input, .input-group select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .scanner-input { 
+            font-size: 1.8em !important; 
+            text-transform: uppercase; 
+            font-weight: bold;
+            padding: 15px !important;
+            text-align: center;
+            border: 3px solid #ddd !important;
+        }
+
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 25px; 
+        }
+        
+        .stat-box { 
+            text-align: center; 
+            padding: 20px; 
+            border-radius: var(--border-radius); 
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-ok { 
+            background-color: #e8f5e9; 
+            border: 2px solid var(--success-color); 
+            color: var(--success-color);
+        }
+
+        .stat-error { 
+            background-color: #ffebee; 
+            border: 2px solid var(--error-color); 
+            color: var(--error-color);
+        }
+
+        .stat-rate { 
+            background-color: #e3f2fd; 
+            border: 2px solid var(--primary-color); 
+            color: var(--primary-color);
+        }
+
+        .stat-number { 
+            font-size: 2.2em; 
+            font-weight: 700; 
+            margin-top: 5px;
+            color: var(--text-color);
+        }
+
+        .tab-bar { 
+            display: flex; 
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab { 
+            padding: 10px 18px; 
+            cursor: pointer; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            background-color: #fff; 
+            font-weight: 600;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab.active { 
+            background-color: var(--primary-color); 
+            color: white; 
+            border-color: var(--primary-color);
+        }
+
+        .tab:hover:not(.active) {
+            background-color: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        .tab-close {
+            margin-left: 8px;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+
+        .tab-close:hover {
+            opacity: 1;
+        }
+
+        .logs-container { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px; 
+        }
+        
+        .log-section h3 {
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+
+        .log-list { 
+            max-height: 400px; 
+            overflow-y: auto; 
+            list-style: none; 
+            font-size: 0.9em; 
+            background: #fafafa;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid #eee;
+        }
+
+        .log-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px; 
+            margin-bottom: 8px;
+            border-radius: 4px;
+            background: white;
+            align-items: center;
+            transition: transform 0.1s;
+        }
+
+        .log-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .log-ok { 
+            border-left: 4px solid var(--success-color); 
+        }
+        
+        .log-reject { 
+            border-left: 4px solid var(--error-color); 
+        }
+
+        .log-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .log-code {
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        .log-meta {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .btn-edit {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 0.9em;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-edit:hover {
+            background-color: #f0f0f0;
+        }
+
+        .connection-status {
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .status-connected {
+            background-color: #e8f5e9;
+            color: var(--success-color);
+        }
+
+        .status-disconnected {
+            background-color: #fff3e0;
+            color: var(--warning-color);
+        }
+
+        .status-error {
+            background-color: #ffebee;
+            color: var(--error-color);
+        }
+        
+        .popup-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.6); 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .popup-content { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            width: 90%;
+            max-width: 500px; 
+            text-align: center; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .popup-header { 
+            font-size: 1.6em; 
+            margin-bottom: 20px; 
+            font-weight: 700; 
+        }
+
+        .popup-details { 
+            text-align: left; 
+            margin-bottom: 20px; 
+            background: #f9f9f9; 
+            padding: 15px; 
+            border-radius: var(--border-radius);
+            line-height: 1.6;
+        }
+        
+        .popup-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #555;
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 10px;
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .bd-info {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .bd-count {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .obc-list-item {
+            background: rgba(255,255,255,0.05);
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .main-content {
+                order: 1;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .logs-container {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-bar {
+                justify-content: center;
+            }
+        }
+
+        .flash-success {
+            animation: flashSuccess 0.3s;
+        }
+
+        .flash-error {
+            animation: flashError 0.3s;
+        }
+
+        @keyframes flashSuccess {
+            0%, 100% { border-color: #ddd; }
+            50% { border-color: var(--success-color); background-color: #e8f5e9; }
+        }
+
+        @keyframes flashError {
+            0%, 100% { border-color: #ddd; }
+            50% { border-color: var(--error-color); background-color: #ffebee; }
+        }
+
+        .user-select-wrapper {
+            position: relative;
+        }
+
+        .user-select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #666;
+        }
     </style>
 </head>
 <body>
-
-    <div class="sidebar">
-        <h2>Menú</h2>
-        
-        <button id="auth-button" class="btn btn-google" onclick="handleAuthClick()">Conectar con Google Sheets</button>
-        <div style="font-size: 0.8em; margin-bottom: 10px;" id="auth-status">Desconectado</div>
-
-        <p>BD Cargada: <span id="bd-count">0</span> códigos</p>
-        <button class="btn btn-primary" onclick="loadDatabase()">Cargar BD desde Sheets</button>
-        <hr style="margin: 15px 0;">
-        <h3>Usuarios</h3>
-        <select id="user-select" onchange="updateGlobalState()">
-            </select>
-        <hr style="margin: 15px 0;">
-        <h3>OBCs Activas</h3>
-        <div id="obc-list">
-            </div>
-    </div>
-
-    <div class="main-content">
-        <div class="header">
-            <h1>Sistema de Validación</h1>
-            <button class="btn btn-secondary" onclick="exportData()">Exportar Datos (CSV)</button>
-        </div>
-
-        <div id="tab-bar" class="tab-bar">
-            </div>
-
-        <div id="validation-area">
-            <div class="input-group">
-                <label>Usuario Activo:</label>
-                <input type="text" id="active-user-display" disabled>
-                <label>OBC Activa:</label>
-                <input type="text" id="active-obc-display" disabled>
-                <label>Ubicación Global (Opcional):</label>
-                <input type="text" id="global-location" placeholder="Ej: PLEC123, 4971098/1" onchange="updateGlobalState()">
-                <hr style="margin: 15px 0;">
-                <label for="scanner-input">ESCANEAR CAJA (Presiona Enter):</label>
-                <input type="text" id="scanner-input" class="scanner-input" autofocus placeholder="Escanea el código de la caja aquí">
-            </div>
-
-            <div class="stats">
-                <div class="stat-box stat-ok">
-                    VALIDADAS OK
-                    <div class="stat-number" id="validated-count">0</div>
-                </div>
-                <div class="stat-box stat-error">
-                    RECHAZADAS
-                    <div class="stat-number" id="rejected-count">0</div>
-                </div>
-                <div class="stat-box stat-rate">
-                    TASA ERROR
-                    <div class="stat-number" id="error-rate">0.0%</div>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h2>🏭 WMS Validator</h2>
+                <button id="auth-button" class="btn btn-google">
+                    🔗 Conectar con Google Sheets
+                </button>
+                <div id="auth-status" class="connection-status status-disconnected">
+                    Desconectado ⚠️
                 </div>
             </div>
 
-            <div class="logs-container">
-                <div class="log-section">
-                    <h3>Últimas Validaciones OK</h3>
-                    <ul id="ok-logs" class="log-list"></ul>
+            <div class="sidebar-section">
+                <h3>📊 Base de Datos</h3>
+                <div class="bd-info">
+                    <div class="bd-count" id="bd-count">0</div>
+                    <div style="font-size: 0.85em; opacity: 0.8;">códigos cargados</div>
                 </div>
-                <div class="log-section">
-                    <h3>Rechazos</h3>
-                    <ul id="reject-logs" class="log-list"></ul>
+                <button class="btn btn-primary" onclick="loadDatabase()" style="width: 100%;">
+                    🔄 Recargar BD
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>👤 Usuario Activo</h3>
+                <div class="user-select-wrapper">
+                    <select id="user-select" onchange="updateGlobalState()">
+                    </select>
                 </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>📦 OBCs Activas</h3>
+                <div id="obc-list"></div>
             </div>
         </div>
 
+        <div class="main-content">
+            <div class="header">
+                <h1>🔍 Sistema de Validación</h1>
+                <button class="btn btn-secondary" onclick="exportData()">
+                    📥 Exportar CSV
+                </button>
+            </div>
+
+            <div id="tab-bar" class="tab-bar"></div>
+
+            <div id="validation-area">
+                <div class="card">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div class="input-group">
+                            <label>👤 Usuario:</label>
+                            <input type="text" id="active-user-display" disabled>
+                        </div>
+                        <div class="input-group">
+                            <label>📦 OBC Activa:</label>
+                            <input type="text" id="active-obc-display" disabled>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="global-location">📍 Ubicación Global (Opcional):</label>
+                        <input type="text" id="global-location" placeholder="Ej: PLEC123, 4971098/1" onchange="updateGlobalState()">
+                    </div>
+                    
+                    <hr style="margin: 20px 0; border: none; border-top: 2px dashed #ddd;">
+                    
+                    <div class="input-group">
+                        <label for="scanner-input" style="font-size: 1.2em; color: var(--primary-color);">
+                            📷 ESCANEAR CÓDIGO (Presiona Enter):
+                        </label>
+                        <input type="text" id="scanner-input" class="scanner-input" autofocus placeholder="Escanea aquí...">
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box stat-ok">
+                        ✅ VALIDADAS OK
+                        <div class="stat-number" id="validated-count">0</div>
+                    </div>
+                    <div class="stat-box stat-error">
+                        ❌ RECHAZADAS
+                        <div class="stat-number" id="rejected-count">0</div>
+                    </div>
+                    <div class="stat-box stat-rate">
+                        📊 TASA ERROR
+                        <div class="stat-number" id="error-rate">0.0%</div>
+                    </div>
+                </div>
+
+                <div class="logs-container">
+                    <div class="log-section card">
+                        <h3>✅ Últimas Validaciones OK</h3>
+                        <ul id="ok-logs" class="log-list"></ul>
+                    </div>
+                    <div class="log-section card">
+                        <h3>❌ Rechazos Recientes</h3>
+                        <ul id="reject-logs" class="log-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Popups -->
     <div id="error-popup" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: red;">VALIDACIÓN RECHAZADA ❌</div>
+            <div class="popup-header" style="color: var(--error-color);">
+                ❌ VALIDACIÓN RECHAZADA
+            </div>
             <div class="popup-details">
-                Código: <strong id="error-code"></strong><br>
-                OBC: <strong id="error-obc"></strong><br>
-                Motivo: <strong id="error-reason"></strong>
+                <strong>Código:</strong> <span id="error-code"></span><br>
+                <strong>OBC:</strong> <span id="error-obc"></span><br>
+                <strong>Motivo:</strong> <span id="error-reason" style="color: var(--error-color);"></span>
             </div>
             <div class="popup-buttons">
-                <button class="btn btn-primary" onclick="closeErrorPopup()">Continuar Escaneando</button>
+                <button class="btn btn-primary" onclick="closeErrorPopup()">
+                    Continuar Escaneando
+                </button>
             </div>
         </div>
     </div>
 
     <div id="duplicate-popup" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: orange;">CAJA YA VALIDADA ⚠️</div>
+            <div class="popup-header" style="color: var(--warning-color);">
+                ⚠️ CAJA YA VALIDADA
+            </div>
             <div class="popup-details">
-                Código: <strong id="dup-code"></strong><br>
-                OBC: <strong id="dup-obc"></strong><br>
-                <hr>
-                Validada anteriormente:<br>
+                <strong>Código:</strong> <span id="dup-code"></span><br>
+                <strong>OBC:</strong> <span id="dup-obc"></span><br>
+                <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                <strong>Validada anteriormente:</strong><br>
                 • <span id="dup-timestamp"></span><br>
                 • Usuario: <span id="dup-user"></span><br>
                 • Ubicación: <span id="dup-location"></span>
             </div>
-            <p>¿Qué deseas hacer?</p>
+            <p style="margin: 15px 0; font-weight: 600;">¿Qué deseas hacer?</p>
             <div class="popup-buttons">
-                <button class="btn btn-secondary" onclick="handleDuplicateAction('ignore')">Ignorar - No guardar</button>
-                <button class="btn btn-primary" onclick="showForcedNoteModal()">Forzar entrada con nota</button>
+                <button class="btn btn-secondary" onclick="handleDuplicateAction('ignore')">
+                    Ignorar - No guardar
+                </button>
+                <button class="btn btn-primary" onclick="showForcedNoteModal()">
+                    Forzar entrada con nota
+                </button>
             </div>
         </div>
     </div>
 
     <div id="forced-note-modal" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header">Forzar Duplicado</div>
-            <p>Añade una nota para justificar el duplicado:</p>
-            <input type="text" id="forced-note-input" style="width: 100%; margin-bottom: 15px;" placeholder="Ej: Cambio de ubicación por error de pickeo.">
-            <button class="btn btn-primary" onclick="handleDuplicateAction('force')">Guardar Forzado</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('forced-note-modal').style.display='none'; document.getElementById('duplicate-popup').style.display='flex';">Volver</button>
+            <div class="popup-header" style="color: var(--primary-color);">
+                📝 Forzar Duplicado
+            </div>
+            <p style="margin-bottom: 15px;">Añade una nota para justificar el duplicado:</p>
+            <input type="text" id="forced-note-input" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;" placeholder="Ej: Cambio de ubicación por error de pickeo">
+            <div class="popup-buttons">
+                <button class="btn btn-primary" onclick="handleDuplicateAction('force')">
+                    💾 Guardar Forzado
+                </button>
+                <button class="btn btn-secondary" onclick="closeForcedNoteModal()">
+                    ← Volver
+                </button>
+            </div>
         </div>
     </div>
 
-
-    <script async defer src="https://apis.google.com/js/api.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
 
     <script>
-        // --- 1. CONFIGURACIÓN DE LA API (CLIENT ID AJUSTADO) ---
-        const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com'; 
-
-        const SPREADSHEET_ID = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo'; 
-        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets'; 
-
-        // --- 2. CONFIGURACIÓN INICIAL DE LA APLICACIÓN ---
+        // ==================== CONFIGURACIÓN ====================
+        const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
+        const SPREADSHEET_ID = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+        
         const VALIDATORS = ['MIGUEL', 'PEDRO', 'ALEJANDRO', 'ESMERALDA', 'KATERYNE'];
-        const STORAGE_KEY = 'wms_validation_state';
+        const STORAGE_KEY_PREFIX = 'wms_validation_';
 
-        let BD_CODES = new Set(); 
-        let GLOBAL_STATE = { 
+        // ==================== ESTADO GLOBAL ====================
+        let BD_CODES = new Set();
+        let GLOBAL_STATE = {
             activeOBC: 'OBC_DEFAULT_1',
-            tabs: { 
-                'OBC_DEFAULT_1': { 
-                    user: 'MIGUEL', 
-                    location: '', 
-                    validations: [], 
-                    rejections: [],  
-                } 
+            tabs: {
+                'OBC_DEFAULT_1': {
+                    user: 'MIGUEL',
+                    location: '',
+                    validations: [],
+                    rejections: []
+                }
             }
         };
-        let lastScannedCode = null; 
-
+        let lastScannedCode = null;
         let TOKEN_CLIENT;
+        let audioContext;
 
-        // Inicializar la API de Google y la aplicación
-        gapi.load('client', () => {
-            gapi.client.init({
-                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-            }).then(() => {
-                TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
-                    client_id: CLIENT_ID,
-                    scope: SCOPES,
-                    callback: (tokenResponse) => {
-                        if (tokenResponse && tokenResponse.access_token) {
-                            gapi.client.setToken(tokenResponse);
-                            updateAuthStatus(true);
-                            // Cargar la BD automáticamente después de la conexión
-                            loadDatabase();
-                        } else {
-                            updateAuthStatus(false);
-                        }
-                    },
-                });
-                updateAuthStatus(false); 
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadInitialState();
+        // ==================== INICIALIZACIÓN ====================
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initAudio();
+            await loadFromStorage();
             setupEventListeners();
             populateUserSelect();
             renderApp();
+            
+            // Inicializar Google API
+            gapi.load('client', initGoogleAPI);
         });
 
+        async function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.warn('Web Audio API no disponible');
+            }
+        }
 
-        // --- 3. GESTIÓN DE AUTENTICACIÓN Y ESTADO ---
+        async function initGoogleAPI() {
+            try {
+                await gapi.client.init({
+                    discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+                });
 
+                TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: SCOPES,
+                    callback: handleAuthResponse,
+                });
+
+                updateAuthStatus(false);
+            } catch (error) {
+                console.error("Error al inicializar GAPI:", error);
+                showNotification('Error al inicializar Google API', 'error');
+            }
+        }
+
+        function handleAuthResponse(tokenResponse) {
+            if (tokenResponse && tokenResponse.access_token) {
+                gapi.client.setToken(tokenResponse);
+                updateAuthStatus(true);
+                loadDatabase();
+            } else {
+                updateAuthStatus(false);
+            }
+        }
+
+        // ==================== PERSISTENCIA CON WINDOW.STORAGE ====================
+        async function loadFromStorage() {
+            try {
+                // Cargar estado principal
+                const stateResult = await window.storage.get(`${STORAGE_KEY_PREFIX}state`);
+                if (stateResult && stateResult.value) {
+                    const parsedState = JSON.parse(stateResult.value);
+                    // Asegurar que todos los tabs tengan arrays
+                    for (const obc in parsedState.tabs) {
+                        parsedState.tabs[obc].validations = parsedState.tabs[obc].validations || [];
+                        parsedState.tabs[obc].rejections = parsedState.tabs[obc].rejections || [];
+                    }
+                    GLOBAL_STATE = parsedState;
+                }
+
+                // Cargar BD caché
+                const bdResult = await window.storage.get(`${STORAGE_KEY_PREFIX}bd_cache`);
+                if (bdResult && bdResult.value) {
+                    const cached = JSON.parse(bdResult.value);
+                    BD_CODES = new Set(cached.codes);
+                    document.getElementById('bd-count').textContent = BD_CODES.size.toLocaleString();
+                }
+            } catch (error) {
+                console.log('Primera carga o storage no disponible:', error);
+            }
+        }
+
+        async function saveState() {
+            try {
+                await window.storage.set(
+                    `${STORAGE_KEY_PREFIX}state`,
+                    JSON.stringify(GLOBAL_STATE)
+                );
+            } catch (error) {
+                console.error('Error al guardar estado:', error);
+            }
+        }
+
+        async function saveBDCache() {
+            try {
+                await window.storage.set(
+                    `${STORAGE_KEY_PREFIX}bd_cache`,
+                    JSON.stringify({
+                        codes: Array.from(BD_CODES),
+                        timestamp: new Date().toISOString()
+                    })
+                );
+            } catch (error) {
+                console.error('Error al guardar caché de BD:', error);
+            }
+        }
+
+        // ==================== AUTENTICACIÓN ====================
         function updateAuthStatus(isSignedIn) {
             const statusElement = document.getElementById('auth-status');
             const button = document.getElementById('auth-button');
+            
             if (isSignedIn) {
-                statusElement.textContent = "Conectado. ✅";
-                statusElement.style.color = 'lightgreen';
-                button.textContent = "Cerrar Sesión";
+                statusElement.textContent = "✅ Conectado";
+                statusElement.className = "connection-status status-connected";
+                button.textContent = "🔓 Cerrar Sesión";
             } else {
-                statusElement.textContent = "Desconectado. ❌";
-                statusElement.style.color = 'yellow';
-                button.textContent = "Conectar con Google Sheets";
+                statusElement.textContent = "⚠️ Desconectado";
+                statusElement.className = "connection-status status-disconnected";
+                button.textContent = "🔗 Conectar con Google Sheets";
             }
         }
 
         function handleAuthClick() {
             if (gapi.client.getToken() === null) {
-                // Iniciar sesión
                 TOKEN_CLIENT.requestAccessToken();
             } else {
-                // Cerrar sesión
                 google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
                     gapi.client.setToken(null);
                     updateAuthStatus(false);
-                    document.getElementById('bd-count').textContent = '0';
-                    BD_CODES = new Set();
-                    alert("Sesión cerrada. Los nuevos escaneos solo se guardarán localmente.");
+                    showNotification('Sesión cerrada. Datos guardados localmente.', 'info');
                 });
             }
         }
 
-        function loadInitialState() {
-            const savedState = localStorage.getItem(STORAGE_KEY);
-            if (savedState) {
-                const parsedState = JSON.parse(savedState);
-                for (const obc in parsedState.tabs) {
-                    parsedState.tabs[obc].validations = parsedState.tabs[obc].validations || [];
-                    parsedState.tabs[obc].rejections = parsedState.tabs[obc].rejections || [];
+        document.getElementById('auth-button').onclick = handleAuthClick;
+
+        // ==================== CARGA DE BASE DE DATOS ====================
+        async function loadDatabase() {
+            if (!gapi.client.getToken()) {
+                showNotification('Primero debes conectar con Google Sheets', 'warning');
+                return;
+            }
+
+            const countElement = document.getElementById('bd-count');
+            countElement.innerHTML = 'Cargando... <span class="loading"></span>';
+
+            try {
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_ID,
+                    range: 'BD!I:I',
+                });
+
+                const codes = response.result.values;
+                if (codes) {
+                    const dbCodes = new Set(
+                        codes.flat()
+                            .map(code => code ? normalizeCode(code) : '')
+                            .filter(code => code !== '')
+                    );
+                    
+                    BD_CODES = dbCodes;
+                    countElement.textContent = BD_CODES.size.toLocaleString();
+                    
+                    // Guardar caché
+                    await saveBDCache();
+                    
+                    showNotification(`✅ BD cargada: ${BD_CODES.size.toLocaleString()} códigos`, 'success');
+                    playAudio('ok');
                 }
-                GLOBAL_STATE = parsedState;
+            } catch (err) {
+                console.error('Error al cargar BD:', err);
+                countElement.textContent = '0 (Error)';
+                showNotification('❌ Error al cargar BD. Verifica permisos y conexión.', 'error');
             }
         }
 
-        function saveState() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(GLOBAL_STATE));
+        // ==================== EXTRACCIÓN Y NORMALIZACIÓN ====================
+        function normalizeCode(code) {
+            return code ? code.replace(/-/g, '/').toLowerCase().trim() : '';
         }
 
+        function extractCode(rawCode) {
+            const code = rawCode.trim();
+            
+            // Patrones de formato JSON
+            const pattern1 = '¨id¨ñ ¨';
+            const pattern2 = '[ID[ñ [';
+            
+            // Intento de extracción por Formato JSON
+            if (code.includes(pattern1)) {
+                const startIndex = code.indexOf(pattern1) + pattern1.length;
+                const endIndex = code.indexOf('¨,', startIndex);
+                if (endIndex !== -1) {
+                    return code.substring(startIndex, endIndex).trim();
+                }
+            } else if (code.includes(pattern2)) {
+                const startIndex = code.indexOf(pattern2) + pattern2.length;
+                const endIndex = code.indexOf('[,', startIndex);
+                if (endIndex !== -1) {
+                    return code.substring(startIndex, endIndex).trim();
+                }
+            }
+            
+            return code;
+        }
+
+        // ==================== LÓGICA DE VALIDACIÓN ====================
+        function setupEventListeners() {
+            const input = document.getElementById('scanner-input');
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && input.value.trim() !== '') {
+                    e.preventDefault();
+                    processScan(input.value.trim());
+                    input.value = '';
+                }
+            });
+        }
+
+        async function processScan(rawCode) {
+            if (BD_CODES.size === 0) {
+                showNotification('⚠️ La Base de Datos no ha sido cargada', 'warning');
+                playAudio('error');
+                return;
+            }
+
+            const activeOBC = GLOBAL_STATE.activeOBC;
+            const tab = GLOBAL_STATE.tabs[activeOBC];
+            const user = tab.user;
+            const location = tab.location;
+            
+            lastScannedCode = { rawCode, extracted: null, obc: activeOBC, user, location };
+
+            const extractedCode = extractCode(rawCode);
+            const normalizedCode = normalizeCode(extractedCode);
+            lastScannedCode.extracted = normalizedCode;
+
+            // 1. Buscar en BD
+            if (!BD_CODES.has(normalizedCode)) {
+                await handleRejection('NO_EXISTE_EN_BD', rawCode, normalizedCode, activeOBC);
+                return;
+            }
+
+            // 2. Verificar Duplicados
+            const isDuplicate = tab.validations.find(v => 
+                v.extractedCode === normalizedCode && v.obc === activeOBC
+            );
+
+            if (isDuplicate) {
+                lastScannedCode.duplicateOf = isDuplicate;
+                showDuplicatePopup(normalizedCode, activeOBC, isDuplicate);
+                playAudio('duplicate');
+                return;
+            }
+            
+            // 3. Validar OK
+            await handleValidationOK(rawCode, extractedCode, normalizedCode, activeOBC, user, location);
+        }
+
+        async function handleValidationOK(rawCode, extractedCode, normalizedCode, obc, user, location, note = '') {
+            const tab = GLOBAL_STATE.tabs[obc];
+            const now = new Date();
+            
+            const newLog = {
+                id: now.getTime(),
+                timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                date: now.toISOString().slice(0, 10),
+                user,
+                obc,
+                originalCode: rawCode,
+                extractedCode: normalizedCode,
+                location,
+                note
+            };
+            
+            tab.validations.unshift(newLog);
+            playAudio('ok');
+            flashInput('success');
+            renderLogs();
+            await saveState();
+
+            // Escritura a Google Sheets
+            if (gapi.client.getToken()) {
+                await saveValidationLog('Val3', newLog);
+            }
+        }
+
+        async function handleRejection(reason, rawCode, normalizedCode, obc) {
+            const tab = GLOBAL_STATE.tabs[obc];
+            const now = new Date();
+            
+            const newLog = {
+                id: now.getTime(),
+                timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                date: now.toISOString().slice(0, 10),
+                user: tab.user,
+                obc,
+                codeScanned: rawCode,
+                extractedCode: normalizedCode,
+                rejectionReason: reason,
+            };
+            
+            tab.rejections.unshift(newLog);
+            playAudio('error');
+            flashInput('error');
+            showErrorPopup(normalizedCode, obc, reason);
+            renderLogs();
+            await saveState();
+
+            // Escritura a Google Sheets
+            if (gapi.client.getToken()) {
+                await saveValidationLog('Validaciones_RECHAZADAS', newLog);
+            }
+        }
+
+        // ==================== ESCRITURA A GOOGLE SHEETS ====================
+        async function saveValidationLog(sheetName, logRecord) {
+            if (!gapi.client.getToken()) {
+                return;
+            }
+            
+            const range = `${sheetName}!A1`;
+            let values = [];
+
+            if (sheetName.startsWith('Val')) {
+                values = [[
+                    logRecord.date,
+                    logRecord.timestamp,
+                    logRecord.user,
+                    logRecord.obc,
+                    logRecord.extractedCode,
+                    logRecord.location,
+                    logRecord.note
+                ]];
+            } else if (sheetName.includes('RECHAZADAS')) {
+                values = [[
+                    logRecord.date,
+                    logRecord.timestamp,
+                    logRecord.user,
+                    logRecord.obc,
+                    logRecord.codeScanned,
+                    logRecord.rejectionReason,
+                    logRecord.extractedCode
+                ]];
+            }
+
+            if (values.length === 0) return;
+
+            try {
+                await gapi.client.sheets.spreadsheets.values.append({
+                    spreadsheetId: SPREADSHEET_ID,
+                    range: range,
+                    valueInputOption: 'USER_ENTERED',
+                    insertDataOption: 'INSERT_ROWS',
+                    resource: { values }
+                });
+            } catch (err) {
+                console.error(`Error al escribir en ${sheetName}:`, err);
+            }
+        }
+
+        // ==================== RENDERIZADO ====================
         function updateGlobalState() {
             const activeOBC = GLOBAL_STATE.activeOBC;
             const tab = GLOBAL_STATE.tabs[activeOBC];
@@ -288,237 +1094,47 @@
         }
 
         function addOBC() {
-            const newOBC = prompt("Ingresa el número de la nueva OBC (Ej: OBC31251120RV):").toUpperCase().trim();
-            if (newOBC && !GLOBAL_STATE.tabs[newOBC]) {
-                GLOBAL_STATE.tabs[newOBC] = {
-                    user: GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC].user, 
-                    location: '', 
+            const newOBC = prompt("Ingresa el número de la nueva OBC (Ej: OBC31251120RV):");
+            if (!newOBC) return;
+            
+            const obcName = newOBC.toUpperCase().trim();
+            if (obcName && !GLOBAL_STATE.tabs[obcName]) {
+                GLOBAL_STATE.tabs[obcName] = {
+                    user: GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC].user,
+                    location: '',
                     validations: [],
-                    rejections: [],
+                    rejections: []
                 };
-                switchOBC(newOBC);
+                switchOBC(obcName);
+                showNotification(`✅ OBC ${obcName} creada`, 'success');
             }
         }
 
-        // --- 4. GESTIÓN DE BASES DE DATOS (LECTURA API) ---
-
-        /**
-         * Carga la BD de códigos en la memoria usando la Sheets API.
-         */
-        async function loadDatabase() {
-            if (!gapi.client.getToken()) {
-                alert("Primero debes hacer clic en 'Conectar con Google Sheets'.");
+        function removeOBC(obc) {
+            const obcKeys = Object.keys(GLOBAL_STATE.tabs);
+            if (obcKeys.length <= 1) {
+                showNotification('⚠️ Debe haber al menos una OBC activa', 'warning');
                 return;
             }
-            document.getElementById('bd-count').textContent = 'Cargando...';
 
-            try {
-                // Leer la Columna I de la hoja "BD"
-                const response = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: SPREADSHEET_ID,
-                    range: 'BD!I:I', 
-                });
-
-                const codes = response.result.values;
-                if (codes) {
-                    // Normalizamos y creamos un Set para búsquedas rápidas (<300ms)
-                    const dbCodes = new Set(codes.flat()
-                        .map(code => code ? normalizeCode(code) : '') 
-                        .filter(code => code !== '')
-                    ); 
-                    BD_CODES = dbCodes;
-                    document.getElementById('bd-count').textContent = BD_CODES.size;
-                    alert(`Base de Datos cargada: ${BD_CODES.size} códigos listos para validar.`);
+            if (confirm(`¿Eliminar OBC ${obc}? Los datos se mantendrán en el storage.`)) {
+                delete GLOBAL_STATE.tabs[obc];
+                
+                if (GLOBAL_STATE.activeOBC === obc) {
+                    GLOBAL_STATE.activeOBC = Object.keys(GLOBAL_STATE.tabs)[0];
                 }
-            } catch (err) {
-                console.error('Error al cargar la Base de Datos desde Google Sheets:', err);
-                alert('ERROR: No se pudo cargar la BD. Asegúrate de tener permisos y que la hoja "BD" exista.');
-                document.getElementById('bd-count').textContent = '0 (Error)';
+                
+                renderApp();
+                saveState();
+                showNotification(`OBC ${obc} eliminada`, 'info');
             }
         }
-
-        // --- 5. GESTIÓN DE REGISTROS (ESCRITURA API) ---
-
-        /**
-         * Guarda un registro de validación (OK o RECHAZO) en Google Sheets.
-         */
-        async function saveValidationLog(sheetName, logRecord) {
-            if (!gapi.client.getToken()) {
-                console.warn("No autenticado. El registro solo se guardará localmente.");
-                return;
-            }
-            
-            const range = `${sheetName}!A1`; 
-            let values = [];
-
-            if (sheetName.startsWith('Val')) { // Logs OK (Val3, Val4, etc.)
-                values = [[
-                    logRecord.date,
-                    logRecord.timestamp,
-                    logRecord.user,
-                    logRecord.obc,
-                    logRecord.extractedCode,
-                    logRecord.location,
-                    logRecord.note
-                ]];
-            } else if (sheetName.includes('RECHAZADAS')) { // Logs de Rechazo
-                values = [[
-                    logRecord.date,
-                    logRecord.timestamp,
-                    logRecord.user,
-                    logRecord.obc,
-                    logRecord.codeScanned, // Código crudo escaneado
-                    logRecord.rejectionReason,
-                    logRecord.extractedCode // Código extraído/normalizado (si aplica)
-                ]];
-            }
-
-            if (values.length === 0) return;
-
-            const resource = { values };
-
-            try {
-                await gapi.client.sheets.spreadsheets.values.append({
-                    spreadsheetId: SPREADSHEET_ID,
-                    range: range,
-                    valueInputOption: 'USER_ENTERED', 
-                    insertDataOption: 'INSERT_ROWS',
-                });
-                console.log(`Log exitosamente escrito en ${sheetName}.`);
-            } catch (err) {
-                console.error(`Error al escribir log en ${sheetName}. Asegúrate de que las hojas existan.`, err);
-                alert(`ADVERTENCIA: Falló la escritura en Sheets (${sheetName}). Datos solo guardados localmente.`);
-            }
-        }
-
-        // --- 6. EXTRACCIÓN Y NORMALIZACIÓN DE CÓDIGOS ---
-        const normalizeCode = (code) => {
-            return code ? code.replace(/-/g, '/').toLowerCase().trim() : ''; 
-        };
-
-        const extractCode = (rawCode) => {
-            const code = rawCode.trim();
-            const jsonPattern = /¨id¨ñ ¨|\[ID\[ñ\[/i; 
-            if (code.match(jsonPattern)) {
-                const startMarker = code.includes('¨id¨ñ ¨') ? '¨id¨ñ ¨' : '[ID[ñ [';
-                const endMarker = code.includes('¨id¨ñ ¨') ? '¨,' : '[,';
-
-                const startIndex = code.indexOf(startMarker);
-                if (startIndex !== -1) {
-                    const startPos = startIndex + startMarker.length;
-                    const endIndex = code.indexOf(endMarker, startPos);
-                    if (endIndex !== -1) {
-                        return code.substring(startPos, endIndex).trim();
-                    }
-                }
-            }
-            return code;
-        };
-
-
-        // --- 7. LÓGICA DE VALIDACIÓN PRINCIPAL ---
-
-        function setupEventListeners() {
-            const input = document.getElementById('scanner-input');
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && input.value.trim() !== '') {
-                    e.preventDefault();
-                    processScan(input.value.trim());
-                    input.value = ''; 
-                }
-            });
-        }
-
-        function processScan(rawCode) {
-            if (BD_CODES.size === 0) {
-                 alert("ERROR: La Base de Datos no ha sido cargada. Por favor, haz clic en 'Cargar BD desde Sheets'.");
-                 return;
-            }
-
-            const activeOBC = GLOBAL_STATE.activeOBC;
-            const tab = GLOBAL_STATE.tabs[activeOBC];
-            const user = tab.user;
-            const location = tab.location;
-            
-            lastScannedCode = { rawCode, extracted: null, obc: activeOBC, user, location };
-
-            const extractedCode = extractCode(rawCode);
-            const normalizedCode = normalizeCode(extractedCode);
-            lastScannedCode.extracted = normalizedCode;
-
-            // 1. Buscar en BD (Validación estricta)
-            if (!BD_CODES.has(normalizedCode)) {
-                handleRejection('NO_EXISTE_EN_BD', rawCode, normalizedCode, activeOBC);
-                return;
-            }
-
-            // 2. Verificar Duplicados (Solo con la OBC actual)
-            const isDuplicate = tab.validations.find(v => v.extractedCode === normalizedCode && v.obc === activeOBC);
-
-            if (isDuplicate) {
-                // Mismo código + Misma OBC -> ALERTA
-                lastScannedCode.duplicateOf = isDuplicate; 
-                showDuplicatePopup(normalizedCode, activeOBC, isDuplicate); 
-                playAudio('duplicate');
-                return;
-            }
-            
-            // 3. Validar OK
-            handleValidationOK(rawCode, extractedCode, normalizedCode, activeOBC, user, location);
-        }
-
-        function handleValidationOK(rawCode, extractedCode, normalizedCode, obc, user, location, note = '') {
-            const tab = GLOBAL_STATE.tabs[obc];
-            const now = new Date();
-            const newLog = {
-                id: now.getTime(),
-                timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                date: now.toISOString().slice(0, 10),
-                user,
-                obc,
-                originalCode: rawCode,
-                extractedCode: normalizedCode,
-                location,
-                note
-            };
-            tab.validations.unshift(newLog); 
-            playAudio('ok');
-            renderLogs();
-            saveState();
-
-            // CRÍTICO: Escritura a Google Sheets (usaremos Val3 por defecto)
-            saveValidationLog('Val3', newLog); 
-        }
-
-        function handleRejection(reason, rawCode, normalizedCode, obc) {
-            const tab = GLOBAL_STATE.tabs[obc];
-            const now = new Date();
-            const newLog = {
-                id: now.getTime(),
-                timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                date: now.toISOString().slice(0, 10),
-                user: tab.user,
-                obc,
-                codeScanned: rawCode,
-                extractedCode: normalizedCode,
-                rejectionReason: reason, 
-            };
-            tab.rejections.unshift(newLog);
-            playAudio('error');
-            showErrorPopup(normalizedCode, obc, reason);
-            renderLogs();
-            saveState();
-
-            // CRÍTICO: Escritura a Google Sheets
-            saveValidationLog('Validaciones_RECHAZADAS', newLog);
-        }
-
-        // --- 8. RENDERING, LOGS Y POPUPS (Se mantienen igual) ---
 
         function renderApp() {
             const activeOBC = GLOBAL_STATE.activeOBC;
             const tab = GLOBAL_STATE.tabs[activeOBC];
 
+            // Renderizar tabs
             const tabBar = document.getElementById('tab-bar');
             tabBar.innerHTML = '';
             const obcKeys = Object.keys(GLOBAL_STATE.tabs);
@@ -526,31 +1142,56 @@
             obcKeys.forEach(obc => {
                 const tabDiv = document.createElement('div');
                 tabDiv.className = `tab ${obc === activeOBC ? 'active' : ''}`;
-                tabDiv.textContent = obc;
+                tabDiv.innerHTML = `
+                    ${obc}
+                    ${obcKeys.length > 1 ? `<span class="tab-close" onclick="event.stopPropagation(); removeOBC('${obc}')">×</span>` : ''}
+                `;
                 tabDiv.onclick = () => switchOBC(obc);
                 tabBar.appendChild(tabDiv);
             });
 
             const newTabBtn = document.createElement('div');
             newTabBtn.className = 'tab';
-            newTabBtn.textContent = '+ Nueva';
+            newTabBtn.textContent = '+ Nueva OBC';
             newTabBtn.onclick = addOBC;
+            newTabBtn.style.backgroundColor = 'var(--primary-color)';
+            newTabBtn.style.color = 'white';
             tabBar.appendChild(newTabBtn);
 
+            // Actualizar campos
             document.getElementById('active-user-display').value = tab.user;
             document.getElementById('active-obc-display').value = activeOBC;
             document.getElementById('global-location').value = tab.location;
 
+            // Calcular estadísticas
             const validatedCount = tab.validations.length;
-            const rejectedCount = tab.rejections.filter(r => r.rejectionReason === 'NO_EXISTE_EN_BD').length; 
-            const totalScans = validatedCount + tab.rejections.length; 
+            const rejectedCount = tab.rejections.filter(r => r.rejectionReason === 'NO_EXISTE_EN_BD').length;
+            const totalScans = validatedCount + rejectedCount;
             const errorRate = totalScans > 0 ? ((rejectedCount / totalScans) * 100).toFixed(1) : '0.0';
 
             document.getElementById('validated-count').textContent = validatedCount;
             document.getElementById('rejected-count').textContent = rejectedCount;
             document.getElementById('error-rate').textContent = `${errorRate}%`;
 
+            // Renderizar lista de OBCs en sidebar
+            renderOBCList();
             renderLogs();
+        }
+
+        function renderOBCList() {
+            const obcList = document.getElementById('obc-list');
+            obcList.innerHTML = '';
+
+            for (const obc in GLOBAL_STATE.tabs) {
+                const tab = GLOBAL_STATE.tabs[obc];
+                const item = document.createElement('div');
+                item.className = 'obc-list-item';
+                item.innerHTML = `
+                    <span>${obc}</span>
+                    <span style="opacity: 0.7;">${tab.validations.length} ✓</span>
+                `;
+                obcList.appendChild(item);
+            }
         }
 
         function renderLogs() {
@@ -562,30 +1203,43 @@
             okLogsList.innerHTML = '';
             rejectLogsList.innerHTML = '';
 
-            tab.validations.slice(0, 5).forEach(log => {
+            // Logs OK
+            tab.validations.slice(0, 10).forEach(log => {
                 const item = document.createElement('li');
                 item.className = 'log-item log-ok';
                 item.innerHTML = `
-                    <span>${log.extractedCode}</span>
-                    <span>${log.timestamp}</span>
-                    <span>${log.location || '-'}</span>
-                    <button class="btn-edit" onclick="showEditModal(${log.id}, '${activeOBC}')">[Edit]</button>
+                    <div class="log-info">
+                        <div class="log-code">${log.extractedCode}</div>
+                        <div class="log-meta">${log.timestamp} • ${log.location || 'Sin ubicación'}</div>
+                    </div>
+                    <button class="btn-edit" onclick="showEditModal(${log.id}, '${activeOBC}')">✏️</button>
                 `;
                 okLogsList.appendChild(item);
             });
 
-            tab.rejections.slice(0, 5).forEach(log => {
+            if (tab.validations.length === 0) {
+                okLogsList.innerHTML = '<li style="text-align: center; padding: 20px; color: #999;">No hay validaciones aún</li>';
+            }
+
+            // Logs Rechazo
+            tab.rejections.slice(0, 10).forEach(log => {
                 const item = document.createElement('li');
                 item.className = 'log-item log-reject';
-                const reasonDisplay = log.rejectionReason === 'DUPLICADO_FORZADO' ? 'DUPLICADO (FORZADO)' : log.rejectionReason.replace(/_/g, ' ');
+                const reasonDisplay = log.rejectionReason.replace(/_/g, ' ');
                 item.innerHTML = `
-                    <span>${log.extractedCode || log.codeScanned}</span>
-                    <span>- ${reasonDisplay}</span>
+                    <div class="log-info">
+                        <div class="log-code">${log.extractedCode || log.codeScanned}</div>
+                        <div class="log-meta">${log.timestamp} • ${reasonDisplay}</div>
+                    </div>
                 `;
                 rejectLogsList.appendChild(item);
             });
+
+            if (tab.rejections.length === 0) {
+                rejectLogsList.innerHTML = '<li style="text-align: center; padding: 20px; color: #999;">No hay rechazos</li>';
+            }
         }
-        
+
         function populateUserSelect() {
             const select = document.getElementById('user-select');
             VALIDATORS.forEach(user => {
@@ -597,12 +1251,13 @@
             select.value = GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC].user;
         }
 
+        // ==================== POPUPS ====================
         function showErrorPopup(code, obc, reason) {
             document.getElementById('error-code').textContent = code;
             document.getElementById('error-obc').textContent = obc;
             document.getElementById('error-reason').textContent = reason.replace(/_/g, ' ');
             document.getElementById('error-popup').style.display = 'flex';
-            document.getElementById('scanner-input').blur(); 
+            document.getElementById('scanner-input').blur();
         }
 
         function closeErrorPopup() {
@@ -623,9 +1278,16 @@
         function showForcedNoteModal() {
             document.getElementById('duplicate-popup').style.display = 'none';
             document.getElementById('forced-note-modal').style.display = 'flex';
+            document.getElementById('forced-note-input').value = '';
+            document.getElementById('forced-note-input').focus();
         }
 
-        function handleDuplicateAction(action) {
+        function closeForcedNoteModal() {
+            document.getElementById('forced-note-modal').style.display = 'none';
+            document.getElementById('duplicate-popup').style.display = 'flex';
+        }
+
+        async function handleDuplicateAction(action) {
             document.getElementById('duplicate-popup').style.display = 'none';
             document.getElementById('forced-note-modal').style.display = 'none';
             document.getElementById('scanner-input').focus();
@@ -634,71 +1296,126 @@
 
             if (action === 'force') {
                 const note = document.getElementById('forced-note-input').value.trim();
-                const finalNote = `DUPLICADO FORZADO: ${note}`;
+                const finalNote = `DUPLICADO FORZADO: ${note || 'Sin justificación'}`;
 
-                handleValidationOK(
-                    lastScannedCode.rawCode, 
-                    lastScannedCode.extracted, 
-                    lastScannedCode.extracted, 
-                    lastScannedCode.obc, 
-                    lastScannedCode.user, 
-                    lastScannedCode.location, 
+                await handleValidationOK(
+                    lastScannedCode.rawCode,
+                    lastScannedCode.extracted,
+                    lastScannedCode.extracted,
+                    lastScannedCode.obc,
+                    lastScannedCode.user,
+                    lastScannedCode.location,
                     finalNote
                 );
-                
-                // Registro de rechazo para auditoría (opcional)
-                const tab = GLOBAL_STATE.tabs[lastScannedCode.obc];
-                const now = new Date();
-                tab.rejections.unshift({
-                    id: now.getTime() + 1,
-                    timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                    date: now.toISOString().slice(0, 10),
-                    user: lastScannedCode.user,
-                    obc: lastScannedCode.obc,
-                    codeScanned: lastScannedCode.rawCode,
-                    extractedCode: lastScannedCode.extracted,
-                    rejectionReason: 'DUPLICADO_FORZADO',
-                    isForced: true
-                });
-            } 
-            
-            lastScannedCode = null; 
+                showNotification('⚠️ Duplicado forzado registrado', 'warning');
+            } else {
+                showNotification('Escaneo ignorado', 'info');
+            }
+
+            lastScannedCode = null;
             renderApp();
         }
 
-        function playAudio(type) {
-            const input = document.getElementById('scanner-input');
-            input.style.borderColor = 'black'; 
+        function showEditModal(logId, obc) {
+            const log = GLOBAL_STATE.tabs[obc].validations.find(v => v.id === logId);
+            if (!log) return;
 
-            if (type === 'ok') {
-                input.style.borderColor = 'green';
-            } else if (type === 'error') {
-                input.style.borderColor = 'red';
-            } else if (type === 'duplicate') {
-                input.style.borderColor = 'orange';
+            const newLocation = prompt(`Editando ${log.extractedCode}\n\nNueva Ubicación (actual: ${log.location || 'vacía'}):`);
+            if (newLocation === null) return;
+
+            const newNote = prompt(`Editando ${log.extractedCode}\n\nNueva Nota (actual: ${log.note || 'vacía'}):`);
+            if (newNote === null) return;
+
+            const shouldDelete = confirm("¿Deseas ELIMINAR este registro?");
+
+            if (shouldDelete) {
+                const index = GLOBAL_STATE.tabs[obc].validations.indexOf(log);
+                if (index > -1) {
+                    GLOBAL_STATE.tabs[obc].validations.splice(index, 1);
+                    showNotification('🗑️ Registro eliminado', 'info');
+                }
+            } else {
+                log.location = newLocation.toUpperCase().trim();
+                log.note = newNote.trim();
+                showNotification('✏️ Registro actualizado', 'success');
             }
 
+            renderLogs();
+            saveState();
+        }
+
+        // ==================== AUDIO Y FEEDBACK ====================
+        function playAudio(type) {
+            if (!audioContext) return;
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            gainNode.gain.value = 0.3;
+
+            if (type === 'ok') {
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.15);
+            } else if (type === 'error') {
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } else if (type === 'duplicate') {
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.15);
+
+                setTimeout(() => {
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    gain2.gain.value = 0.3;
+                    osc2.frequency.setValueAtTime(600, audioContext.currentTime);
+                    osc2.start();
+                    osc2.stop(audioContext.currentTime + 0.15);
+                }, 250);
+            }
+        }
+
+        function flashInput(type) {
+            const input = document.getElementById('scanner-input');
+            input.classList.remove('flash-success', 'flash-error');
+            
             setTimeout(() => {
-                input.style.borderColor = '#ccc'; 
+                input.classList.add(type === 'success' ? 'flash-success' : 'flash-error');
+            }, 10);
+
+            setTimeout(() => {
+                input.classList.remove('flash-success', 'flash-error');
             }, 300);
         }
 
-        function exportData() {
+        function showNotification(message, type = 'info') {
+            // Notificación simple con alert (mejorable con toast notifications)
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // ==================== EXPORTACIÓN ====================
+        async function exportData() {
             const allLogs = [];
             const header = "Timestamp,Usuario,OBC,Código Original,Código Extraído,Ubicación,Nota\n";
 
             for (const obc in GLOBAL_STATE.tabs) {
                 GLOBAL_STATE.tabs[obc].validations.forEach(log => {
-                    const timestampString = new Date(log.id).toISOString(); 
-
+                    const timestampString = new Date(log.id).toISOString();
                     allLogs.push([
                         timestampString,
                         log.user,
                         log.obc,
-                        `"${log.originalCode.replace(/"/g, '""')}"`, 
+                        `"${log.originalCode.replace(/"/g, '""')}"`,
                         log.extractedCode,
-                        log.location,
-                        log.note
+                        log.location || '',
+                        log.note || ''
                     ].join(','));
                 });
             }
@@ -713,33 +1430,9 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            alert("Datos exportados a CSV (Solo registros OK locales).");
-        }
-        
-        function showEditModal(logId, obc) {
-            const log = GLOBAL_STATE.tabs[obc].validations.find(v => v.id === logId);
-            if (!log) return;
-
-            const newLocation = prompt(`Editando ${log.extractedCode}.\n\nNueva Ubicación (actual: ${log.location}):`);
-            if (newLocation === null) return; 
             
-            const newNote = prompt(`Editando ${log.extractedCode}.\n\nNueva Nota (actual: ${log.note || 'Vacía'}):`);
-            if (newNote === null) return; 
-
-            log.location = newLocation.toUpperCase().trim(); 
-            log.note = newNote.trim(); 
-
-            const shouldDelete = confirm("¿Deseas ELIMINAR este registro de validación OK?");
-            if (shouldDelete) {
-                const index = GLOBAL_STATE.tabs[obc].validations.indexOf(log);
-                if (index > -1) {
-                    GLOBAL_STATE.tabs[obc].validations.splice(index, 1);
-                }
-            }
-
-            renderLogs();
-            saveState();
-            alert("Registro actualizado y/o eliminado localmente.");
+            showNotification(`📥 Exportadas ${allLogs.length} validaciones`, 'success');
+            playAudio('ok');
         }
     </script>
 </body>
