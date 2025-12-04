@@ -898,39 +898,72 @@
             const countElement = document.getElementById('bd-count');
             countElement.innerHTML = 'Cargando... <span class="loading"></span>';
 
-            try {
-                // Leer desde la hoja de CONSULTA, columna H (Box type No_箱类)
-                const response = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: SPREADSHEET_ID_BD,
-                    range: 'Outbound_出库单!H:H', // Columna H "Box type No_箱类"
-                });
+            // Lista de posibles nombres de la pestaña a intentar
+            const possibleSheetNames = [
+                'Outbound_出库单',
+                'Sheet1',
+                'Hoja 1',
+                'BD',
+                'Base de Datos'
+            ];
 
-                const codes = response.result.values;
-                if (codes) {
-                    // Saltar la primera fila (header) y procesar
-                    const dbCodes = new Set(
-                        codes.slice(1) // Saltar header
-                            .flat()
-                            .map(code => code ? normalizeCode(code) : '')
-                            .filter(code => code !== '')
-                    );
+            let loadedSuccessfully = false;
+
+            for (const sheetName of possibleSheetNames) {
+                try {
+                    console.log(`Intentando cargar desde: ${sheetName}!H:H`);
                     
-                    BD_CODES = dbCodes;
-                    countElement.textContent = BD_CODES.size.toLocaleString();
-                    
-                    // Guardar caché
-                    await saveBDCache();
-                    
-                    showNotification(`✅ BD cargada: ${BD_CODES.size.toLocaleString()} códigos`, 'success');
-                    playAudio('ok');
-                } else {
-                    countElement.textContent = '0';
-                    showNotification('⚠️ No se encontraron códigos en la columna H', 'warning');
+                    // Leer desde la hoja de CONSULTA, columna H
+                    const response = await gapi.client.sheets.spreadsheets.values.get({
+                        spreadsheetId: SPREADSHEET_ID_BD,
+                        range: `${sheetName}!H:H`, // Columna H "Box type No_箱类"
+                    });
+
+                    const codes = response.result.values;
+                    if (codes && codes.length > 0) {
+                        // Saltar la primera fila (header) y procesar
+                        const dbCodes = new Set(
+                            codes.slice(1) // Saltar header
+                                .flat()
+                                .map(code => code ? normalizeCode(code) : '')
+                                .filter(code => code !== '')
+                        );
+                        
+                        if (dbCodes.size > 0) {
+                            BD_CODES = dbCodes;
+                            countElement.textContent = BD_CODES.size.toLocaleString();
+                            
+                            // Guardar caché
+                            await saveBDCache();
+                            
+                            showNotification(`✅ BD cargada desde "${sheetName}": ${BD_CODES.size.toLocaleString()} códigos`, 'success');
+                            playAudio('ok');
+                            loadedSuccessfully = true;
+                            break; // Salir del loop si se cargó exitosamente
+                        }
+                    }
+                } catch (err) {
+                    console.log(`No se pudo cargar desde ${sheetName}:`, err.result?.error?.message || err.message);
+                    // Continuar con el siguiente nombre
                 }
-            } catch (err) {
-                console.error('Error al cargar BD:', err);
+            }
+
+            if (!loadedSuccessfully) {
                 countElement.textContent = '0 (Error)';
-                showNotification('❌ Error al cargar BD. Verifica permisos y nombre de hoja.', 'error');
+                showNotification('❌ No se encontró la pestaña con datos. Verifica el nombre de la hoja.', 'error');
+                
+                // Intentar obtener la lista de pestañas disponibles
+                try {
+                    const metadata = await gapi.client.sheets.spreadsheets.get({
+                        spreadsheetId: SPREADSHEET_ID_BD
+                    });
+                    
+                    const sheetNames = metadata.result.sheets.map(s => s.properties.title);
+                    console.log('Pestañas disponibles:', sheetNames);
+                    alert(`❌ Error al cargar BD.\n\nPestañas disponibles:\n${sheetNames.join('\n')}\n\nIntenta cambiar el nombre en el código o verifica que la columna H tenga datos.`);
+                } catch (metaErr) {
+                    console.error('Error al obtener metadata:', metaErr);
+                }
             }
         }
 
