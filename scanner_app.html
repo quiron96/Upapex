@@ -4,128 +4,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validador de Inventario PDA</title>
+    
+    <!-- Estilos incrustados para máxima compatibilidad con PDA. -->
     <style>
-        /* CSS necesario para los estilos de Tailwind */
+        /* Variables de Color */
+        :root {
+            --theme-color: #ed5224; /* Nuevo color: Naranja/Rojo */
+            --theme-color-rgb: 237, 82, 36;
+        }
+
+        /* Estilos Base y Adaptación General */
         body {
-            font-family: sans-serif;
-            background-color: #f4f7f9;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: center; 
             justify-content: center;
-            padding: 1rem;
+            padding: 0.5rem; 
         }
         #appContainer {
             width: 100%;
-            max-width: 448px; /* max-w-md */
+            max-width: 448px; 
             background-color: #fff;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
-            border-radius: 1rem; /* rounded-2xl */
-            padding: 1.5rem; /* p-6 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem; 
+            padding: 1rem;
+            margin-top: 1rem; 
         }
-        @media (min-width: 768px) {
-            #appContainer {
-                padding: 2rem; /* md:p-8 */
-            }
-        }
+
+        /* Títulos y Metadatos (Más compactos) */
         h1 {
-            font-size: 1.875rem; /* text-3xl */
-            font-weight: 700; /* font-bold */
+            font-size: 1.25rem; 
+            font-weight: 700;
             text-align: center;
-            color: #4f46e5; /* text-indigo-700 */
-            margin-bottom: 1.5rem; /* mb-6 */
+            color: var(--theme-color);
+            margin-bottom: 0.5rem; 
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e2e8f0; 
         }
-        .text-center { text-align: center; }
-        .text-gray-500 { color: #6b7280; }
-        .text-gray-700 { color: #374151; }
-        .text-indigo-700 { color: #4f46e5; }
-        .text-xl { font-size: 1.25rem; }
-        .text-sm { font-size: 0.875rem; }
-        .text-xs { font-size: 0.75rem; }
-        .font-semibold { font-weight: 600; }
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem; 
+        }
         
-        /* Estilos para el Área de Resultados */
+        /* Input de Escaneo (El elemento central) */
+        #scannerInput {
+            width: 100%;
+            padding: 0.75rem; 
+            text-align: center;
+            font-size: 1rem; 
+            font-family: monospace;
+            letter-spacing: 0.05em;
+            background-color: #fff;
+            border: 2px solid var(--theme-color);
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            outline: none;
+            transition: all 0.15s;
+            caret-color: var(--theme-color);
+        }
+        #scannerInput:focus {
+             border-color: var(--theme-color);
+             box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.3);
+        }
+
+        /* Área de Resultados (Más compacta y definida) */
         #resultArea {
-            min-height: 150px;
+            min-height: 80px; 
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
-            border-radius: 0.75rem; /* rounded-xl */
-            transition: all 0.3s;
-            border: 2px dashed #d1d5db; /* border-2 border-dashed border-gray-300 */
-            background-color: #f3f4f6; /* bg-gray-100 (Estado normal) */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease-in-out;
+            margin-bottom: 0.75rem;
         }
         
-        /* Clases de colores dinámicos */
-        .bg-green-100 { background-color: #d1fae5; border-color: #34d399; }
-        .bg-yellow-100 { background-color: #fff3da; border-color: #fbbf24; }
-        .bg-red-100 { background-color: #fee2e2; border-color: #f87171; }
-        .bg-green-500 { background-color: #10b981; color: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); }
-        .bg-red-600 { background-color: #dc2626; color: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); }
-
-        /* Estilos del Input de Escaneo */
-        #scannerInput {
-            width: 100%;
-            padding: 1rem; /* p-4 */
-            text-align: center;
-            font-size: 1.125rem; /* text-lg */
-            font-family: monospace;
-            letter-spacing: 0.05em; /* tracking-wider */
-            background-color: #fff;
-            border: 2px solid #6366f1; /* border-indigo-500 */
-            border-radius: 0.5rem; /* rounded-lg */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* shadow-md */
-            outline: none;
-            transition: all 0.15s;
-            caret-color: #4f46e5;
+        /* Estilos de mensajes */
+        .text-status {
+            font-size: 1rem; 
+            font-weight: 600;
         }
-        #scannerInput:focus {
-             border-color: #4f46e5;
-             box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+        .text-code {
+            font-size: 0.875rem; 
+            color: inherit;
+            margin-top: 0.25rem;
+        }
+
+        /* Clases de Colores Dinámicos */
+        .bg-gray-initial { 
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1; 
+            color: #475569;
+        }
+        .bg-loading { 
+            background-color: #fef3c7;
+            border: 1px solid #fbbf24; 
+            color: #92400e; 
+        }
+        .bg-success { 
+            background-color: #10b981; 
+            color: #fff; 
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+            border: none;
+        }
+        .bg-error { 
+            background-color: #ef4444; 
+            color: #fff; 
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+            border: none;
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="p-2">
 
-    <div id="appContainer" class="w-full max-w-md bg-white shadow-xl rounded-2xl p-6 md:p-8">
-        <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
-            Validador de Ubicaciones
+    <!-- Contenedor Principal -->
+    <div id="appContainer">
+        <h1 class="text-xl font-bold">
+            VALIDADOR DE UBICACIONES
         </h1>
-        <p class="text-center text-gray-500 mb-6">Escanea una ubicación o producto para verificar su existencia en la base de datos.</p>
+        <p class="subtitle">Escanea una ubicación o ingresa el código.</p>
 
-        <div id="resultArea" class="p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300">
-            <p id="statusMessage" class="text-xl font-semibold text-gray-600">Listo para escanear...</p>
-            <p id="scannedCodeDisplay" class="text-sm text-gray-400 mt-1"></p>
+        <!-- Área de Escaneo y Resultados (Compacta) -->
+        <div id="resultArea" class="bg-gray-initial">
+            <p id="statusMessage" class="text-status">Listo para escanear...</p>
+            <p id="scannedCodeDisplay" class="text-code"></p>
         </div>
 
-        <div class="mt-6">
-            <label for="scannerInput" class="block text-sm font-medium text-gray-700 mb-2 text-center">
-                Código Escaneado o Manual:
+        <!-- Input de Escaneo (Máxima prioridad en enfoque) -->
+        <div class="mb-2">
+            <label for="scannerInput" class="block text-sm font-medium text-gray-700 mb-1 text-center">
+                CÓDIGO:
             </label>
             <input 
                 type="text" 
                 id="scannerInput" 
-                placeholder=">>> Esperando datos de escáner <<<" 
+                placeholder=">>> Esperando escaneo <<<" 
                 autofocus 
                 autocomplete="off"
-                class="w-full p-4 text-center text-lg font-mono tracking-wider"
             >
         </div>
         
-        <p class="text-xs text-red-500 mt-2 text-center" id="errorMsg" style="display: none;">
-            ⚠️ Por favor, introduce una URL válida de Google Sheets.
+        <!-- El mensaje de error ahora solo aparece si la carga falla -->
+        <p class="text-xs mt-2 text-center" id="errorMsg" style="display: none; color: #ef4444;">
+            ⚠️ ERROR CRÍTICO: No se pudo conectar a la base de datos de Google Sheets. Verifica la URL.
         </p>
     </div>
 
     <script>
-        // --- CONFIGURACIÓN CRÍTICA: REEMPLAZA ESTA URL CON LA TUYA ---
-        // URL de la hoja de cálculo exportada en formato CSV.
-        const GOOGLE_SHEET_JSON_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT46zfWFbNyt8D3W4xFmFJIa2O3VskJc3YieppeELvYh8h_R6FpGG9YW4vZZvtgkug2bglw_eGJQ55O/pub?output=csv'; // <-- URL CSV DE TU HOJA
+        // --- CONFIGURACIÓN CRÍTICA: BASE DE DATOS CSV ---
+        // Se utiliza la URL proporcionada.
+        const GOOGLE_SHEET_JSON_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT46zfWFbNyt8D3W4xFmFJIa2O3VskJc3YieppeELvYh8h_R6FpGG9YW4vZZvtgkug2bglw_eGJQ55O/pub?output=csv'; 
         // -------------------------------------------------------------
 
         // Referencias a elementos del DOM
@@ -135,41 +168,62 @@
         const scannedCodeDisplay = document.getElementById('scannedCodeDisplay');
         const errorMsg = document.getElementById('errorMsg');
 
+        // Constantes de Tiempo de Alerta
+        const SUCCESS_TIMEOUT = 3000; // 3 segundos
+        const ERROR_TIMEOUT = 1500;  // 1.5 segundos
+
         // Estado de la base de datos
         let dbCodes = new Set();
         let isDbLoaded = false;
+        let scanTimeout; 
         
-        // --- FUNCIONES DE FEEDBACK ---
+        // --- FUNCIÓN DE ENFOQUE AGRESIVO (Mantiene el input listo) ---
+        function keepFocus() {
+            setTimeout(() => {
+                scannerInput.focus();
+            }, 0); 
+        }
 
-        // Función para reproducir un tono de error simple
+        // --- FUNCIONES DE FEEDBACK (Sonidos y Vibración) ---
+        
+        function playSuccessSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
+                gainNode.gain.setValueAtTime(0.7, audioCtx.currentTime);
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15); 
+                oscillator.stop(audioCtx.currentTime + 0.15);
+            } catch (e) {
+                console.warn("Error al reproducir sonido de éxito:", e);
+            }
+        }
+
         function playErrorSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
-
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
-
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // Frecuencia de un 'La'
+                oscillator.frequency.setValueAtTime(220, audioCtx.currentTime); 
                 gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-
                 oscillator.start();
-                
-                // Parar el sonido después de 0.2 segundos
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
                 oscillator.stop(audioCtx.currentTime + 0.2);
-
             } catch (e) {
-                console.warn("Error al reproducir sonido (posiblemente la API de Audio no está activa sin interacción).", e);
+                console.warn("Error al reproducir sonido de error:", e);
             }
         }
         
-        // Función para vibrar
         function vibrateError() {
             if (navigator.vibrate) {
-                // Patrón de vibración: encendido por 200ms, pausa por 100ms, encendido por 200ms
                 navigator.vibrate([200, 100, 200]);
             }
         }
@@ -177,26 +231,28 @@
         // --- MANEJO DE LA BASE DE DATOS (GOOGLE SHEETS CSV) ---
 
         async function loadDatabase() {
+            // Se elimina la verificación estricta. Ahora solo verificamos que la URL no esté vacía.
             if (!GOOGLE_SHEET_JSON_URL) {
-                errorMsg.style.display = 'block';
-                return;
+                 errorMsg.style.display = 'block';
+                 statusMessage.textContent = 'ERROR: URL de base de datos no configurada.';
+                 resultArea.className = 'bg-error';
+                 isDbLoaded = false;
+                 return;
             }
+            
             errorMsg.style.display = 'none';
             statusMessage.textContent = 'Cargando base de datos...';
-            // Usando clases CSS predefinidas en el <style>
-            resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-yellow-100'; 
+            resultArea.className = 'bg-loading'; 
 
             try {
-                // 1. Obtener el archivo CSV como texto
                 const response = await fetch(GOOGLE_SHEET_JSON_URL);
                 
+                // Si la respuesta es 404 o similar, indicamos el error de forma explícita
                 if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
+                     throw new Error(`Error HTTP ${response.status}: No se pudo acceder a la hoja de cálculo. Asegúrate de que esté "Publicada en la web".`);
                 }
                 
                 const csvText = await response.text();
-                
-                // 2. Analizar el CSV
                 const lines = csvText.split('\n').filter(line => line.trim() !== '');
                 
                 dbCodes.clear();
@@ -210,85 +266,108 @@
                     }
                 });
 
-
                 isDbLoaded = true;
                 statusMessage.textContent = `Base de datos CSV cargada: ${dbCodes.size} códigos`;
-                resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-green-100'; 
+                resultArea.className = 'bg-gray-initial'; 
                 
             } catch (error) {
                 console.error("Error al cargar la base de datos CSV:", error);
-                statusMessage.textContent = 'ERROR: No se pudo cargar la base de datos CSV.';
-                resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-red-100'; 
+                statusMessage.textContent = 'ERROR: No se pudo cargar la base de datos.';
+                errorMsg.textContent = error.message || '⚠️ ERROR CRÍTICO: No se pudo conectar a la base de datos de Google Sheets. Verifica la URL y la publicación.';
+                errorMsg.style.display = 'block';
+                resultArea.className = 'bg-error'; 
                 isDbLoaded = false;
             }
             
-            scannerInput.focus();
+            keepFocus();
         }
 
         // --- LÓGICA DE ESCANEO Y VALIDACIÓN ---
 
-        function handleScan(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); 
-                const scannedCode = scannerInput.value.trim().toUpperCase();
-                
-                if (!scannedCode) return;
-
-                scannedCodeDisplay.textContent = `Último escaneo: ${scannedCode}`;
-                
-                if (!isDbLoaded) {
-                    statusMessage.textContent = 'Base de datos no disponible. Intenta recargar.';
-                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-red-100'; 
-                    playErrorSound();
-                    vibrateError();
-                    return;
-                }
-
-                // VALIDACIÓN
-                if (dbCodes.has(scannedCode)) {
-                    // CÓDIGO ENCONTRADO
-                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-green-500'; 
-                    statusMessage.textContent = '✅ ENCONTRADO en Base de Datos';
-                } else {
-                    // CÓDIGO NO ENCONTRADO (DUPLICADO/ERROR)
-                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-red-600'; 
-                    statusMessage.textContent = '❌ NO ENCONTRADO (Código Nuevo/Inválido)';
-                    playErrorSound();
-                    vibrateError();
-                }
-
-                // Vuelve al estado listo después de un breve momento (1.5 segundos)
-                setTimeout(() => {
-                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-gray-100'; 
-                    statusMessage.textContent = 'Listo para escanear...';
-                    scannerInput.value = ''; 
-                    scannedCodeDisplay.textContent = '';
-                    
-                    scannerInput.focus(); 
-                }, 1500); 
-
-                scannerInput.focus();
+        function processScan() {
+            const scannedCode = scannerInput.value.trim().toUpperCase();
+            
+            if (!scannedCode) {
+                keepFocus();
+                return;
             }
+
+            // Muestra el código escaneado
+            scannedCodeDisplay.textContent = `${scannedCode}`;
+            
+            if (!isDbLoaded) {
+                statusMessage.textContent = 'Base de datos no disponible.';
+                resultArea.className = 'bg-error'; 
+                playErrorSound();
+                vibrateError();
+                return;
+            }
+
+            // VALIDACIÓN
+            let timeoutDuration;
+            if (dbCodes.has(scannedCode)) {
+                // CÓDIGO ENCONTRADO (ÉXITO)
+                resultArea.className = 'bg-success'; 
+                statusMessage.textContent = '✅ CÓDIGO ENCONTRADO';
+                playSuccessSound();
+                timeoutDuration = SUCCESS_TIMEOUT;
+            } else {
+                // CÓDIGO NO ENCONTRADO (ERROR)
+                resultArea.className = 'bg-error'; 
+                statusMessage.textContent = '❌ CÓDIGO NO ENCONTRADO';
+                playErrorSound();
+                vibrateError();
+                timeoutDuration = ERROR_TIMEOUT;
+            }
+
+            // Vuelve al estado listo
+            setTimeout(() => {
+                resultArea.className = 'bg-gray-initial'; 
+                statusMessage.textContent = 'Listo para escanear...';
+                scannerInput.value = ''; 
+                scannedCodeDisplay.textContent = '';
+                keepFocus(); 
+            }, timeoutDuration); 
+        }
+        
+        // --- SOLUCIÓN PDA: DETECCIÓN POR EVENTO 'INPUT' Y TEMPORIZADOR ---
+        
+        function handleScanInput() {
+            clearTimeout(scanTimeout);
+
+            scanTimeout = setTimeout(() => {
+                if (scannerInput.value.length > 0) {
+                    processScan();
+                }
+            }, 100); 
         }
 
         // --- INICIALIZACIÓN ---
         
         window.onload = () => {
             loadDatabase();
-            scannerInput.addEventListener('keydown', handleScan);
             
-            document.body.addEventListener('click', () => {
-                scannerInput.focus();
+            // 1. Escuchar el cambio de contenido (escaneo rápido).
+            scannerInput.addEventListener('input', handleScanInput);
+
+            // 2. Fallback: Mantener el keydown para usuarios de PC que usan ENTER manual.
+            scannerInput.addEventListener('keydown', (event) => {
+                 if (event.key === 'Enter') {
+                    event.preventDefault(); 
+                    clearTimeout(scanTimeout); 
+                    processScan();
+                }
             });
-            document.body.addEventListener('touchstart', () => {
-                scannerInput.focus();
-            });
-            scannerInput.focus();
+            
+            // 3. Mantener el foco activo (Solución PDA)
+            document.body.addEventListener('click', keepFocus);
+            document.body.addEventListener('touchstart', keepFocus);
+            scannerInput.addEventListener('blur', keepFocus); 
+            
+            keepFocus(); // Foco inicial
         };
 
-        window.onresize = () => {
-            scannerInput.focus();
-        };
+        window.onresize = keepFocus;
         
     </script>
 </body>
