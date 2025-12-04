@@ -7,6 +7,11 @@
     
     <!-- Estilos incrustados para máxima compatibilidad con PDA. -->
     <style>
+        /* Aplicar box-sizing globalmente para asegurar que el padding y border no causen desbordamiento */
+        * {
+            box-sizing: border-box; 
+        }
+
         /* Variables de Color */
         :root {
             --theme-color: #ed5224; /* Nuevo color: Naranja/Rojo */
@@ -22,6 +27,7 @@
             align-items: center; 
             justify-content: center;
             padding: 0.5rem; 
+            margin: 0; /* Asegurar que no hay margen extra en el body */
         }
         #appContainer {
             width: 100%;
@@ -31,6 +37,7 @@
             border-radius: 0.75rem; 
             padding: 1rem;
             margin-top: 1rem; 
+            margin-bottom: 1rem; /* Margen para centrar verticalmente mejor */
         }
 
         /* Títulos y Metadatos (Más compactos) */
