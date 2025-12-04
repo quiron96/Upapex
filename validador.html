@@ -532,6 +532,10 @@
                 <div id="auth-status" class="connection-status status-disconnected">
                     Desconectado ⚠️
                 </div>
+                <div style="font-size: 0.75em; opacity: 0.7; margin-top: 10px; line-height: 1.4;">
+                    <div>📖 Consulta (Col H): ...BKbV1n...</div>
+                    <div>✍️ Escritura: ...0wV7EP...</div>
+                </div>
             </div>
 
             <div class="sidebar-section">
@@ -695,10 +699,16 @@
     <script>
         // ==================== CONFIGURACIÓN ====================
         const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
-        const SPREADSHEET_ID = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
+        
+        // Hoja de CONSULTA (BD de códigos y usuarios)
+        const SPREADSHEET_ID_BD = '1nKqd0mqEkZ1l8wqW83_d5fyarp5BKbV1nXSNJBk4-Ck';
+        
+        // Hoja de ESCRITURA (Validaciones y rechazos)
+        const SPREADSHEET_ID_WRITE = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
+        
         const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
         
-        const VALIDATORS = ['MIGUEL', 'PEDRO', 'ALEJANDRO', 'ESMERALDA', 'KATERYNE'];
+        let VALIDATORS = ['MIGUEL', 'PEDRO', 'ALEJANDRO', 'ESMERALDA', 'KATERYNE']; // Default
         const STORAGE_KEY_PREFIX = 'wms_validation_';
 
         // ==================== ESTADO GLOBAL ====================
@@ -761,7 +771,8 @@
             if (tokenResponse && tokenResponse.access_token) {
                 gapi.client.setToken(tokenResponse);
                 updateAuthStatus(true);
-                loadDatabase();
+                loadUsers(); // Cargar usuarios primero
+                loadDatabase(); // Luego cargar BD
             } else {
                 updateAuthStatus(false);
             }
@@ -849,6 +860,34 @@
 
         document.getElementById('auth-button').onclick = handleAuthClick;
 
+        // ==================== CARGA DE USUARIOS ====================
+        async function loadUsers() {
+            if (!gapi.client.getToken()) {
+                console.log('No autenticado, usando usuarios por defecto');
+                return;
+            }
+
+            try {
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_ID_BD,
+                    range: 'Nombres!A2:A100', // Lee la columna A desde fila 2
+                });
+
+                const users = response.result.values;
+                if (users && users.length > 0) {
+                    VALIDATORS = users.flat().filter(user => user && user.trim() !== '');
+                    populateUserSelect();
+                    showNotification(`✅ ${VALIDATORS.length} usuarios cargados`, 'success');
+                    console.log('Usuarios cargados:', VALIDATORS);
+                } else {
+                    console.log('No se encontraron usuarios, usando lista por defecto');
+                }
+            } catch (err) {
+                console.error('Error al cargar usuarios:', err);
+                showNotification('⚠️ Usando lista de usuarios por defecto', 'warning');
+            }
+        }
+
         // ==================== CARGA DE BASE DE DATOS ====================
         async function loadDatabase() {
             if (!gapi.client.getToken()) {
@@ -860,15 +899,18 @@
             countElement.innerHTML = 'Cargando... <span class="loading"></span>';
 
             try {
+                // Leer desde la hoja de CONSULTA, columna H (Box type No_箱类)
                 const response = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: SPREADSHEET_ID,
-                    range: 'BD!I:I',
+                    spreadsheetId: SPREADSHEET_ID_BD,
+                    range: 'Outbound_出库单!H:H', // Columna H "Box type No_箱类"
                 });
 
                 const codes = response.result.values;
                 if (codes) {
+                    // Saltar la primera fila (header) y procesar
                     const dbCodes = new Set(
-                        codes.flat()
+                        codes.slice(1) // Saltar header
+                            .flat()
                             .map(code => code ? normalizeCode(code) : '')
                             .filter(code => code !== '')
                     );
@@ -881,11 +923,14 @@
                     
                     showNotification(`✅ BD cargada: ${BD_CODES.size.toLocaleString()} códigos`, 'success');
                     playAudio('ok');
+                } else {
+                    countElement.textContent = '0';
+                    showNotification('⚠️ No se encontraron códigos en la columna H', 'warning');
                 }
             } catch (err) {
                 console.error('Error al cargar BD:', err);
                 countElement.textContent = '0 (Error)';
-                showNotification('❌ Error al cargar BD. Verifica permisos y conexión.', 'error');
+                showNotification('❌ Error al cargar BD. Verifica permisos y nombre de hoja.', 'error');
             }
         }
 
@@ -1061,15 +1106,18 @@
             if (values.length === 0) return;
 
             try {
+                // Escribir en la hoja de ESCRITURA
                 await gapi.client.sheets.spreadsheets.values.append({
-                    spreadsheetId: SPREADSHEET_ID,
+                    spreadsheetId: SPREADSHEET_ID_WRITE, // Hoja de escritura
                     range: range,
                     valueInputOption: 'USER_ENTERED',
                     insertDataOption: 'INSERT_ROWS',
                     resource: { values }
                 });
+                console.log(`✅ Log escrito en ${sheetName}`);
             } catch (err) {
-                console.error(`Error al escribir en ${sheetName}:`, err);
+                console.error(`❌ Error al escribir en ${sheetName}:`, err);
+                showNotification(`⚠️ No se pudo escribir en Google Sheets (${sheetName})`, 'warning');
             }
         }
 
@@ -1242,13 +1290,23 @@
 
         function populateUserSelect() {
             const select = document.getElementById('user-select');
+            select.innerHTML = ''; // Limpiar opciones existentes
+            
             VALIDATORS.forEach(user => {
                 const option = document.createElement('option');
                 option.value = user;
                 option.textContent = user;
                 select.appendChild(option);
             });
-            select.value = GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC].user;
+            
+            // Mantener el usuario actual si existe, sino usar el primero
+            const currentUser = GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC]?.user;
+            if (currentUser && VALIDATORS.includes(currentUser)) {
+                select.value = currentUser;
+            } else {
+                select.value = VALIDATORS[0];
+                GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC].user = VALIDATORS[0];
+            }
         }
 
         // ==================== POPUPS ====================
