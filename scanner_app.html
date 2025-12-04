@@ -4,23 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validador de Inventario PDA</title>
-    <!-- Carga de Tailwind CSS para estilos -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Estilo base para la fuente */
+        /* CSS necesario para los estilos de Tailwind */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: sans-serif;
             background-color: #f4f7f9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
-        /* Eliminamos los estilos que hacían invisible el input */
+        #appContainer {
+            width: 100%;
+            max-width: 448px; /* max-w-md */
+            background-color: #fff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            border-radius: 1rem; /* rounded-2xl */
+            padding: 1.5rem; /* p-6 */
+        }
+        @media (min-width: 768px) {
+            #appContainer {
+                padding: 2rem; /* md:p-8 */
+            }
+        }
+        h1 {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            text-align: center;
+            color: #4f46e5; /* text-indigo-700 */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+        .text-center { text-align: center; }
+        .text-gray-500 { color: #6b7280; }
+        .text-gray-700 { color: #374151; }
+        .text-indigo-700 { color: #4f46e5; }
+        .text-xl { font-size: 1.25rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .font-semibold { font-weight: 600; }
+        
+        /* Estilos para el Área de Resultados */
+        #resultArea {
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            transition: all 0.3s;
+            border: 2px dashed #d1d5db; /* border-2 border-dashed border-gray-300 */
+            background-color: #f3f4f6; /* bg-gray-100 (Estado normal) */
+        }
+        
+        /* Clases de colores dinámicos */
+        .bg-green-100 { background-color: #d1fae5; border-color: #34d399; }
+        .bg-yellow-100 { background-color: #fff3da; border-color: #fbbf24; }
+        .bg-red-100 { background-color: #fee2e2; border-color: #f87171; }
+        .bg-green-500 { background-color: #10b981; color: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); }
+        .bg-red-600 { background-color: #dc2626; color: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); }
+
+        /* Estilos del Input de Escaneo */
         #scannerInput {
-            caret-color: #4f46e5; /* Cursor visible e indigo */
+            width: 100%;
+            padding: 1rem; /* p-4 */
+            text-align: center;
+            font-size: 1.125rem; /* text-lg */
+            font-family: monospace;
+            letter-spacing: 0.05em; /* tracking-wider */
+            background-color: #fff;
+            border: 2px solid #6366f1; /* border-indigo-500 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* shadow-md */
+            outline: none;
+            transition: all 0.15s;
+            caret-color: #4f46e5;
+        }
+        #scannerInput:focus {
+             border-color: #4f46e5;
+             box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
         }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-    <!-- Contenedor Principal de la Aplicación -->
     <div id="appContainer" class="w-full max-w-md bg-white shadow-xl rounded-2xl p-6 md:p-8">
         <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -30,13 +98,11 @@
         </h1>
         <p class="text-center text-gray-500 mb-6">Escanea una ubicación o producto para verificar su existencia en la base de datos.</p>
 
-        <!-- Área de Escaneo y Resultados (Seleccionada por el usuario) -->
         <div id="resultArea" class="p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300">
             <p id="statusMessage" class="text-xl font-semibold text-gray-600">Listo para escanear...</p>
             <p id="scannedCodeDisplay" class="text-sm text-gray-400 mt-1"></p>
         </div>
 
-        <!-- Input de Escaneo AHORA VISIBLE Y CLARO -->
         <div class="mt-6">
             <label for="scannerInput" class="block text-sm font-medium text-gray-700 mb-2 text-center">
                 Código Escaneado o Manual:
@@ -47,7 +113,7 @@
                 placeholder=">>> Esperando datos de escáner <<<" 
                 autofocus 
                 autocomplete="off"
-                class="w-full p-4 text-center text-lg font-mono tracking-wider bg-white border border-indigo-500 rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:border-indigo-700 transition duration-150"
+                class="w-full p-4 text-center text-lg font-mono tracking-wider"
             >
         </div>
         
@@ -117,7 +183,8 @@
             }
             errorMsg.style.display = 'none';
             statusMessage.textContent = 'Cargando base de datos...';
-            resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-yellow-100 border-2 border-dashed border-yellow-400';
+            // Usando clases CSS predefinidas en el <style>
+            resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-yellow-100'; 
 
             try {
                 // 1. Obtener el archivo CSV como texto
@@ -130,16 +197,12 @@
                 const csvText = await response.text();
                 
                 // 2. Analizar el CSV
-                const lines = csvText.split('\n').filter(line => line.trim() !== ''); // Dividir por línea y eliminar vacías
+                const lines = csvText.split('\n').filter(line => line.trim() !== '');
                 
                 dbCodes.clear();
                 
-                // Iterar sobre las líneas. Asumimos la primera línea como encabezado.
                 lines.slice(1).forEach(line => { 
-                    // Usamos una expresión regular para manejar comas dentro de comillas (mejor que solo split(','))
                     const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
-                    
-                    // Asumimos que el código a validar está en la primera columna (índice 0)
                     const code = parts[0]?.replace(/"/g, '').trim(); 
                     
                     if (code) {
@@ -150,37 +213,32 @@
 
                 isDbLoaded = true;
                 statusMessage.textContent = `Base de datos CSV cargada: ${dbCodes.size} códigos`;
-                resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-green-100 border-2 border-dashed border-green-400';
+                resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-green-100'; 
                 
             } catch (error) {
                 console.error("Error al cargar la base de datos CSV:", error);
                 statusMessage.textContent = 'ERROR: No se pudo cargar la base de datos CSV.';
-                resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-red-100 border-2 border-dashed border-red-400';
+                resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-red-100'; 
                 isDbLoaded = false;
             }
             
-            // Aseguramos el foco en el input para el escaneo continuo
             scannerInput.focus();
         }
 
         // --- LÓGICA DE ESCANEO Y VALIDACIÓN ---
 
         function handleScan(event) {
-            // Un escáner de códigos de barras generalmente finaliza la entrada con 'Enter'
             if (event.key === 'Enter') {
-                event.preventDefault(); // Previene el envío de formularios o saltos de línea
+                event.preventDefault(); 
                 const scannedCode = scannerInput.value.trim().toUpperCase();
-                
-                // NO limpiamos el input inmediatamente, lo dejamos visible para confirmación.
                 
                 if (!scannedCode) return;
 
-                // Actualizamos el display secundario para que el código quede registrado por más tiempo.
                 scannedCodeDisplay.textContent = `Último escaneo: ${scannedCode}`;
                 
                 if (!isDbLoaded) {
                     statusMessage.textContent = 'Base de datos no disponible. Intenta recargar.';
-                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-red-100 border-2 border-dashed border-red-400';
+                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-red-100'; 
                     playErrorSound();
                     vibrateError();
                     return;
@@ -189,11 +247,11 @@
                 // VALIDACIÓN
                 if (dbCodes.has(scannedCode)) {
                     // CÓDIGO ENCONTRADO
-                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-green-500 text-white shadow-lg';
+                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-green-500'; 
                     statusMessage.textContent = '✅ ENCONTRADO en Base de Datos';
                 } else {
                     // CÓDIGO NO ENCONTRADO (DUPLICADO/ERROR)
-                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-red-600 text-white shadow-lg';
+                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-red-600'; 
                     statusMessage.textContent = '❌ NO ENCONTRADO (Código Nuevo/Inválido)';
                     playErrorSound();
                     vibrateError();
@@ -201,16 +259,14 @@
 
                 // Vuelve al estado listo después de un breve momento (1.5 segundos)
                 setTimeout(() => {
-                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300';
+                    resultArea.className = 'p-6 rounded-xl transition-all duration-300 min-h-[150px] flex flex-col items-center justify-center bg-gray-100'; 
                     statusMessage.textContent = 'Listo para escanear...';
-                    scannerInput.value = ''; // Limpiamos el input ahora
+                    scannerInput.value = ''; 
                     scannedCodeDisplay.textContent = '';
                     
-                    // Volver a enfocar el input para el escaneo continuo
                     scannerInput.focus(); 
                 }, 1500); 
 
-                // Asegura que el input mantenga el foco inmediatamente después de la entrada
                 scannerInput.focus();
             }
         }
@@ -218,13 +274,9 @@
         // --- INICIALIZACIÓN ---
         
         window.onload = () => {
-            // Cargar la base de datos al iniciar
             loadDatabase();
-            
-            // Asignar el listener de teclado (para simular el escáner)
             scannerInput.addEventListener('keydown', handleScan);
             
-            // Asegurar que el input siempre tenga foco (importante para PDAs y móviles)
             document.body.addEventListener('click', () => {
                 scannerInput.focus();
             });
@@ -234,7 +286,6 @@
             scannerInput.focus();
         };
 
-        // Escucha cambios de tamaño de ventana para reajustar el foco
         window.onresize = () => {
             scannerInput.focus();
         };
