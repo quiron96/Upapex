@@ -149,6 +149,13 @@
             padding: 15px !important;
             text-align: center;
             border: 3px solid #ddd !important;
+            background-color: #fff5ed !important;
+        }
+
+        .scanner-input:disabled {
+            background-color: #f5f5f5 !important;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .stats { 
@@ -342,6 +349,65 @@
             font-weight: 600;
         }
 
+        .progress-completed-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 700;
+            margin-top: 8px;
+            animation: completedPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes completedPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .connection-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 10000;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: slideUp 0.3s;
+        }
+
+        .connection-alert-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .connection-alert-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--error-color);
+            margin-bottom: 15px;
+        }
+
+        .connection-alert-message {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .connection-alert-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .tab-bar { 
             display: flex; 
             flex-wrap: wrap;
@@ -406,7 +472,7 @@
             max-height: 400px; 
             overflow-y: auto; 
             list-style: none; 
-            font-size: 0.9em; 
+            font-size: 0.95em; 
             background: #fafafa;
             padding: 10px;
             border-radius: var(--border-radius);
@@ -1375,15 +1441,49 @@
         }
 
         // ==================== LÓGICA DE VALIDACIÓN ====================
-        function setupEventListeners() {
-            const input = document.getElementById('scanner-input');
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && input.value.trim() !== '') {
-                    e.preventDefault();
-                    processScan(input.value.trim());
-                    input.value = '';
-                }
+        function showConnectionAlert(title, message, actions) {
+            // Crear overlay si no existe
+            let overlay = document.getElementById('connection-alert-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'connection-alert-overlay';
+                overlay.className = 'popup-overlay';
+                overlay.style.display = 'flex';
+                document.body.appendChild(overlay);
+            } else {
+                overlay.style.display = 'flex';
+            }
+
+            // Crear contenido del alert
+            const alertBox = document.createElement('div');
+            alertBox.className = 'connection-alert';
+            alertBox.innerHTML = `
+                <div class="connection-alert-icon">${title.includes('Sin Conexión') ? '🔌' : title.includes('Base de Datos') ? '📊' : '✅'}</div>
+                <div class="connection-alert-title">${title}</div>
+                <div class="connection-alert-message">${message}</div>
+                <div class="connection-alert-actions" id="alert-actions"></div>
+            `;
+
+            overlay.innerHTML = '';
+            overlay.appendChild(alertBox);
+
+            // Agregar botones de acción
+            const actionsContainer = alertBox.querySelector('#alert-actions');
+            actions.forEach(action => {
+                const button = document.createElement('button');
+                button.className = action.primary ? 'btn btn-primary' : 'btn btn-secondary';
+                button.textContent = action.text;
+                button.onclick = action.action;
+                actionsContainer.appendChild(button);
             });
+        }
+
+        function closeConnectionAlert() {
+            const overlay = document.getElementById('connection-alert-overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+            document.getElementById('scanner-input').focus();
         }
 
         async function processScan(rawCode) {
@@ -1702,27 +1802,39 @@
             document.getElementById('progress-remaining').textContent = remaining.toLocaleString();
             document.getElementById('progress-bar-fill').style.width = `${percentage}%`;
             
+            // Control del input de escaneo
+            const scannerInput = document.getElementById('scanner-input');
+            const isCompleted = percentage === 100 && totalExpected > 0;
+            
+            if (isCompleted) {
+                scannerInput.disabled = true;
+                scannerInput.placeholder = '✅ Orden completada al 100%';
+            } else {
+                scannerInput.disabled = false;
+                scannerInput.placeholder = 'Escanea aquí...';
+            }
+            
             // Actualizar estado
-            let status = '';
+            let statusHTML = '';
             if (totalExpected === 0) {
-                status = '⚠️ Orden no encontrada en la BD';
+                statusHTML = '⚠️ Orden no encontrada en la BD';
             } else if (percentage === 100) {
-                status = '✅ ¡ORDEN COMPLETADA!';
+                statusHTML = '<div class="progress-completed-badge">✅ ¡ORDEN COMPLETADA AL 100%! 🎉</div>';
                 // Mostrar mensaje de éxito
                 if (scannedCount === totalExpected && scannedCount > 0) {
                     showCompletionMessage(activeOBC, scannedCount);
                 }
             } else if (percentage >= 75) {
-                status = '🔥 ¡Casi terminado!';
+                statusHTML = '🔥 ¡Casi terminado!';
             } else if (percentage >= 50) {
-                status = '⚡ A medio camino';
+                statusHTML = '⚡ A medio camino';
             } else if (percentage > 0) {
-                status = '🚀 En progreso';
+                statusHTML = '🚀 En progreso';
             } else {
-                status = '📦 Listo para escanear';
+                statusHTML = '📦 Listo para escanear';
             }
             
-            document.getElementById('progress-status').textContent = status;
+            document.getElementById('progress-status').innerHTML = statusHTML;
         }
 
         function showCompletionMessage(obc, count) {
@@ -1761,11 +1873,16 @@
 
             for (const obc in GLOBAL_STATE.tabs) {
                 const tab = GLOBAL_STATE.tabs[obc];
+                const totalExpected = OBC_TOTALS.get(obc) || 0;
+                const scannedCount = tab.validations.length;
+                const percentage = totalExpected > 0 ? Math.min(100, (scannedCount / totalExpected) * 100) : 0;
+                const isCompleted = percentage === 100 && totalExpected > 0;
+                
                 const item = document.createElement('div');
                 item.className = 'obc-list-item';
                 item.innerHTML = `
-                    <span>${obc}</span>
-                    <span style="opacity: 0.7;">${tab.validations.length} ✓</span>
+                    <span>${obc} ${isCompleted ? '✅' : ''}</span>
+                    <span style="opacity: 0.7;">${scannedCount} ✓ ${isCompleted ? '(100%)' : ''}</span>
                 `;
                 obcList.appendChild(item);
             }
