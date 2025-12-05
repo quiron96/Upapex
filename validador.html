@@ -295,20 +295,22 @@
         }
 
         .progress-bar-container {
-            background: rgba(255,255,255,0.25);
+            background: rgba(0, 0, 0, 0.25);
             height: 10px;
             border-radius: 20px;
             overflow: hidden;
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .progress-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #fff 0%, #ffe4b3 100%);
+            background: linear-gradient(90deg, #fff 0%, #ffeb99 50%, #ffd966 100%);
             border-radius: 20px;
             transition: width 0.5s ease-out;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
         .progress-bar-fill::after {
@@ -902,6 +904,33 @@
         </div>
     </div>
 
+    <div id="previous-validation-popup" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--warning-color);">
+                ⚠️ YA VALIDADO EN SISTEMA
+            </div>
+            <div class="popup-details">
+                <strong>Código:</strong> <span id="prev-code"></span><br>
+                <strong>Orden:</strong> <span id="prev-obc"></span><br>
+                <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                <strong>Validado anteriormente en Google Sheets:</strong><br>
+                • <span id="prev-timestamp"></span><br>
+                • Usuario: <span id="prev-user"></span>
+            </div>
+            <p style="margin: 15px 0; font-weight: 600; color: var(--warning-color);">
+                Este código ya fue procesado. ¿Deseas continuar?
+            </p>
+            <div class="popup-buttons">
+                <button class="btn btn-secondary" onclick="closePreviousValidationPopup()">
+                    Ignorar - Continuar
+                </button>
+                <button class="btn btn-primary" onclick="showForcedNoteModalForPrevious()">
+                    Forzar entrada con nota
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
 
@@ -925,6 +954,7 @@
         let BD_OBC_MAP = new Map(); // Mapa de OBC -> Set de códigos
         let OBC_TOTALS = new Map(); // Mapa de OBC -> total de cajas
         let OBC_INFO = new Map(); // Mapa de OBC -> {recipient, arrivalTime}
+        let OBC_VALIDATION_HISTORY = new Map(); // Mapa de código -> {user, timestamp, obc}
         let GLOBAL_STATE = {
             activeOBC: 'OBC_DEFAULT_1',
             tabs: {
@@ -955,6 +985,12 @@
         async function initAudio() {
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Desbloquear el contexto de audio con una interacción del usuario
+                document.addEventListener('click', () => {
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                }, { once: true });
             } catch (e) {
                 console.warn('Web Audio API no disponible');
             }
@@ -985,6 +1021,7 @@
                 updateAuthStatus(true);
                 loadUsers(); // Cargar usuarios primero
                 loadDatabase(); // Luego cargar BD
+                loadValidationHistory(); // Cargar historial de validaciones
             } else {
                 updateAuthStatus(false);
             }
@@ -1112,6 +1149,57 @@
             } catch (err) {
                 console.error('Error al cargar usuarios:', err);
                 showNotification('⚠️ Usando lista de usuarios por defecto', 'warning');
+            }
+        }
+
+        // ==================== CARGA DE HISTORIAL DE VALIDACIONES ====================
+        async function loadValidationHistory() {
+            if (!gapi.client.getToken()) {
+                console.log('No autenticado, no se puede cargar historial');
+                return;
+            }
+
+            try {
+                console.log('Cargando historial de validaciones desde Val3...');
+                
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_ID_WRITE,
+                    range: 'Val3!A:E', // Fecha, Hora, Usuario, OBC, Código
+                });
+
+                const rows = response.result.values;
+                
+                if (rows && rows.length > 1) {
+                    OBC_VALIDATION_HISTORY.clear();
+                    
+                    // Procesar filas (saltar header)
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        const fecha = row[0] || '';
+                        const hora = row[1] || '';
+                        const usuario = row[2] || '';
+                        const obc = row[3] || '';
+                        const codigo = row[4] || '';
+                        
+                        if (codigo && obc) {
+                            const normalizedCode = normalizeCode(codigo);
+                            const key = `${normalizedCode}_${obc}`;
+                            
+                            OBC_VALIDATION_HISTORY.set(key, {
+                                user: usuario,
+                                timestamp: `${fecha} ${hora}`,
+                                obc: obc
+                            });
+                        }
+                    }
+                    
+                    console.log(`Historial cargado: ${OBC_VALIDATION_HISTORY.size} registros`);
+                } else {
+                    console.log('No hay historial de validaciones aún');
+                }
+            } catch (err) {
+                console.warn('No se pudo cargar historial de validaciones:', err.message);
+                // No es crítico, continuar sin historial
             }
         }
 
@@ -1345,7 +1433,19 @@
                 return;
             }
 
-            // 4. Verificar Duplicados (Solo con la OBC actual)
+            // 4. Verificar si ya fue validado en la BD de escritura (historial)
+            const historyKey = `${normalizedCode}_${activeOBC}`;
+            const previousValidation = OBC_VALIDATION_HISTORY.get(historyKey);
+            
+            if (previousValidation) {
+                // Ya fue validado anteriormente en Google Sheets
+                lastScannedCode.previousValidation = previousValidation;
+                showPreviousValidationPopup(normalizedCode, activeOBC, previousValidation);
+                playAudio('warning');
+                return;
+            }
+
+            // 5. Verificar Duplicados locales (en la sesión actual)
             const isDuplicate = tab.validations.find(v => 
                 v.extractedCode === normalizedCode && v.obc === activeOBC
             );
@@ -1357,7 +1457,7 @@
                 return;
             }
             
-            // 5. Validar OK
+            // 6. Validar OK
             await handleValidationOK(rawCode, extractedCode, normalizedCode, activeOBC, user, location);
         }
 
@@ -1383,6 +1483,14 @@
             updateProgressCard(); // Actualizar progreso
             renderLogs();
             await saveState();
+
+            // Agregar al historial local
+            const historyKey = `${normalizedCode}_${obc}`;
+            OBC_VALIDATION_HISTORY.set(historyKey, {
+                user: user,
+                timestamp: `${newLog.date} ${newLog.timestamp}`,
+                obc: obc
+            });
 
             // Escritura a Google Sheets
             if (gapi.client.getToken()) {
@@ -1773,9 +1881,32 @@
             document.getElementById('duplicate-popup').style.display = 'flex';
         }
 
+        function showPreviousValidationPopup(code, obc, previousValidation) {
+            document.getElementById('prev-code').textContent = code;
+            document.getElementById('prev-obc').textContent = obc;
+            document.getElementById('prev-timestamp').textContent = previousValidation.timestamp;
+            document.getElementById('prev-user').textContent = previousValidation.user;
+            document.getElementById('previous-validation-popup').style.display = 'flex';
+            document.getElementById('scanner-input').blur();
+        }
+
+        function closePreviousValidationPopup() {
+            document.getElementById('previous-validation-popup').style.display = 'none';
+            document.getElementById('scanner-input').focus();
+            lastScannedCode = null;
+        }
+
+        function showForcedNoteModalForPrevious() {
+            document.getElementById('previous-validation-popup').style.display = 'none';
+            document.getElementById('forced-note-modal').style.display = 'flex';
+            document.getElementById('forced-note-input').value = '';
+            document.getElementById('forced-note-input').focus();
+        }
+
         async function handleDuplicateAction(action) {
             document.getElementById('duplicate-popup').style.display = 'none';
             document.getElementById('forced-note-modal').style.display = 'none';
+            document.getElementById('previous-validation-popup').style.display = 'none';
             document.getElementById('scanner-input').focus();
 
             if (!lastScannedCode) return;
