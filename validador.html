@@ -142,6 +142,7 @@
             border-color: var(--primary-color);
         }
 
+        /* AJUSTE: Fondo naranja tenue para input de escaneo */
         .scanner-input { 
             font-size: 1.8em !important; 
             text-transform: uppercase; 
@@ -149,11 +150,12 @@
             padding: 15px !important;
             text-align: center;
             border: 3px solid #ddd !important;
-            background-color: #fff5ed !important;
+            background-color: #fff5ed !important; /* Naranja tenue */
         }
 
+        /* AJUSTE: Estado deshabilitado del input de escaneo */
         .scanner-input:disabled {
-            background-color: #f5f5f5 !important;
+            background-color: #f5f5f5 !important; /* Gris */
             cursor: not-allowed;
             opacity: 0.6;
         }
@@ -349,6 +351,7 @@
             font-weight: 600;
         }
 
+        /* AJUSTE: Badge de completado con animación */
         .progress-completed-badge {
             display: inline-flex;
             align-items: center;
@@ -367,11 +370,22 @@
             50% { transform: scale(1.05); }
         }
 
+        /* NUEVO: Contenedor para el alerta de conexión/BD */
+        .connection-alert-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.6); 
+            display: none; /* Inicia oculto */
+            justify-content: center; 
+            align-items: center; 
+            z-index: 10000;
+            animation: fadeIn 0.2s;
+        }
+        
         .connection-alert {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             background: white;
             padding: 40px;
             border-radius: 12px;
@@ -407,6 +421,7 @@
             flex-direction: column;
             gap: 10px;
         }
+        /* FIN NUEVO: Alerta de conexión/BD */
 
         .tab-bar { 
             display: flex; 
@@ -472,6 +487,7 @@
             max-height: 400px; 
             overflow-y: auto; 
             list-style: none; 
+            /* AJUSTE: Aumento de tamaño de letra de logs */
             font-size: 0.95em; 
             background: #fafafa;
             padding: 10px;
@@ -660,6 +676,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer; /* Permite click para cambiar */
+            transition: background-color 0.1s;
+        }
+
+        .obc-list-item:hover {
+            background: rgba(255,255,255,0.15);
         }
 
         .loading {
@@ -781,7 +803,7 @@
                     <div class="bd-count" id="bd-count">0</div>
                     <div style="font-size: 0.85em; opacity: 0.8;">códigos cargados</div>
                 </div>
-                <button class="btn btn-primary" onclick="loadDatabase()" style="width: 100%;">
+                <button class="btn btn-primary" id="reload-bd-button" onclick="loadDatabase()" style="width: 100%;">
                     🔄 Recargar BD
                 </button>
             </div>
@@ -811,7 +833,6 @@
             <div id="tab-bar" class="tab-bar"></div>
 
             <div id="validation-area">
-                <!-- Tarjeta de Progreso OBC -->
                 <div id="progress-card" class="progress-card">
                     <div class="progress-content">
                         <div class="progress-header">
@@ -907,7 +928,8 @@
         </div>
     </div>
 
-    <!-- Popups -->
+    <div id="critical-alert-overlay" class="connection-alert-overlay"></div>
+    
     <div id="error-popup" class="popup-overlay">
         <div class="popup-content">
             <div class="popup-header" style="color: var(--error-color);">
@@ -960,7 +982,7 @@
             <p style="margin-bottom: 15px;">Añade una nota para justificar el duplicado:</p>
             <input type="text" id="forced-note-input" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;" placeholder="Ej: Cambio de ubicación por error de pickeo">
             <div class="popup-buttons">
-                <button class="btn btn-primary" onclick="handleDuplicateAction('force')">
+                <button class="btn btn-primary" id="forced-note-save-button" onclick="handleDuplicateAction('force')">
                     💾 Guardar Forzado
                 </button>
                 <button class="btn btn-secondary" onclick="closeForcedNoteModal()">
@@ -1035,6 +1057,7 @@
         let lastScannedCode = null;
         let TOKEN_CLIENT;
         let audioContext;
+        let isAuth = false;
 
         // ==================== INICIALIZACIÓN ====================
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1074,6 +1097,9 @@
                     callback: handleAuthResponse,
                 });
 
+                // Intentar autenticación silenciosa si es posible
+                TOKEN_CLIENT.requestAccessToken({ prompt: 'none' });
+
                 updateAuthStatus(false);
             } catch (error) {
                 console.error("Error al inicializar GAPI:", error);
@@ -1084,11 +1110,13 @@
         function handleAuthResponse(tokenResponse) {
             if (tokenResponse && tokenResponse.access_token) {
                 gapi.client.setToken(tokenResponse);
+                isAuth = true;
                 updateAuthStatus(true);
                 loadUsers(); // Cargar usuarios primero
                 loadDatabase(); // Luego cargar BD
                 loadValidationHistory(); // Cargar historial de validaciones
             } else {
+                isAuth = false;
                 updateAuthStatus(false);
             }
         }
@@ -1164,6 +1192,7 @@
         function updateAuthStatus(isSignedIn) {
             const statusElement = document.getElementById('auth-status');
             const button = document.getElementById('auth-button');
+            isAuth = isSignedIn;
             
             if (isSignedIn) {
                 statusElement.textContent = "✅ Conectado";
@@ -1174,10 +1203,12 @@
                 statusElement.className = "connection-status status-disconnected";
                 button.textContent = "🔗 Conectar con Google Sheets";
             }
+            // Asegurarse de que el input de escaneo no esté bloqueado si no es necesario por BD/Orden
+            document.getElementById('scanner-input').disabled = false;
         }
 
         function handleAuthClick() {
-            if (gapi.client.getToken() === null) {
+            if (!isAuth) {
                 TOKEN_CLIENT.requestAccessToken();
             } else {
                 google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
@@ -1192,7 +1223,7 @@
 
         // ==================== CARGA DE USUARIOS ====================
         async function loadUsers() {
-            if (!gapi.client.getToken()) {
+            if (!isAuth) {
                 console.log('No autenticado, usando usuarios por defecto');
                 return;
             }
@@ -1220,7 +1251,7 @@
 
         // ==================== CARGA DE HISTORIAL DE VALIDACIONES ====================
         async function loadValidationHistory() {
-            if (!gapi.client.getToken()) {
+            if (!isAuth) {
                 console.log('No autenticado, no se puede cargar historial');
                 return;
             }
@@ -1271,15 +1302,21 @@
 
         // ==================== CARGA DE BASE DE DATOS ====================
         async function loadDatabase() {
-            if (!gapi.client.getToken()) {
-                showNotification('Primero debes conectar con Google Sheets', 'warning');
+            if (!isAuth) {
+                showConnectionAlert(
+                    '🔌 Sin Conexión a Google Sheets',
+                    'Debes conectar con Google Sheets para cargar la base de datos de validación.',
+                    [{ text: 'Conectar Ahora', action: handleAuthClick, primary: true }]
+                );
                 return;
             }
 
             const countElement = document.getElementById('bd-count');
             countElement.innerHTML = 'Cargando... <span class="loading"></span>';
+            document.getElementById('reload-bd-button').disabled = true;
 
             try {
+                // ... (lógica de carga de BD)
                 console.log('Cargando desde pestaña "resumen"...');
                 
                 // 1. Cargar resumen de OBCs (columnas A a E)
@@ -1382,6 +1419,7 @@
                 if (!codesLoaded) {
                     throw new Error('No se pudieron cargar los códigos de la hoja principal');
                 }
+                // ... (fin lógica de carga de BD)
 
                 // Éxito
                 countElement.textContent = BD_CODES.size.toLocaleString();
@@ -1396,17 +1434,15 @@
                 countElement.textContent = '0 (Error)';
                 showNotification(`❌ Error: ${err.message}`, 'error');
                 
-                // Mostrar pestañas disponibles
-                try {
-                    const metadata = await gapi.client.sheets.spreadsheets.get({
-                        spreadsheetId: SPREADSHEET_ID_BD
-                    });
-                    const sheetNames = metadata.result.sheets.map(s => s.properties.title);
-                    console.log('Pestañas disponibles:', sheetNames);
-                    alert(`❌ Error al cargar BD.\n\nPestañas disponibles:\n${sheetNames.join('\n')}\n\nAsegúrate de tener:\n- Pestaña "Resumen" con columnas A-E\n- Pestaña principal con columna I`);
-                } catch (metaErr) {
-                    console.error('Error al obtener metadata:', metaErr);
-                }
+                // Mostrar alerta modal de error
+                showConnectionAlert(
+                    '📊 Error al Cargar Base de Datos',
+                    `No se pudo cargar la base de datos de códigos. Por favor, verifica el archivo fuente y vuelve a intentarlo. Detalle: ${err.message}`,
+                    [{ text: 'Reintentar Carga', action: loadDatabase, primary: true }]
+                );
+
+            } finally {
+                document.getElementById('reload-bd-button').disabled = false;
             }
         }
 
@@ -1418,7 +1454,7 @@
         function extractCode(rawCode) {
             const code = rawCode.trim();
             
-            // Patrones de formato JSON
+            // Patrones de formato JSON (se mantienen)
             const pattern1 = '¨id¨ñ ¨';
             const pattern2 = '[ID[ñ [';
             
@@ -1441,24 +1477,26 @@
         }
 
         // ==================== LÓGICA DE VALIDACIÓN ====================
+        
+        // NUEVO: Función para mostrar alertas críticas (Conexión, BD, Completado)
         function showConnectionAlert(title, message, actions) {
-            // Crear overlay si no existe
-            let overlay = document.getElementById('connection-alert-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.id = 'connection-alert-overlay';
-                overlay.className = 'popup-overlay';
-                overlay.style.display = 'flex';
-                document.body.appendChild(overlay);
-            } else {
-                overlay.style.display = 'flex';
-            }
-
-            // Crear contenido del alert
+            const overlay = document.getElementById('critical-alert-overlay');
+            const scannerInput = document.getElementById('scanner-input');
+            
+            // Bloquear el input de escaneo
+            scannerInput.disabled = true;
+            scannerInput.blur(); 
+            
             const alertBox = document.createElement('div');
             alertBox.className = 'connection-alert';
+            
+            let icon = '✅'; // Default
+            if (title.includes('Sin Conexión')) icon = '🔌';
+            else if (title.includes('Base de Datos')) icon = '📊';
+            else if (title.includes('ORDEN COMPLETADA')) icon = '🎉';
+            
             alertBox.innerHTML = `
-                <div class="connection-alert-icon">${title.includes('Sin Conexión') ? '🔌' : title.includes('Base de Datos') ? '📊' : '✅'}</div>
+                <div class="connection-alert-icon">${icon}</div>
                 <div class="connection-alert-title">${title}</div>
                 <div class="connection-alert-message">${message}</div>
                 <div class="connection-alert-actions" id="alert-actions"></div>
@@ -1466,37 +1504,136 @@
 
             overlay.innerHTML = '';
             overlay.appendChild(alertBox);
-
+            overlay.style.display = 'flex';
+            
             // Agregar botones de acción
             const actionsContainer = alertBox.querySelector('#alert-actions');
             actions.forEach(action => {
                 const button = document.createElement('button');
                 button.className = action.primary ? 'btn btn-primary' : 'btn btn-secondary';
                 button.textContent = action.text;
-                button.onclick = action.action;
+                // Envuelve la acción para que cierre el popup y re-enfoque
+                button.onclick = () => {
+                    closeConnectionAlert();
+                    if (action.action) action.action();
+                };
                 actionsContainer.appendChild(button);
             });
+            
+            playAudio('error'); // Usar sonido de error genérico para alertas críticas
         }
 
         function closeConnectionAlert() {
-            const overlay = document.getElementById('connection-alert-overlay');
+            const overlay = document.getElementById('critical-alert-overlay');
             if (overlay) {
                 overlay.style.display = 'none';
             }
             document.getElementById('scanner-input').focus();
+            
+            // Asegurarse de que el input se desbloquea si no hay otra razón
+            const activeOBC = GLOBAL_STATE.activeOBC;
+            const totalExpected = OBC_TOTALS.get(activeOBC) || 0;
+            const scannedCount = GLOBAL_STATE.tabs[activeOBC]?.validations.length || 0;
+            const percentage = totalExpected > 0 ? (scannedCount / totalExpected) * 100 : 0;
+            
+            if (BD_CODES.size > 0 && percentage < 100) {
+                 document.getElementById('scanner-input').disabled = false;
+            }
+        }
+        
+        // NUEVO: Popup para orden completada
+        function showCompletedOrderPopup() {
+            const obc = GLOBAL_STATE.activeOBC;
+            showConnectionAlert(
+                `🎉 ORDEN ${obc} COMPLETADA AL 100%`,
+                'Esta orden ya alcanzó el 100% de las cajas esperadas. Por favor, selecciona una nueva acción.',
+                [
+                    { text: '➕ Nueva Orden', action: addOBC, primary: true },
+                    { text: '🔄 Cambiar Orden', action: () => { /* No hace nada más que cerrar */ }, primary: false },
+                    { text: '⚠️ Forzar Escaneo (con nota)', action: showForcedNoteModalForCompleted, primary: false }
+                ]
+            );
+        }
+
+        // NUEVO: Modal para forzar escaneo en orden completada
+        function showForcedNoteModalForCompleted() {
+            document.getElementById('critical-alert-overlay').style.display = 'none'; // Cierra la alerta de completado
+            document.getElementById('forced-note-modal').style.display = 'flex';
+            document.getElementById('forced-note-input').value = '';
+            document.getElementById('forced-note-input').focus();
+            
+            // Ajustar la acción del botón Guardar Forzado
+            document.getElementById('forced-note-save-button').onclick = handleForceScanCompleted;
+        }
+
+        // NUEVO: Manejar el forzado de escaneo en orden completada
+        async function handleForceScanCompleted() {
+            document.getElementById('forced-note-modal').style.display = 'none';
+            document.getElementById('scanner-input').focus();
+            
+            if (!lastScannedCode) {
+                showNotification('Error interno: Código no capturado', 'error');
+                return;
+            }
+            
+            const note = document.getElementById('forced-note-input').value.trim();
+            const finalNote = `FORZADO 100% COMPLETADO: ${note || 'Sin justificación'}`;
+
+            await handleValidationOK(
+                lastScannedCode.rawCode,
+                lastScannedCode.extracted,
+                lastScannedCode.extracted,
+                lastScannedCode.obc,
+                lastScannedCode.user,
+                lastScannedCode.location,
+                finalNote
+            );
+            
+            showNotification('⚠️ Escaneo forzado en orden 100% registrado', 'warning');
+            lastScannedCode = null;
+            renderApp();
         }
 
         async function processScan(rawCode) {
-            if (BD_CODES.size === 0) {
-                showNotification('⚠️ La Base de Datos no ha sido cargada', 'warning');
-                playAudio('error');
+            
+            // Comprobaciones de flujo
+            if (!isAuth) {
+                showConnectionAlert(
+                    '🔌 Sin Conexión a Google Sheets',
+                    'Debes conectar con Google Sheets para validar cajas. Pulsa el botón para continuar.',
+                    [{ text: 'Conectar Ahora', action: handleAuthClick, primary: true }]
+                );
                 return;
             }
-
+            
+            if (BD_CODES.size === 0) {
+                showConnectionAlert(
+                    '📊 Base de Datos No Cargada',
+                    'Debes cargar la base de datos de códigos antes de comenzar a validar. Pulsa el botón para cargarla.',
+                    [{ text: 'Cargar BD Ahora', action: loadDatabase, primary: true }]
+                );
+                return;
+            }
+            
             const activeOBC = GLOBAL_STATE.activeOBC;
             const tab = GLOBAL_STATE.tabs[activeOBC];
             const user = tab.user;
             const location = tab.location;
+            
+            // Verificar si la orden ya está al 100%
+            const totalExpected = OBC_TOTALS.get(activeOBC) || 0;
+            const scannedCount = tab.validations.length;
+            const isCompleted = totalExpected > 0 && scannedCount >= totalExpected;
+            
+            if (isCompleted) {
+                // Pre-guardar el código escaneado para el forzado
+                const extractedCode = extractCode(rawCode);
+                const normalizedCode = normalizeCode(extractedCode);
+                lastScannedCode = { rawCode, extracted: normalizedCode, obc: activeOBC, user, location };
+                
+                showCompletedOrderPopup();
+                return;
+            }
             
             lastScannedCode = { rawCode, extracted: null, obc: activeOBC, user, location };
 
@@ -1593,7 +1730,7 @@
             });
 
             // Escritura a Google Sheets
-            if (gapi.client.getToken()) {
+            if (isAuth) {
                 await saveValidationLog('Val3', newLog);
             }
         }
@@ -1621,14 +1758,14 @@
             await saveState();
 
             // Escritura a Google Sheets
-            if (gapi.client.getToken()) {
+            if (isAuth) {
                 await saveValidationLog('Validaciones_RECHAZADAS', newLog);
             }
         }
 
         // ==================== ESCRITURA A GOOGLE SHEETS ====================
         async function saveValidationLog(sheetName, logRecord) {
-            if (!gapi.client.getToken()) {
+            if (!isAuth) {
                 return;
             }
             
@@ -1802,13 +1939,18 @@
             document.getElementById('progress-remaining').textContent = remaining.toLocaleString();
             document.getElementById('progress-bar-fill').style.width = `${percentage}%`;
             
-            // Control del input de escaneo
+            // Control del input de escaneo (incluyendo BD y Auth)
             const scannerInput = document.getElementById('scanner-input');
             const isCompleted = percentage === 100 && totalExpected > 0;
             
             if (isCompleted) {
+                // AJUSTE: Bloquear Input si está al 100%
                 scannerInput.disabled = true;
                 scannerInput.placeholder = '✅ Orden completada al 100%';
+            } else if (!isAuth || BD_CODES.size === 0) {
+                 // Bloqueo por falta de Auth o BD (la alerta modal se encarga de esto, pero el input se deshabilita preventivamente)
+                 scannerInput.disabled = true;
+                 scannerInput.placeholder = isAuth ? '📊 Cargando BD...' : '🔌 Conectar para escanear...';
             } else {
                 scannerInput.disabled = false;
                 scannerInput.placeholder = 'Escanea aquí...';
@@ -1819,8 +1961,9 @@
             if (totalExpected === 0) {
                 statusHTML = '⚠️ Orden no encontrada en la BD';
             } else if (percentage === 100) {
+                // AJUSTE: Badge animado
                 statusHTML = '<div class="progress-completed-badge">✅ ¡ORDEN COMPLETADA AL 100%! 🎉</div>';
-                // Mostrar mensaje de éxito
+                // Mostrar mensaje de éxito (solo la primera vez)
                 if (scannedCount === totalExpected && scannedCount > 0) {
                     showCompletionMessage(activeOBC, scannedCount);
                 }
@@ -1845,7 +1988,7 @@
             }
             sessionStorage.setItem(completionKey, 'true');
             
-            // Sonido de éxito (tono más alegre)
+            // Sonido de éxito (tono más alegre) - Melodía
             if (audioContext) {
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
@@ -1853,7 +1996,7 @@
                 gainNode.connect(audioContext.destination);
                 gainNode.gain.value = 0.3;
                 
-                // Secuencia de tonos ascendentes
+                // Secuencia de tonos ascendentes C5-E5-G5
                 oscillator.frequency.setValueAtTime(523, audioContext.currentTime); // C5
                 oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.15); // E5
                 oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.3); // G5
@@ -1861,9 +2004,16 @@
                 oscillator.stop(audioContext.currentTime + 0.6);
             }
             
-            // Mensaje visual
+            // Mostrar Popup de Orden Completada (en lugar del alert simple)
             setTimeout(() => {
-                alert(`🎉 ¡FELICIDADES!\n\n✅ ORDEN ${obc} COMPLETADA\n\n📦 Total validado: ${count} cajas\n\n¡Excelente trabajo!`);
+                showConnectionAlert(
+                    `🎉 ORDEN ${obc} COMPLETADA AL 100%`,
+                    `¡Felicidades! Se validaron ${count} cajas en total para esta orden.`,
+                    [
+                        { text: '➕ Iniciar Nueva Orden', action: addOBC, primary: true },
+                        { text: '🔄 Cambiar a otra Orden', action: () => { /* No hace nada más que cerrar */ }, primary: false }
+                    ]
+                );
             }, 500);
         }
 
@@ -1880,9 +2030,10 @@
                 
                 const item = document.createElement('div');
                 item.className = 'obc-list-item';
+                // AJUSTE: Muestra la OBC activa y la marca de completado
                 item.innerHTML = `
-                    <span>${obc} ${isCompleted ? '✅' : ''}</span>
-                    <span style="opacity: 0.7;">${scannedCount} ✓ ${isCompleted ? '(100%)' : ''}</span>
+                    <span onclick="switchOBC('${obc}')" style="cursor:pointer; font-weight: ${obc === GLOBAL_STATE.activeOBC ? 'bold' : 'normal'}">${obc} ${isCompleted ? '✅' : ''}</span>
+                    <span style="opacity: 0.7; font-weight: ${obc === GLOBAL_STATE.activeOBC ? 'bold' : 'normal'}">${scannedCount} ✓ ${isCompleted ? '(100%)' : ''}</span>
                 `;
                 obcList.appendChild(item);
             }
@@ -1955,14 +2106,29 @@
             }
         }
 
-        // ==================== POPUPS ====================
+        // ==================== EVENT LISTENERS ====================
+        function setupEventListeners() {
+            document.getElementById('scanner-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const rawCode = e.target.value;
+                    e.target.value = ''; // Limpiar el input inmediatamente
+                    
+                    if (rawCode.trim()) {
+                        processScan(rawCode);
+                    }
+                }
+            });
+        }
+        
+        // ==================== POPUPS (mantienen la lógica original) ====================
         function showErrorPopup(code, obc, reason) {
             document.getElementById('error-code').textContent = code;
             document.getElementById('error-obc').textContent = obc;
             
             // Personalizar el mensaje según el tipo de error
             let displayReason = reason.replace(/_/g, ' ');
-            if (reason === 'CODIGO_DE_OTRA_OBC') {
+            if (reason === 'CODIGO_DE_OTRA_ORDEN') {
                 displayReason = '⚠️ CÓDIGO DE OTRA ORDEN - Este código existe pero pertenece a una orden diferente';
             }
             
@@ -1991,6 +2157,8 @@
             document.getElementById('forced-note-modal').style.display = 'flex';
             document.getElementById('forced-note-input').value = '';
             document.getElementById('forced-note-input').focus();
+            // Restaurar la acción del botón para duplicado normal
+            document.getElementById('forced-note-save-button').onclick = () => handleDuplicateAction('force');
         }
 
         function closeForcedNoteModal() {
@@ -2018,6 +2186,8 @@
             document.getElementById('forced-note-modal').style.display = 'flex';
             document.getElementById('forced-note-input').value = '';
             document.getElementById('forced-note-input').focus();
+            // Ajustar la acción del botón Guardar Forzado
+            document.getElementById('forced-note-save-button').onclick = () => handleDuplicateAction('force_previous');
         }
 
         async function handleDuplicateAction(action) {
@@ -2028,9 +2198,10 @@
 
             if (!lastScannedCode) return;
 
-            if (action === 'force') {
+            if (action === 'force' || action === 'force_previous') {
                 const note = document.getElementById('forced-note-input').value.trim();
-                const finalNote = `DUPLICADO FORZADO: ${note || 'Sin justificación'}`;
+                const prefix = action === 'force' ? 'DUPLICADO LOCAL FORZADO' : 'DUPLICADO GS FORZADO';
+                const finalNote = `${prefix}: ${note || 'Sin justificación'}`;
 
                 await handleValidationOK(
                     lastScannedCode.rawCode,
@@ -2041,7 +2212,7 @@
                     lastScannedCode.location,
                     finalNote
                 );
-                showNotification('⚠️ Duplicado forzado registrado', 'warning');
+                showNotification('⚠️ Forzado registrado', 'warning');
             } else {
                 showNotification('Escaneo ignorado', 'info');
             }
