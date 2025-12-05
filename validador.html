@@ -205,7 +205,7 @@
             color: var(--text-color);
         }
 
-        /* Tarjeta de Progreso OBC */
+        /* Tarjeta de Progreso OBC (Por defecto: Naranja) */
         .progress-card {
             background: linear-gradient(135deg, #ffa07a 0%, #ff9566 50%, #ff8a52 100%);
             color: white;
@@ -215,7 +215,15 @@
             margin-bottom: 20px;
             position: relative;
             overflow: hidden;
+            transition: background 0.5s, box-shadow 0.5s; /* Transición para el cambio de color */
         }
+        
+        /* AJUSTE: ESTADO COMPLETADO (VERDE) */
+        .progress-card.completed {
+            background: linear-gradient(135deg, var(--success-color) 0%, #689f38 100%);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5); /* Sombra verde */
+        }
+        /* FIN AJUSTE: ESTADO COMPLETADO */
 
         .progress-card::before {
             content: '';
@@ -312,6 +320,7 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        /* Color de la barra de progreso (por defecto: Dorado/Naranja) */
         .progress-bar-fill {
             height: 100%;
             background: linear-gradient(90deg, #fff 0%, #ffeb99 50%, #ffd966 100%);
@@ -321,6 +330,13 @@
             overflow: hidden;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
+        
+        /* AJUSTE: Barra de progreso en estado completado (Verde) */
+        .progress-card.completed .progress-bar-fill {
+            background: linear-gradient(90deg, #dcedc8 0%, #8bc34a 100%);
+        }
+        /* FIN AJUSTE: Barra de progreso en estado completado */
+
 
         .progress-bar-fill::after {
             content: '';
@@ -461,6 +477,23 @@
             background-color: #f0f0f0;
             transform: translateY(-1px);
         }
+        
+        /* AJUSTE: Pestaña Completada (Verde) */
+        .tab.completed {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+        
+        .tab.completed:hover:not(.active) {
+            background-color: #689f38;
+        }
+
+        .tab.completed.active {
+            background-color: #388e3c; /* Verde más oscuro para el activo */
+            border-color: #388e3c;
+        }
+        /* FIN AJUSTE: Pestaña Completada (Verde) */
 
         .tab-close {
             margin-left: 8px;
@@ -1871,7 +1904,7 @@
 
         function renderApp() {
             const activeOBC = GLOBAL_STATE.activeOBC;
-            const tab = GLOBAL_STATE.tabs[activeOBC];
+            const tabData = GLOBAL_STATE.tabs[activeOBC];
 
             // Renderizar tabs
             const tabBar = document.getElementById('tab-bar');
@@ -1879,8 +1912,15 @@
             const obcKeys = Object.keys(GLOBAL_STATE.tabs);
 
             obcKeys.forEach(obc => {
+                const tab = GLOBAL_STATE.tabs[obc]; // Get tab data
+                const totalExpected = OBC_TOTALS.get(obc) || 0;
+                const scannedCount = tab.validations.length;
+                const percentage = totalExpected > 0 ? Math.min(100, (scannedCount / totalExpected) * 100) : 0;
+                const isCompleted = percentage === 100 && totalExpected > 0;
+                
                 const tabDiv = document.createElement('div');
-                tabDiv.className = `tab ${obc === activeOBC ? 'active' : ''}`;
+                // AJUSTE: Aplica la clase 'completed' si está al 100%
+                tabDiv.className = `tab ${obc === activeOBC ? 'active' : ''} ${isCompleted ? 'completed' : ''}`;
                 tabDiv.innerHTML = `
                     ${obc}
                     ${obcKeys.length > 1 ? `<span class="tab-close" onclick="event.stopPropagation(); removeOBC('${obc}')">×</span>` : ''}
@@ -1896,13 +1936,13 @@
             tabBar.appendChild(newTabBtn);
 
             // Actualizar campos
-            document.getElementById('active-user-display').value = tab.user;
+            document.getElementById('active-user-display').value = tabData.user;
             document.getElementById('active-obc-display').value = activeOBC;
-            document.getElementById('global-location').value = tab.location;
+            document.getElementById('global-location').value = tabData.location;
 
             // Calcular estadísticas
-            const validatedCount = tab.validations.length;
-            const rejectedCount = tab.rejections.filter(r => r.rejectionReason === 'NO_EXISTE_EN_BD').length;
+            const validatedCount = tabData.validations.length;
+            const rejectedCount = tabData.rejections.filter(r => r.rejectionReason === 'NO_EXISTE_EN_BD').length;
             const totalScans = validatedCount + rejectedCount;
             const errorRate = totalScans > 0 ? ((rejectedCount / totalScans) * 100).toFixed(1) : '0.0';
 
@@ -1921,6 +1961,7 @@
         function updateProgressCard() {
             const activeOBC = GLOBAL_STATE.activeOBC;
             const tab = GLOBAL_STATE.tabs[activeOBC];
+            const progressCard = document.getElementById('progress-card'); // Elemento a modificar
             
             // Obtener datos de la OBC
             const totalExpected = OBC_TOTALS.get(activeOBC) || 0;
@@ -1929,6 +1970,17 @@
             const remaining = Math.max(0, totalExpected - scannedCount);
             const percentage = totalExpected > 0 ? Math.min(100, (scannedCount / totalExpected) * 100) : 0;
             
+            // Determinar si está completada
+            const isCompleted = percentage === 100 && totalExpected > 0;
+            
+            // AJUSTE: Aplica o remueve la clase 'completed' para cambiar el color de la tarjeta
+            if (isCompleted) {
+                progressCard.classList.add('completed');
+            } else {
+                progressCard.classList.remove('completed');
+            }
+            // FIN AJUSTE
+
             // Actualizar elementos
             document.getElementById('progress-obc-name').textContent = activeOBC;
             document.getElementById('progress-obc-recipient').textContent = obcInfo.recipient || '-';
@@ -1941,7 +1993,6 @@
             
             // Control del input de escaneo (incluyendo BD y Auth)
             const scannerInput = document.getElementById('scanner-input');
-            const isCompleted = percentage === 100 && totalExpected > 0;
             
             if (isCompleted) {
                 // AJUSTE: Bloquear Input si está al 100%
