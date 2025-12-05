@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Validación WMS</title>
+    <meta name="theme-color" content="#ed5224">
+    <style>
+        :root {
+            --primary-color: #ed5224;
+            --secondary-color: #333;
+            --background-color: #f7f7f7;
+            --text-color: #333;
+            --success-color: #4CAF50;
+            --error-color: #F44336;
+            --warning-color: #FF9800;
+            --border-radius: 8px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --log-max-height: 250px; /* Altura máxima para listas */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--background-color); 
+            display: flex; 
+            min-height: 100vh;
+            color: var(--text-color);
+            font-size: 14px; /* Base más pequeña para compactar */
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+        }
+
+        .sidebar { 
+            width: 280px; 
+            background-color: var(--secondary-color); 
+            color: white; 
+            padding: 15px; /* Más compacto */
+            flex-shrink: 0; 
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        
+        .main-content { 
+            flex-grow: 1; 
+            padding: 15px; 
+            overflow-y: auto;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header h1 { 
+            color: var(--primary-color); 
+            font-size: 1.8em;
+        }
+
+        .card { 
+            background-color: white; 
+            padding: 15px; /* Más compacto */
+            border-radius: var(--border-radius); 
+            box-shadow: var(--shadow); 
+            margin-bottom: 15px; 
+        }
+        
+        .btn { 
+            padding: 10px 15px; /* Más compacto */
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary { 
+            background-color: var(--primary-color); 
+            color: white; 
+        }
+
+        .btn-google { 
+            background-color: #4285F4;
+            color: white; 
+            width: 100%;
+            margin-bottom: 10px; /* Más compacto */
+        }
+        
+        .input-group { 
+            margin-bottom: 0; /* Se controla con el gap del .input-row */
+        }
+
+        /* AJUSTE: User/Order/Location en una línea */
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group label { 
+            display: block; 
+            margin-bottom: 3px; /* Más compacto */
+            font-weight: 600; 
+            font-size: 0.9em; 
+        }
+
+        .input-group input, .input-group select { 
+            width: 100%; 
+            padding: 10px; /* Más compacto */
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .scanner-input { 
+            font-size: 1.8em !important; 
+            text-transform: uppercase; 
+            font-weight: bold;
+            padding: 15px !important;
+            text-align: center;
+            border: 3px solid #ddd !important;
+            background-color: #fff5ed !important; 
+        }
+
+        .scanner-input:disabled {
+            background-color: #f5f5f5 !important; 
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Más compacto */
+            gap: 15px; 
+            margin-bottom: 15px; 
+        }
+        
+        .stat-box { 
+            text-align: center; 
+            padding: 12px; /* Más compacto */
+            border-radius: var(--border-radius); 
+            font-size: 0.85em; 
+            font-weight: 600;
+        }
+        
+        .stat-number { 
+            font-size: 2.0em; 
+            font-weight: 700; 
+            margin-top: 5px;
+            color: var(--text-color);
+        }
+
+        /* Tarjeta de Progreso (Compacta) */
+        .progress-card {
+            background: linear-gradient(135deg, #ffa07a 0%, #ff9566 50%, #ff8a52 100%);
+            color: white;
+            padding: 12px; 
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(255, 160, 122, 0.3);
+            margin-bottom: 15px; 
+            position: relative;
+        }
+        
+        .progress-card.completed {
+            background: linear-gradient(135deg, var(--success-color) 0%, #689f38 100%);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5); 
+        }
+
+        .progress-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* Info a la izquierda, Porcentaje/Barra a la derecha */
+            gap: 15px;
+            align-items: center;
+        }
+
+        .progress-obc-name {
+            font-size: 1.2em; 
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 2px;
+        }
+
+        .progress-obc-meta {
+            font-size: 0.8em; 
+            opacity: 0.9;
+            display: flex;
+            gap: 8px; 
+            flex-wrap: wrap;
+        }
+
+        .progress-percentage {
+            font-size: 2.0em; 
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            line-height: 1;
+            text-align: right; 
+            align-self: flex-start;
+        }
+
+        .progress-counts {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px; 
+            font-size: 0.85em; 
+            opacity: 0.95;
+            grid-column: 1 / 3; /* Ocupa el ancho completo */
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .progress-count-number {
+            font-size: 1.2em; 
+            font-weight: 700; 
+            line-height: 1;
+        }
+
+        .progress-count-label {
+            font-size: 0.65em; 
+            opacity: 0.85;
+            margin-top: 3px;
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.25);
+            height: 8px; 
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            align-self: flex-end; 
+            width: 100%;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: white; 
+            border-radius: 20px;
+            transition: width 0.4s ease-out;
+        }
+
+        .progress-card.completed .progress-bar-fill {
+            background: linear-gradient(90deg, #dcedc8 0%, #8bc34a 100%);
+        }
+
+        .progress-status {
+            grid-column: 1 / 3;
+            text-align: center;
+            margin-top: 5px; 
+            font-size: 0.8em; 
+            opacity: 0.95;
+            font-weight: 600;
+        }
+        
+        /* Contenedor de Logs */
+        .logs-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .log-list { 
+            max-height: var(--log-max-height); 
+            overflow-y: auto; 
+            list-style: none; 
+            font-size: 0.9em; 
+            background: #fafafa;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid #eee;
+        }
+        
+        .log-list ol {
+            padding-left: 0;
+        }
+
+        .log-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 6px 8px; /* Más compacto */
+            margin-bottom: 4px; /* Más compacto */
+            border-radius: 4px;
+            background: white;
+            align-items: center;
+            transition: background-color 0.1s;
+            border-left: 4px solid;
+            line-height: 1.3;
+        }
+
+        .log-ok {
+            border-left-color: var(--success-color);
+        }
+
+        .log-reject {
+            border-left-color: var(--error-color);
+        }
+        
+        .log-code {
+            font-weight: 600;
+            font-size: 1.0em; 
+        }
+
+        /* Utilizar numeración CSS */
+        #ok-logs, #reject-logs {
+            list-style: none;
+            counter-reset: log-counter;
+            padding-left: 0;
+        }
+        
+        #ok-logs .log-item::before, #reject-logs .log-item::before {
+            counter-increment: log-counter;
+            content: counter(log-counter) ".";
+            font-weight: 700;
+            margin-right: 8px;
+            color: var(--primary-color);
+            min-width: 15px;
+            text-align: right;
+        }
+        
+        .log-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .log-meta {
+            font-size: 0.75em;
+            color: #666;
+            margin-top: 2px;
+        }
+        /* Fin de Ajuste de Logs */
+
+        /* Estilos para Popups y Alertas */
+        .popup-overlay, .connection-alert-overlay {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.7); 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 10000;
+            animation: fadeIn 0.2s;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .popup-header {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .popup-details {
+            text-align: left;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            line-height: 1.6;
+            font-size: 0.9em;
+        }
+
+        .popup-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            color: white;
+            box-shadow: var(--shadow);
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity 0.3s, transform 0.3s;
+            font-weight: 600;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.info { background-color: #2196F3; }
+        .notification.success { background-color: var(--success-color); }
+        .notification.warning { background-color: var(--warning-color); }
+        .notification.error { background-color: var(--error-color); }
+
+        /* Media Queries para adaptabilidad */
+        @media (max-width: 968px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+            }
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            .progress-content {
+                grid-template-columns: 1fr;
+            }
+            .progress-percentage {
+                text-align: left;
+                margin-top: 10px;
+            }
+            .logs-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h2>🏭 WMS Validator</h2>
+                <button id="auth-button" class="btn btn-google">
+                    🔗 Conectar con Google Sheets
+                </button>
+                <div id="auth-status" class="connection-status status-disconnected" style="font-size: 0.9em; margin-top: 5px;">
+                    ⚠️ Desconectado
+                </div>
+                <div style="font-size: 0.75em; opacity: 0.7; margin-top: 10px; line-height: 1.4;">
+                    <div>📖 Consulta: Resumen + Col I</div>
+                    <div>✍️ Escritura: ...0wV7EP...</div>
+                </div>
+            </div>
+
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+
+            <div class="sidebar-section">
+                <h3>📊 Base de Datos</h3>
+                <div class="bd-info" style="display: flex; align-items: baseline; gap: 5px; margin-bottom: 10px;">
+                    <div class="bd-count" id="bd-count" style="font-size: 1.5em; font-weight: bold;">0</div>
+                    <div style="font-size: 0.85em; opacity: 0.8;">códigos cargados</div>
+                </div>
+                <button class="btn btn-primary" id="reload-bd-button" onclick="loadDatabase()" style="width: 100%;">
+                    🔄 Recargar BD
+                </button>
+            </div>
+
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+
+            <div class="sidebar-section">
+                <h3>👤 Usuario Activo</h3>
+                <div class="user-select-wrapper">
+                    <select id="user-select" onchange="updateGlobalState()" style="width: 100%;">
+                    </select>
+                </div>
+            </div>
+
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+
+            <div class="sidebar-section">
+                <h3>📦 Órdenes Activas</h3>
+                <div id="obc-list"></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>🔍 Sistema de Validación</h1>
+                <button class="btn btn-secondary" onclick="exportData()">
+                    📥 Exportar CSV
+                </button>
+            </div>
+
+            <div id="tab-bar" class="tab-bar"></div>
+
+            <div id="validation-area">
+                <div id="progress-card" class="progress-card">
+                    <div class="progress-content">
+                        <div class="progress-obc-info">
+                            <div class="progress-obc-name" id="progress-obc-name">OBC_DEFAULT_1</div>
+                            <div class="progress-obc-meta">
+                                <div class="progress-obc-meta-item">
+                                    <span>📍 Destino: </span>
+                                    <span id="progress-obc-recipient">-</span>
+                                </div>
+                                <div class="progress-obc-meta-item">
+                                    <span>🕐 Creación: </span>
+                                    <span id="progress-obc-arrival">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                            <div class="progress-percentage" id="progress-percentage">0%</div>
+                            <div class="progress-bar-container" style="width: 100%;">
+                                <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="progress-counts">
+                            <div class="progress-count-item" style="text-align: left;">
+                                <div class="progress-count-number" id="progress-scanned">0</div>
+                                <div class="progress-count-label">Escaneadas</div>
+                            </div>
+                            <div class="progress-count-item" style="text-align: center;">
+                                <div class="progress-count-number" id="progress-total">0</div>
+                                <div class="progress-count-label">Total Esperado</div>
+                            </div>
+                            <div class="progress-count-item" style="text-align: right;">
+                                <div class="progress-count-number" id="progress-remaining">0</div>
+                                <div class="progress-count-label">Faltantes</div>
+                            </div>
+                        </div>
+                        <div class="progress-status" id="progress-status">Esperando datos...</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>👤 Usuario:</label>
+                            <input type="text" id="active-user-display" disabled>
+                        </div>
+                        <div class="input-group">
+                            <label>📦 Orden Activa:</label>
+                            <input type="text" id="active-obc-display" disabled>
+                        </div>
+                        <div class="input-group">
+                            <label for="global-location">📍 Ubicación Global (Enter para escanear):</label>
+                            <input type="text" id="global-location" placeholder="Ej: PLEC123, 4971098/1">
+                        </div>
+                    </div>
+                    
+                    <hr style="margin: 15px 0; border: none; border-top: 2px dashed #ddd;">
+                    
+                    <div class="input-group">
+                        <label for="scanner-input" style="font-size: 1.2em; color: var(--primary-color);">
+                            📷 ESCANEAR CÓDIGO (Presiona Enter):
+                        </label>
+                        <input type="text" id="scanner-input" class="scanner-input" autofocus placeholder="Escanea aquí...">
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box stat-ok">
+                        ✅ VALIDADAS OK
+                        <div class="stat-number" id="validated-count">0</div>
+                    </div>
+                    <div class="stat-box stat-error">
+                        ❌ RECHAZADAS
+                        <div class="stat-number" id="rejected-count">0</div>
+                    </div>
+                    <div class="stat-box stat-rate">
+                        📊 TASA ERROR
+                        <div class="stat-number" id="error-rate">0.0%</div>
+                    </div>
+                </div>
+
+                <div class="logs-container">
+                    <div class="log-section card">
+                        <h3>✅ Últimas Validaciones OK (Max 10)</h3>
+                        <div id="ok-logs-container">
+                            <ul id="ok-logs" class="log-list"></ul>
+                        </div>
+                    </div>
+                    <div class="log-section card">
+                        <h3>❌ Rechazos Recientes (Max 10)</h3>
+                        <div id="reject-logs-container">
+                            <ul id="reject-logs" class="log-list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="critical-alert-overlay" class="connection-alert-overlay"></div>
+    
+    <div id="error-popup" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--error-color);">
+                ❌ VALIDACIÓN RECHAZADA
+            </div>
+            <div class="popup-details">
+                <strong>Código:</strong> <span id="error-code"></span><br>
+                <strong>OBC:</strong> <span id="error-obc"></span><br>
+                <hr style="margin: 5px 0; border: none; border-top: 1px dashed #eee;">
+                <strong>Motivo:</strong> <span id="error-reason" style="color: var(--error-color); font-weight: bold;"></span>
+            </div>
+            <div class="popup-buttons">
+                <button class="btn btn-primary" onclick="closeErrorPopup()">
+                    Continuar Escaneando
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="duplicate-popup" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--warning-color);">
+                ⚠️ CAJA YA VALIDADA
+            </div>
+            <div class="popup-details">
+                <strong>Código:</strong> <span id="dup-code"></span><br>
+                <strong>OBC:</strong> <span id="dup-obc"></span><br>
+                <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                <strong>Validada anteriormente:</strong><br>
+                • <span id="dup-timestamp"></span><br>
+                • Usuario: <span id="dup-user"></span><br>
+                • Ubicación: <span id="dup-location"></span>
+            </div>
+            <p style="margin: 15px 0 10px 0; font-weight: 600;">¿Qué deseas hacer?</p>
+            <div class="popup-buttons">
+                <button class="btn btn-secondary" onclick="handleDuplicateAction('ignore')">
+                    Ignorar - No guardar
+                </button>
+                <button class="btn btn-primary" onclick="showForcedNoteModal('duplicate')">
+                    Forzar entrada con nota
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="previous-validation-popup" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--warning-color);">
+                ⚠️ YA VALIDADO EN SISTEMA
+            </div>
+            <div class="popup-details">
+                <strong>Código:</strong> <span id="prev-code"></span><br>
+                <strong>Orden:</strong> <span id="prev-obc"></span><br>
+                <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                <strong>Validado anteriormente en Google Sheets:</strong><br>
+                • <span id="prev-timestamp"></span><br>
+                • Usuario: <span id="prev-user"></span>
+            </div>
+            <p style="margin: 15px 0 10px 0; font-weight: 600; color: var(--warning-color);">
+                Este código ya fue procesado. ¿Deseas forzar la validación?
+            </p>
+            <div class="popup-buttons">
+                <button class="btn btn-secondary" onclick="closePreviousValidationPopup()">
+                    Ignorar - Continuar
+                </button>
+                <button class="btn btn-primary" onclick="showForcedNoteModal('previous')">
+                    Forzar entrada con nota
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="forced-note-modal" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--primary-color);">
+                📝 Forzar Entrada
+            </div>
+            <p style="margin-bottom: 15px;">Añade una nota para justificar la entrada forzada:</p>
+            <input type="text" id="forced-note-input" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;" placeholder="Ej: Error de re-pickeo, se forzó la validación">
+            <div class="popup-buttons">
+                <button class="btn btn-primary" id="forced-note-save-button" data-action-type="" onclick="handleForcedSave()">
+                    💾 Guardar Forzado
+                </button>
+                <button class="btn btn-secondary" onclick="closeForcedNoteModal()">
+                    ← Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-bar" class="notification"></div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+
+    <script>
+        // ==================== CONFIGURACIÓN ====================
+        const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
+        
+        // Hoja de CONSULTA (BD de códigos y usuarios)
+        const SPREADSHEET_ID_BD = '1nKqd0mqEkZ1l8wqW83_d5fyarp5BKbV1nXSNJBk4-Ck';
+        
+        // Hoja de ESCRITURA (Validaciones y rechazos)
+        const SPREADSHEET_ID_WRITE = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
+        
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+        
+        let VALIDATORS = ['MIGUEL', 'PEDRO', 'ALEJANDRO', 'ESMERALDA', 'KATERYNE']; // Default
+        const STORAGE_KEY_PREFIX = 'wms_validation_';
+
+        // ==================== ESTADO GLOBAL ====================
+        let BD_CODES = new Set();
+        let BD_OBC_MAP = new Map(); // Mapa de OBC -> Set de códigos
+        let OBC_TOTALS = new Map(); // Mapa de OBC -> total de cajas
+        let OBC_INFO = new Map(); // Mapa de OBC -> {recipient, arrivalTime}
+        let OBC_VALIDATION_HISTORY = new Map(); // Mapa de código -> {user, timestamp, obc}
+        let GLOBAL_STATE = {
+            activeOBC: 'OBC_DEFAULT_1',
+            tabs: {
+                'OBC_DEFAULT_1': {
+                    user: 'MIGUEL',
+                    location: '',
+                    validations: [],
+                    rejections: []
+                }
+            }
+        };
+        let lastScannedCode = null;
+        let lastForcedActionType = null;
+        let TOKEN_CLIENT;
+        let audioContext;
+        let isAuth = false;
+
+        // ==================== INICIALIZACIÓN ====================
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initAudio();
+            await loadFromStorage();
+            setupEventListeners();
+            populateUserSelect();
+            renderApp();
+            
+            // Inicializar Google API
+            gapi.load('client', initGoogleAPI);
+        });
+
+        async function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                document.addEventListener('click', () => {
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                }, { once: true });
+            } catch (e) {
+                console.warn('Web Audio API no disponible');
+            }
+        }
+
+        async function initGoogleAPI() {
+            try {
+                await gapi.client.init({
+                    discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+                });
+
+                TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: SCOPES,
+                    callback: handleAuthResponse,
+                });
+
+                TOKEN_CLIENT.requestAccessToken({ prompt: 'none' });
+
+                updateAuthStatus(false);
+            } catch (error) {
+                console.error("Error al inicializar GAPI:", error);
+                showNotification('Error al inicializar Google API', 'error');
+            }
+        }
+
+        function handleAuthResponse(tokenResponse) {
+            if (tokenResponse && tokenResponse.access_token) {
+                gapi.client.setToken(tokenResponse);
+                isAuth = true;
+                updateAuthStatus(true);
+                loadUsers(); 
+                loadDatabase(); 
+                loadValidationHistory(); 
+            } else {
+                isAuth = false;
+                updateAuthStatus(false);
+            }
+        }
+
+        // ==================== PERSISTENCIA ====================
+        async function loadFromStorage() {
+            try {
+                const stateResult = localStorage.getItem(`${STORAGE_KEY_PREFIX}state`);
+                if (stateResult) {
+                    const parsedState = JSON.parse(stateResult);
+                    for (const obc in parsedState.tabs) {
+                        parsedState.tabs[obc].validations = parsedState.tabs[obc].validations || [];
+                        parsedState.tabs[obc].rejections = parsedState.tabs[obc].rejections || [];
+                    }
+                    GLOBAL_STATE = parsedState;
+                }
+
+                const bdResult = localStorage.getItem(`${STORAGE_KEY_PREFIX}bd_cache`);
+                if (bdResult) {
+                    const cached = JSON.parse(bdResult);
+                    BD_CODES = new Set(cached.codes);
+                    
+                    if (cached.obcMap) {
+                        BD_OBC_MAP = new Map(cached.obcMap.map(([obc, codes]) => [obc, new Set(codes)]));
+                    }
+                    if (cached.obcTotals) {
+                        OBC_TOTALS = new Map(cached.obcTotals);
+                    }
+                    if (cached.obcInfo) {
+                        OBC_INFO = new Map(cached.obcInfo);
+                    }
+                    
+                    document.getElementById('bd-count').textContent = BD_CODES.size.toLocaleString();
+                }
+            } catch (error) {
+                console.log('Primera carga o storage no disponible:', error);
+            }
+        }
+
+        async function saveState() {
+            try {
+                localStorage.setItem(
+                    `${STORAGE_KEY_PREFIX}state`,
+                    JSON.stringify(GLOBAL_STATE)
+                );
+            } catch (error) {
+                console.error('Error al guardar estado localmente:', error);
+                showNotification('❌ Error grave al guardar datos LOCALMENTE. Los datos podrían perderse al cerrar.', 'error');
+            }
+        }
+
+        async function saveBDCache() {
+            try {
+                localStorage.setItem(
+                    `${STORAGE_KEY_PREFIX}bd_cache`,
+                    JSON.stringify({
+                        codes: Array.from(BD_CODES),
+                        obcMap: Array.from(BD_OBC_MAP.entries()).map(([obc, codes]) => [obc, Array.from(codes)]),
+                        obcTotals: Array.from(OBC_TOTALS.entries()),
+                        obcInfo: Array.from(OBC_INFO.entries()),
+                        timestamp: new Date().toISOString()
+                    })
+                );
+            } catch (error) {
+                console.error('Error al guardar caché de BD:', error);
+            }
+        }
+
+        // ==================== AUTENTICACIÓN ====================
+        function updateAuthStatus(isSignedIn) {
+            const statusElement = document.getElementById('auth-status');
+            const button = document.getElementById('auth-button');
+            isAuth = isSignedIn;
+            
+            if (isSignedIn) {
+                statusElement.textContent = "✅ Conectado";
+                statusElement.className = "connection-status status-connected";
+                button.textContent = "🔓 Cerrar Sesión";
+            } else {
+                statusElement.textContent = "⚠️ Desconectado";
+                statusElement.className = "connection-status status-disconnected";
+                button.textContent = "🔗 Conectar con Google Sheets";
+            }
+            document.getElementById('scanner-input').disabled = false;
+        }
+
+        function handleAuthClick() {
+            if (!isAuth) {
+                TOKEN_CLIENT.requestAccessToken();
+            } else {
+                google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
+                    gapi.client.setToken(null);
+                    updateAuthStatus(false);
+                    showNotification('Sesión cerrada. Los datos escaneados se seguirán guardando localmente.', 'info');
+                });
+            }
+        }
+
+        // ==================== CARGA DE DATOS ====================
+        async function loadUsers() {
+            if (!isAuth) return;
+            try {
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_ID_BD,
+                    range: 'Consulta!A2:A',
+                });
+                
+                const rows = response.result.values;
+                if (rows && rows.length > 0) {
+                    VALIDATORS = rows.map(row => row[0]).filter(Boolean);
+                    populateUserSelect();
+                }
+            } catch (error) {
+                console.error('Error al cargar usuarios:', error);
+                showNotification('Error al cargar usuarios de Sheets.', 'error');
+            }
+        }
+
+        async function loadValidationHistory() {
+            if (!isAuth) return;
+            try {
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_ID_WRITE,
+                    range: 'Val3!A2:E', 
+                });
+                
+                const rows = response.result.values;
+                OBC_VALIDATION_HISTORY.clear();
+
+                if (rows && rows.length > 0) {
+                    rows.forEach(row => {
+                        const [timestamp, user, obc, originalCode, extractedCode] = row;
+                        if (extractedCode && obc) {
+                            const historyKey = `${extractedCode}${obc}`;
+                            OBC_VALIDATION_HISTORY.set(historyKey.toLowerCase(), {
+                                user: user,
+                                timestamp: timestamp,
+                                obc: obc
+                            });
+                        }
+                    });
+                    console.log(`Historial de ${OBC_VALIDATION_HISTORY.size} validaciones cargado.`);
+                }
+            } catch (error) {
+                console.error('Error al cargar historial de validaciones:', error);
+                showNotification('Error al cargar historial de validaciones (Columna E de Val3).', 'error');
+            }
+        }
+
+        async function loadDatabase() {
+            if (!isAuth) {
+                showConnectionAlert(
+                    '🔌 Sin Conexión a Google Sheets',
+                    'Debes conectar con Google Sheets para cargar la base de datos de validación.',
+                    [{ text: 'Conectar Ahora', action: handleAuthClick, primary: true }]
+                );
+                return;
+            }
+
+            try {
+                showNotification('Cargando Base de Datos...', 'info');
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_ID_BD,
+                    range: 'Resumen!A2:I', 
+                });
+                
+                const rows = response.result.values;
+                BD_CODES.clear();
+                BD_OBC_MAP.clear();
+                OBC_TOTALS.clear();
+                OBC_INFO.clear();
+                
+                if (rows && rows.length > 0) {
+                    rows.forEach(row => {
+                        const [obc, total, , , , , recipient, arrivalTime, code_obc_concatenado] = row;
+                        
+                        if (code_obc_concatenado) {
+                            BD_CODES.add(code_obc_concatenado.toLowerCase());
+                            
+                            // Mapas de OBC
+                            const obcKey = obc.toUpperCase();
+                            if (!BD_OBC_MAP.has(obcKey)) {
+                                BD_OBC_MAP.set(obcKey, new Set());
+                            }
+                            // Extraer solo el código (Columna I es Code + OBC)
+                            const code = code_obc_concatenado.replace(obc.toLowerCase(), '');
+                            BD_OBC_MAP.get(obcKey).add(code.toLowerCase());
+                            
+                            // Totales e Info
+                            OBC_TOTALS.set(obcKey, parseInt(total) || 0);
+                            OBC_INFO.set(obcKey, { recipient: recipient || 'N/A', arrivalTime: arrivalTime || 'N/A' });
+                            
+                            // Inicializar Tab si no existe
+                            if (!GLOBAL_STATE.tabs[obcKey]) {
+                                addOBC(obcKey, false);
+                            }
+                        }
+                    });
+
+                    // Limpiar tabs que ya no están en la BD
+                    for (const obc in GLOBAL_STATE.tabs) {
+                        if (obc !== GLOBAL_STATE.activeOBC && !BD_OBC_MAP.has(obc)) {
+                            // removeOBC(obc); // Descomentar para remover
+                        }
+                    }
+
+                    document.getElementById('bd-count').textContent = BD_CODES.size.toLocaleString();
+                    renderOBCList();
+                    updateProgressCard();
+                    saveBDCache();
+                    showNotification(`Base de Datos cargada: ${BD_CODES.size} códigos.`, 'success');
+                } else {
+                    showNotification('Advertencia: La BD está vacía.', 'warning');
+                }
+            } catch (error) {
+                console.error('Error al cargar la BD:', error);
+                showNotification('Error grave al cargar la BD de Sheets. Usando datos en caché.', 'error');
+            }
+        }
+
+        // ==================== UTILIDADES DE ESTADO ====================
+        function updateGlobalState() {
+            const activeOBC = GLOBAL_STATE.activeOBC;
+            const userSelect = document.getElementById('user-select');
+            const locationInput = document.getElementById('global-location');
+            
+            if (GLOBAL_STATE.tabs[activeOBC]) {
+                GLOBAL_STATE.tabs[activeOBC].user = userSelect.value;
+                GLOBAL_STATE.tabs[activeOBC].location = locationInput.value.toUpperCase();
+            }
+
+            document.getElementById('active-user-display').value = userSelect.value;
+            document.getElementById('active-obc-display').value = activeOBC;
+            
+            saveState();
+        }
+
+        function extractCode(rawCode) {
+            // Eliminar espacios en blanco
+            let code = rawCode.trim();
+
+            // Asumir que si el código tiene una longitud > 12 es un código de barras largo
+            // o un código que incluye el OBC, pero para la validación solo necesitamos el código de la caja.
+            // Si el código termina en el OBC, lo quitamos. Esto es una heurística y puede requerir ajuste.
+            const activeOBC = GLOBAL_STATE.activeOBC.toLowerCase();
+            if (code.toLowerCase().endsWith(activeOBC)) {
+                code = code.substring(0, code.length - activeOBC.length);
+            }
+            
+            // Si sigue siendo muy largo, podría ser una etiqueta SSCC. Usar el código completo, se normalizará.
+            return code;
+        }
+
+        function normalizeCode(code) {
+            // Convierte a mayúsculas y quita caracteres especiales para la búsqueda en Sets.
+            return code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        }
+
+        // ==================== LÓGICA DE VALIDACIÓN ====================
+        
+        async function processScan(rawCode) {
+            // Comprobación de BD
+            if (BD_CODES.size === 0) {
+                showConnectionAlert(
+                    '📊 Base de Datos No Cargada',
+                    'Debes cargar la base de datos de códigos antes de comenzar a validar. Pulsa el botón para cargarla.',
+                    [{ text: 'Cargar BD Ahora', action: loadDatabase, primary: true }]
+                );
+                return;
+            }
+            
+            if (!isAuth) {
+                showNotification('⚠️ Sin conexión a Google Sheets. Los datos se guardarán SOLO LOCALMENTE.', 'warning');
+            }
+            
+            const activeOBC = GLOBAL_STATE.activeOBC;
+            const tab = GLOBAL_STATE.tabs[activeOBC];
+            const user = tab.user;
+            const location = tab.location;
+            
+            if (!location) {
+                showNotification('⚠️ ¡Alerta! Debes ingresar una Ubicación Global para el escaneo.', 'warning');
+                document.getElementById('global-location').focus();
+                flashInput('warning');
+                return;
+            }
+
+            const extractedCode = extractCode(rawCode);
+            const normalizedCode = normalizeCode(extractedCode);
+            
+            // Pre-guardar el código escaneado para el forzado/duplicado
+            lastScannedCode = { rawCode, extracted: normalizedCode, obc: activeOBC, user, location };
+
+            // 1. Verificar si la orden ya está al 100%
+            const totalExpected = OBC_TOTALS.get(activeOBC) || 0;
+            const scannedCount = tab.validations.length;
+            const isCompleted = totalExpected > 0 && scannedCount >= totalExpected;
+            
+            if (isCompleted) {
+                showCompletedOrderPopup();
+                return;
+            }
+            
+            // 2. Concatenar Código + OBC para buscar en BD (Columna I)
+            const concatenatedForSearch = normalizedCode + activeOBC.toLowerCase();
+            
+            // 3. Buscar el código concatenado en BD
+            if (!BD_CODES.has(concatenatedForSearch.toLowerCase())) {
+                const obcCodes = BD_OBC_MAP.get(activeOBC) || new Set();
+                let rejectionReason = 'CÓDIGO_NO_ENCONTRADO_EN_OBC';
+
+                // Si no está en la OBC activa, verificar si está en OTRA OBC
+                let foundInOtherOBC = false;
+                for (const [obcKey, codeSet] of BD_OBC_MAP.entries()) {
+                    if (obcKey !== activeOBC && codeSet.has(normalizedCode.toLowerCase())) {
+                        rejectionReason = `CÓDIGO_PERTENECE_A_OBC_${obcKey}`;
+                        foundInOtherOBC = true;
+                        break;
+                    }
+                }
+
+                if (!foundInOtherOBC && obcCodes.size > 0 && !obcCodes.has(normalizedCode.toLowerCase())) {
+                    rejectionReason = 'CÓDIGO_NO_ENCONTRADO_EN_OBC'; // Reafirmar que no está en ninguna parte de la OBC activa
+                } else if (obcCodes.size === 0) {
+                    rejectionReason = 'OBC_SIN_CÓDIGOS_EN_BD';
+                }
+
+                await handleValidationRejection(rawCode, extractedCode, activeOBC, user, location, rejectionReason);
+                return;
+            }
+
+            // 4. Verificar si ya fue validado en la BD de escritura (historial Sheets)
+            const historyKey = `${normalizedCode}${activeOBC}`.toLowerCase();
+            const previousValidation = OBC_VALIDATION_HISTORY.get(historyKey);
+            
+            if (previousValidation) {
+                document.getElementById('prev-code').textContent = normalizedCode;
+                document.getElementById('prev-obc').textContent = activeOBC;
+                document.getElementById('prev-timestamp').textContent = previousValidation.timestamp;
+                document.getElementById('prev-user').textContent = previousValidation.user;
+                document.getElementById('previous-validation-popup').style.display = 'flex';
+                return; 
+            }
+
+            // 5. Verificar Duplicados locales (en la sesión actual)
+            const isDuplicate = tab.validations.find(v => 
+                v.extractedCode === normalizedCode && v.obc === activeOBC
+            );
+
+            if (isDuplicate) {
+                document.getElementById('dup-code').textContent = normalizedCode;
+                document.getElementById('dup-obc').textContent = activeOBC;
+                document.getElementById('dup-timestamp').textContent = isDuplicate.date + ' ' + isDuplicate.timestamp;
+                document.getElementById('dup-user').textContent = isDuplicate.user;
+                document.getElementById('dup-location').textContent = isDuplicate.location;
+                document.getElementById('duplicate-popup').style.display = 'flex';
+                return;
+            }
+            
+            // 6. Validar OK
+            await handleValidationOK(rawCode, extractedCode, normalizedCode, activeOBC, user, location);
+        }
+
+        async function handleValidationOK(rawCode, extractedCode, normalizedCode, obc, user, location, note = '') {
+            closeAllPopups(); // Cierra cualquier popup abierto (duplicado/forzado)
+            const tab = GLOBAL_STATE.tabs[obc];
+            const now = new Date();
+            
+            const newLog = {
+                id: now.getTime(),
+                timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                date: now.toISOString().slice(0, 10),
+                user,
+                obc,
+                originalCode: rawCode,
+                extractedCode: normalizedCode,
+                location,
+                note
+            };
+            
+            tab.validations.unshift(newLog);
+            playAudio('ok');
+            flashInput('success');
+            updateProgressCard(); 
+            renderLogs();
+            await saveState(); 
+            showNotification(`✅ OK: ${normalizedCode} guardado localmente.`, 'success');
+
+            const historyKey = `${normalizedCode}${obc}`.toLowerCase();
+            OBC_VALIDATION_HISTORY.set(historyKey, {
+                user: user,
+                timestamp: `${newLog.date} ${newLog.timestamp}`,
+                obc: obc
+            });
+
+            if (isAuth) {
+                await saveValidationLog('Val3', newLog);
+            }
+        }
+        
+        async function handleValidationRejection(rawCode, extractedCode, obc, user, location, rejectionReason) {
+            const tab = GLOBAL_STATE.tabs[obc];
+            const now = new Date();
+            
+            const newLog = {
+                id: now.getTime(),
+                timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                date: now.toISOString().slice(0, 10),
+                user,
+                obc,
+                codeScanned: rawCode,
+                extractedCode: extractedCode,
+                location,
+                rejectionReason
+            };
+            
+            tab.rejections.unshift(newLog);
+            playAudio('error');
+            flashInput('error');
+            renderLogs();
+            await saveState();
+
+            document.getElementById('error-code').textContent = extractedCode || rawCode;
+            document.getElementById('error-obc').textContent = obc;
+            document.getElementById('error-reason').textContent = rejectionReason.replace(/_/g, ' ');
+            document.getElementById('error-popup').style.display = 'flex';
+            
+            if (isAuth) {
+                await saveValidationLog('Rechazos', newLog, true);
+            }
+        }
+
+        // ==================== ESCRITURA A GOOGLE SHEETS ====================
+        async function saveValidationLog(sheetName, logRecord, isRejection = false) {
+            if (!isAuth) {
+                showNotification(`⚠️ Datos de ${logRecord.extractedCode || logRecord.codeScanned} guardados SOLO localmente.`, 'warning');
+                return;
+            }
+
+            try {
+                const values = isRejection ? [
+                    [
+                        logRecord.date + ' ' + logRecord.timestamp, // Columna A
+                        logRecord.user, // Columna B
+                        logRecord.obc, // Columna C
+                        logRecord.codeScanned, // Columna D
+                        logRecord.extractedCode, // Columna E
+                        logRecord.location, // Columna F
+                        logRecord.rejectionReason // Columna G
+                    ]
+                ] : [
+                    [
+                        logRecord.date + ' ' + logRecord.timestamp, // Columna A
+                        logRecord.user, // Columna B
+                        logRecord.obc, // Columna C
+                        logRecord.originalCode, // Columna D
+                        logRecord.extractedCode, // Columna E
+                        logRecord.location, // Columna F
+                        logRecord.note || '' // Columna G
+                    ]
+                ];
+
+                const response = await gapi.client.sheets.spreadsheets.values.append({
+                    spreadsheetId: SPREADSHEET_ID_WRITE,
+                    range: `${sheetName}!A1`, 
+                    valueInputOption: 'USER_ENTERED',
+                    insertDataOption: 'INSERT_ROWS',
+                    resource: { values: values },
+                });
+
+                if (response.result.updates.updatedCells > 0) {
+                    showNotification(`${isRejection ? '❌ Rechazo' : '✅ Validación'} de ${logRecord.extractedCode || logRecord.codeScanned} guardada en Sheets.`, 'info');
+                } else {
+                    throw new Error('No se guardaron celdas.');
+                }
+            } catch (error) {
+                console.error(`Error al guardar en Sheets (${sheetName}):`, error);
+                // Aquí usamos el NUEVO aviso de desconexión/falla de guardado
+                showConnectionAlert(
+                    '❌ Falla al Guardar en Google Sheets',
+                    `No se pudo guardar la ${isRejection ? 'RECHAZO' : 'VALIDACIÓN'} de ${logRecord.extractedCode || logRecord.codeScanned}. Se ha guardado localmente. Revisa tu conexión y vuelve a intentar más tarde.`,
+                    [{ text: 'Entendido', action: closeConnectionAlert, primary: true }]
+                );
+            }
+        }
+
+
+        // ==================== GESTIÓN DE MODALES/POPUPS ====================
+        
+        function closeAllPopups() {
+            document.getElementById('error-popup').style.display = 'none';
+            document.getElementById('duplicate-popup').style.display = 'none';
+            document.getElementById('previous-validation-popup').style.display = 'none';
+            document.getElementById('forced-note-modal').style.display = 'none';
+        }
+
+        function closeErrorPopup() {
+            document.getElementById('error-popup').style.display = 'none';
+            document.getElementById('scanner-input').focus();
+        }
+
+        function closePreviousValidationPopup() {
+            document.getElementById('previous-validation-popup').style.display = 'none';
+            document.getElementById('scanner-input').focus();
+        }
+        
+        function closeForcedNoteModal() {
+            document.getElementById('forced-note-modal').style.display = 'none';
+            document.getElementById('scanner-input').focus();
+        }
+
+        function showForcedNoteModal(actionType) {
+            closeAllPopups();
+            lastForcedActionType = actionType;
+            document.getElementById('forced-note-input').value = '';
+            document.getElementById('forced-note-save-button').setAttribute('data-action-type', actionType);
+            document.getElementById('forced-note-modal').style.display = 'flex';
+            document.getElementById('forced-note-input').focus();
+        }
+        
+        async function handleForcedSave() {
+            const note = document.getElementById('forced-note-input').value.trim();
+            const actionType = lastForcedActionType;
+            
+            if (note.length < 5) {
+                showNotification('La nota debe tener al menos 5 caracteres de justificación.', 'error');
+                return;
+            }
+
+            if (!lastScannedCode) return;
+
+            const { rawCode, extracted, obc, user, location } = lastScannedCode;
+            
+            if (actionType === 'duplicate' || actionType === 'previous' || actionType === 'completed') {
+                await handleValidationOK(rawCode, extracted, extracted, obc, user, location, `FORZADO (${actionType.toUpperCase()}) - ${note}`);
+                closeForcedNoteModal();
+            }
+        }
+        
+        function handleDuplicateAction(action) {
+            closeAllPopups();
+            if (action === 'force') {
+                showForcedNoteModal('duplicate');
+            } else {
+                document.getElementById('scanner-input').focus();
+            }
+        }
+        
+        function showCompletedOrderPopup() {
+            // Se puede implementar un modal específico para orden completa
+            showNotification(`⚠️ OBC ${GLOBAL_STATE.activeOBC} completada al 100%. Código escaneado: ${lastScannedCode.extracted}.`, 'warning');
+            
+            const action = confirm(`La orden ${GLOBAL_STATE.activeOBC} ya está completa. ¿Deseas forzar la validación de ${lastScannedCode.extracted} con una nota?`);
+            
+            if (action) {
+                 showForcedNoteModal('completed');
+            } else {
+                document.getElementById('scanner-input').focus();
+            }
+        }
+
+        // ==================== UI RENDERING ====================
+        
+        function renderApp() {
+            renderOBCList();
+            renderTabs();
+            updateProgressCard();
+            renderLogs();
+            updateGlobalState(); 
+        }
+
+        function renderTabs() {
+            const tabBar = document.getElementById('tab-bar');
+            const obcs = Object.keys(GLOBAL_STATE.tabs).sort();
+            tabBar.innerHTML = obcs.map(obc => {
+                const isActive = obc === GLOBAL_STATE.activeOBC;
+                return `<button class="btn ${isActive ? 'btn-primary' : 'btn-secondary'}" onclick="switchOBC('${obc}')" style="margin-right: 5px;">
+                    ${obc} (${GLOBAL_STATE.tabs[obc].validations.length})
+                </button>`;
+            }).join('');
+        }
+
+        function switchOBC(obc) {
+            GLOBAL_STATE.activeOBC = obc;
+            renderApp();
+            saveState();
+            // Foco en location después de renderizar
+            setTimeout(() => {
+                const locationInput = document.getElementById('global-location');
+                locationInput.focus();
+                locationInput.select(); // Selecciona el texto para fácil reemplazo
+            }, 100);
+        }
+
+        function updateProgressCard() {
+            const obc = GLOBAL_STATE.activeOBC;
+            const tab = GLOBAL_STATE.tabs[obc];
+            const total = OBC_TOTALS.get(obc) || 0;
+            const scanned = tab ? tab.validations.length : 0;
+            const remaining = Math.max(0, total - scanned);
+            const info = OBC_INFO.get(obc) || { recipient: 'N/A', arrivalTime: 'N/A' };
+            const percentage = total > 0 ? ((scanned / total) * 100).toFixed(1) : '0.0';
+
+            document.getElementById('progress-obc-name').textContent = obc;
+            document.getElementById('progress-obc-recipient').textContent = info.recipient;
+            document.getElementById('progress-obc-arrival').textContent = info.arrivalTime;
+            
+            document.getElementById('progress-scanned').textContent = scanned.toLocaleString();
+            document.getElementById('progress-total').textContent = total.toLocaleString();
+            document.getElementById('progress-remaining').textContent = remaining.toLocaleString();
+            
+            document.getElementById('progress-percentage').textContent = `${percentage}%`;
+            document.getElementById('progress-bar-fill').style.width = `${Math.min(100, parseFloat(percentage))}%`;
+
+            const statusCard = document.getElementById('progress-card');
+            const statusText = document.getElementById('progress-status');
+
+            if (total === 0) {
+                statusText.textContent = 'Pendiente: Total de códigos no definido en la BD.';
+                statusCard.classList.remove('completed');
+            } else if (scanned >= total) {
+                statusText.textContent = `¡ORDEN COMPLETADA! Se han escaneado ${scanned} de ${total}.`;
+                statusCard.classList.add('completed');
+                playAudio('complete');
+            } else {
+                statusText.textContent = `Avance: Faltan ${remaining} códigos para completar.`;
+                statusCard.classList.remove('completed');
+            }
+            
+            // Actualizar Stats Box
+            const totalScans = tab.validations.length + tab.rejections.length;
+            const errorRate = totalScans > 0 ? ((tab.rejections.length / totalScans) * 100).toFixed(1) : '0.0';
+            document.getElementById('validated-count').textContent = tab.validations.length.toLocaleString();
+            document.getElementById('rejected-count').textContent = tab.rejections.length.toLocaleString();
+            document.getElementById('error-rate').textContent = `${errorRate}%`;
+        }
+        
+        function renderLogs() {
+            const activeOBC = GLOBAL_STATE.activeOBC;
+            const tab = GLOBAL_STATE.tabs[activeOBC];
+            const okLogsList = document.getElementById('ok-logs');
+            const rejectLogsList = document.getElementById('reject-logs');
+
+            okLogsList.innerHTML = '';
+            rejectLogsList.innerHTML = '';
+
+            tab.validations.slice(0, 10).forEach((log) => {
+                const item = document.createElement('li');
+                item.className = 'log-item log-ok';
+                item.innerHTML = `
+                    <div class="log-info">
+                        <div class="log-code">${log.extractedCode}</div>
+                        <div class="log-meta">${log.timestamp} • ${log.location || 'Sin ubicación'} ${log.note ? ` (FORZADO)` : ''}</div>
+                    </div>
+                `;
+                okLogsList.appendChild(item);
+            });
+
+            if (tab.validations.length === 0) {
+                okLogsList.innerHTML = '<li style="text-align: center; padding: 20px; color: #999; list-style: none;">No hay validaciones aún</li>';
+            }
+
+            tab.rejections.slice(0, 10).forEach((log) => {
+                const item = document.createElement('li');
+                item.className = 'log-item log-reject';
+                const reasonDisplay = log.rejectionReason.replace(/_/g, ' ');
+                item.innerHTML = `
+                    <div class="log-info">
+                        <div class="log-code">${log.extractedCode || log.codeScanned}</div>
+                        <div class="log-meta">${log.timestamp} • ${reasonDisplay}</div>
+                    </div>
+                `;
+                rejectLogsList.appendChild(item);
+            });
+
+            if (tab.rejections.length === 0) {
+                rejectLogsList.innerHTML = '<li style="text-align: center; padding: 20px; color: #999; list-style: none;">No hay rechazos</li>';
+            }
+        }
+        
+        function renderOBCList() {
+            const obcListDiv = document.getElementById('obc-list');
+            obcListDiv.innerHTML = '';
+            
+            const obcs = Array.from(BD_OBC_MAP.keys()).sort();
+            
+            if (obcs.length > 0) {
+                const ul = document.createElement('ul');
+                ul.style.listStyle = 'none';
+                ul.style.paddingLeft = '0';
+                
+                obcs.forEach(obc => {
+                    const li = document.createElement('li');
+                    const isActive = obc === GLOBAL_STATE.activeOBC;
+                    li.className = 'obc-item';
+                    li.innerHTML = `
+                        <button class="btn ${isActive ? 'btn-primary' : 'btn-secondary'}" onclick="switchOBC('${obc}')" style="width: 100%; margin-bottom: 5px; font-size: 0.85em; display: flex; justify-content: space-between; align-items: center;">
+                            ${obc} 
+                            <span style="font-size: 0.9em; font-weight: bold; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;">
+                                ${GLOBAL_STATE.tabs[obc] ? GLOBAL_STATE.tabs[obc].validations.length : 0} / ${OBC_TOTALS.get(obc) || 0}
+                            </span>
+                        </button>
+                    `;
+                    ul.appendChild(li);
+                });
+                obcListDiv.appendChild(ul);
+            } else {
+                obcListDiv.innerHTML = '<p style="font-size: 0.8em; opacity: 0.7;">No hay órdenes cargadas desde la BD.</p>';
+            }
+        }
+        
+        function populateUserSelect() {
+            const select = document.getElementById('user-select');
+            select.innerHTML = '';
+            
+            VALIDATORS.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user;
+                option.textContent = user;
+                if (user === GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC].user) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+        
+        // ==================== EVENT LISTENERS ====================
+        function setupEventListeners() {
+            document.getElementById('auth-button').onclick = handleAuthClick;
+            
+            document.getElementById('scanner-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const rawCode = e.target.value;
+                    e.target.value = ''; 
+                    
+                    if (rawCode.trim()) {
+                        processScan(rawCode);
+                    } else {
+                        flashInput('warning');
+                    }
+                }
+            });
+            
+            document.getElementById('global-location').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    updateGlobalState(); 
+                    document.getElementById('scanner-input').focus();
+                    showNotification('Ubicación establecida. Listo para escanear código.', 'info');
+                }
+            });
+        }
+        
+        // ==================== FUNCIONES DE UX/AUDIO ====================
+        function playAudio(type) {
+            if (!audioContext) return;
+
+            let frequency, duration, typeOsc;
+            switch (type) {
+                case 'ok':
+                    frequency = 880; 
+                    duration = 0.08; 
+                    typeOsc = 'sine';
+                    break;
+                case 'error':
+                    frequency = 150; 
+                    duration = 0.5; 
+                    typeOsc = 'sawtooth';
+                    break;
+                case 'complete':
+                    frequency = 988; 
+                    duration = 0.15; 
+                    typeOsc = 'triangle';
+                    break;
+                default:
+                    return;
+            }
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = typeOsc;
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        function flashInput(type) {
+            const input = document.getElementById('scanner-input');
+            const originalColor = input.style.backgroundColor;
+            const flashColor = type === 'success' ? '#e8f5e9' : '#ffebee'; 
+            const borderColor = type === 'success' ? varFromCss('--success-color') : varFromCss('--error-color');
+            const originalBorder = varFromCss('--primary-color');
+
+            input.style.transition = 'none';
+            input.style.backgroundColor = flashColor;
+            input.style.borderColor = borderColor;
+
+            setTimeout(() => {
+                input.style.transition = 'background-color 0.5s ease-out, border-color 0.5s ease-out';
+                input.style.backgroundColor = '#fff5ed'; // Color de escaneo
+                input.style.borderColor = '#ddd';
+            }, 150); 
+        }
+
+        function varFromCss(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        function showNotification(message, type = 'info', duration = 4000) {
+            const notificationBar = document.getElementById('notification-bar');
+            notificationBar.textContent = message;
+            notificationBar.className = `notification show ${type}`;
+            
+            setTimeout(() => {
+                notificationBar.classList.remove('show');
+            }, duration);
+        }
+
+        function showConnectionAlert(title, message, buttons) {
+            const overlay = document.getElementById('critical-alert-overlay');
+            overlay.innerHTML = `
+                <div class="popup-content" style="max-width: 500px; padding: 25px;">
+                    <div class="popup-header" style="color: var(--warning-color); font-size: 1.6em;">${title}</div>
+                    <p style="margin-bottom: 20px; font-size: 1.1em;">${message}</p>
+                    <div class="popup-buttons">
+                        ${buttons.map(btn => `
+                            <button class="btn ${btn.primary ? 'btn-primary' : 'btn-secondary'}" onclick="${btn.action.name}()">
+                                ${btn.text}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            overlay.style.display = 'flex';
+        }
+
+        function closeConnectionAlert() {
+            document.getElementById('critical-alert-overlay').style.display = 'none';
+            document.getElementById('scanner-input').focus();
+        }
+
+        // ==================== EXPORTACIÓN CSV ====================
+        async function exportData() {
+            const allLogs = [];
+            const header = "Timestamp,Usuario,OBC,Código Original,Código Extraído,Ubicación,Nota,Tipo\n";
+
+            for (const obc in GLOBAL_STATE.tabs) {
+                // Validaciones OK
+                GLOBAL_STATE.tabs[obc].validations.forEach(log => {
+                    const timestampString = new Date(log.id).toISOString();
+                    allLogs.push([
+                        timestampString,
+                        log.user,
+                        log.obc,
+                        `\"${log.originalCode.replace(/\"/g, '\"\"')}\"`,
+                        log.extractedCode,
+                        log.location || '',
+                        log.note || '',
+                        'OK'
+                    ].join(','));
+                });
+                
+                // Rechazos
+                GLOBAL_STATE.tabs[obc].rejections.forEach(log => {
+                    const timestampString = new Date(log.id).toISOString();
+                    allLogs.push([
+                        timestampString,
+                        log.user,
+                        log.obc,
+                        `\"${log.codeScanned.replace(/\"/g, '\"\"')}\"`,
+                        log.extractedCode,
+                        log.location || '',
+                        `RECHAZO: ${log.rejectionReason.replace(/_/g, ' ')}`,
+                        'RECHAZO'
+                    ].join(','));
+                });
+            }
+
+            const csvContent = header + allLogs.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `validaciones_${new Date().toISOString().slice(0, 10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification(`📥 Exportadas ${allLogs.length} validaciones y rechazos`, 'success');
+            playAudio('complete');
+        }
+    </script>
+</body>
+</html>
