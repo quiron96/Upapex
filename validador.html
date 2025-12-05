@@ -198,11 +198,11 @@
 
         /* Tarjeta de Progreso OBC */
         .progress-card {
-            background: linear-gradient(135deg, #ed5224 0%, #ff7849 100%);
+            background: linear-gradient(135deg, #ffa07a 0%, #ff9566 50%, #ff8a52 100%);
             color: white;
             padding: 18px;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(237, 82, 36, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 160, 122, 0.3);
             margin-bottom: 20px;
             position: relative;
             overflow: hidden;
@@ -365,13 +365,13 @@
         }
 
         .tab.new-tab {
-            background-color: #c94017;
+            background: linear-gradient(135deg, #ffb399 0%, #ff9d7a 100%);
             color: white;
-            border-color: #c94017;
+            border-color: #ffb399;
         }
 
         .tab.new-tab:hover {
-            background-color: #b33815;
+            background: linear-gradient(135deg, #ff9d7a 0%, #ff8a5c 100%);
         }
 
         .tab:hover:not(.active) {
@@ -1169,6 +1169,7 @@
                 console.log('Cargando códigos desde hoja principal...');
                 
                 const possibleSheetNames = [
+                    'BD',
                     'Outbound_出库单',
                     'Sheet1',
                     'Hoja 1'
@@ -1178,22 +1179,29 @@
 
                 for (const sheetName of possibleSheetNames) {
                     try {
+                        console.log(`Intentando cargar códigos desde: ${sheetName}!A:I`);
+                        
                         const codesResponse = await gapi.client.sheets.spreadsheets.values.get({
                             spreadsheetId: SPREADSHEET_ID_BD,
                             range: `${sheetName}!A:I`,
                         });
 
                         const codeRows = codesResponse.result.values;
+                        console.log(`Filas obtenidas de ${sheetName}:`, codeRows ? codeRows.length : 0);
                         
                         if (codeRows && codeRows.length > 1) {
                             BD_CODES.clear();
                             BD_OBC_MAP.clear();
                             
+                            // Mostrar primera fila para debug
+                            console.log('Header de la hoja:', codeRows[0]);
+                            console.log('Primera fila de datos:', codeRows[1]);
+                            
                             // Procesar códigos
                             for (let i = 1; i < codeRows.length; i++) {
                                 const row = codeRows[i];
-                                const obc = row[0] ? row[0].toString().trim() : '';
-                                const concatenated = row[8] ? row[8].toString().trim() : '';
+                                const obc = row[0] ? row[0].toString().trim() : ''; // Columna A
+                                const concatenated = row[8] ? row[8].toString().trim() : ''; // Columna I (índice 8)
                                 
                                 if (obc && concatenated) {
                                     const normalizedConcat = normalizeCode(concatenated);
@@ -1208,11 +1216,12 @@
                             }
                             
                             console.log(`Códigos cargados desde "${sheetName}":`, BD_CODES.size);
+                            console.log('Primeros códigos:', Array.from(BD_CODES).slice(0, 5));
                             codesLoaded = true;
                             break;
                         }
                     } catch (err) {
-                        console.log(`No se pudo cargar desde ${sheetName}`);
+                        console.log(`No se pudo cargar desde ${sheetName}:`, err.message);
                     }
                 }
 
