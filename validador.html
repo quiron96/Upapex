@@ -198,12 +198,12 @@
 
         /* Tarjeta de Progreso OBC */
         .progress-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ed5224 0%, #ff7849 100%);
             color: white;
-            padding: 25px;
+            padding: 18px;
             border-radius: var(--border-radius);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(237, 82, 36, 0.3);
+            margin-bottom: 20px;
             position: relative;
             overflow: hidden;
         }
@@ -232,27 +232,47 @@
         .progress-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .progress-obc-info {
+            flex: 1;
         }
 
         .progress-obc-name {
-            font-size: 1.4em;
+            font-size: 1.3em;
             font-weight: 700;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 4px;
+        }
+
+        .progress-obc-meta {
+            font-size: 0.75em;
+            opacity: 0.9;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .progress-obc-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .progress-percentage {
-            font-size: 2.5em;
+            font-size: 2.2em;
             font-weight: 800;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            line-height: 1;
         }
 
         .progress-counts {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 1.1em;
+            justify-content: space-around;
+            margin-bottom: 12px;
+            font-size: 0.95em;
             opacity: 0.95;
         }
 
@@ -263,20 +283,20 @@
         }
 
         .progress-count-number {
-            font-size: 1.8em;
+            font-size: 1.5em;
             font-weight: 700;
             line-height: 1;
         }
 
         .progress-count-label {
-            font-size: 0.75em;
-            opacity: 0.9;
-            margin-top: 4px;
+            font-size: 0.7em;
+            opacity: 0.85;
+            margin-top: 3px;
         }
 
         .progress-bar-container {
-            background: rgba(255,255,255,0.2);
-            height: 12px;
+            background: rgba(255,255,255,0.25);
+            height: 10px;
             border-radius: 20px;
             overflow: hidden;
             position: relative;
@@ -284,7 +304,7 @@
 
         .progress-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+            background: linear-gradient(90deg, #fff 0%, #ffe4b3 100%);
             border-radius: 20px;
             transition: width 0.5s ease-out;
             position: relative;
@@ -301,7 +321,7 @@
             background: linear-gradient(
                 90deg,
                 transparent,
-                rgba(255,255,255,0.3),
+                rgba(255,255,255,0.4),
                 transparent
             );
             animation: shimmer 2s infinite;
@@ -314,9 +334,10 @@
 
         .progress-status {
             text-align: center;
-            margin-top: 10px;
-            font-size: 0.9em;
-            opacity: 0.9;
+            margin-top: 8px;
+            font-size: 0.85em;
+            opacity: 0.95;
+            font-weight: 600;
         }
 
         .tab-bar { 
@@ -341,6 +362,16 @@
             background-color: var(--primary-color); 
             color: white; 
             border-color: var(--primary-color);
+        }
+
+        .tab.new-tab {
+            background-color: #c94017;
+            color: white;
+            border-color: #c94017;
+        }
+
+        .tab.new-tab:hover {
+            background-color: #b33815;
         }
 
         .tab:hover:not(.active) {
@@ -671,7 +702,7 @@
                     Desconectado ⚠️
                 </div>
                 <div style="font-size: 0.75em; opacity: 0.7; margin-top: 10px; line-height: 1.4;">
-                    <div>📖 Consulta (Col H): ...BKbV1n...</div>
+                    <div>📖 Consulta: Resumen + Col I</div>
                     <div>✍️ Escritura: ...0wV7EP...</div>
                 </div>
             </div>
@@ -696,7 +727,7 @@
             </div>
 
             <div class="sidebar-section">
-                <h3>📦 OBCs Activas</h3>
+                <h3>📦 Órdenes Activas</h3>
                 <div id="obc-list"></div>
             </div>
         </div>
@@ -716,7 +747,19 @@
                 <div id="progress-card" class="progress-card">
                     <div class="progress-content">
                         <div class="progress-header">
-                            <div class="progress-obc-name" id="progress-obc-name">OBC_DEFAULT_1</div>
+                            <div class="progress-obc-info">
+                                <div class="progress-obc-name" id="progress-obc-name">OBC_DEFAULT_1</div>
+                                <div class="progress-obc-meta">
+                                    <div class="progress-obc-meta-item">
+                                        <span>📍</span>
+                                        <span id="progress-obc-recipient">-</span>
+                                    </div>
+                                    <div class="progress-obc-meta-item">
+                                        <span>🕐</span>
+                                        <span id="progress-obc-arrival">-</span>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="progress-percentage" id="progress-percentage">0%</div>
                         </div>
                         <div class="progress-counts">
@@ -726,7 +769,7 @@
                             </div>
                             <div class="progress-count-item">
                                 <div class="progress-count-number" id="progress-total">0</div>
-                                <div class="progress-count-label">Total Esperado</div>
+                                <div class="progress-count-label">Total</div>
                             </div>
                             <div class="progress-count-item">
                                 <div class="progress-count-number" id="progress-remaining">0</div>
@@ -747,7 +790,7 @@
                             <input type="text" id="active-user-display" disabled>
                         </div>
                         <div class="input-group">
-                            <label>📦 OBC Activa:</label>
+                            <label>📦 Orden Activa:</label>
                             <input type="text" id="active-obc-display" disabled>
                         </div>
                     </div>
@@ -881,6 +924,7 @@
         let BD_CODES = new Set();
         let BD_OBC_MAP = new Map(); // Mapa de OBC -> Set de códigos
         let OBC_TOTALS = new Map(); // Mapa de OBC -> total de cajas
+        let OBC_INFO = new Map(); // Mapa de OBC -> {recipient, arrivalTime}
         let GLOBAL_STATE = {
             activeOBC: 'OBC_DEFAULT_1',
             tabs: {
@@ -974,6 +1018,9 @@
                     if (cached.obcTotals) {
                         OBC_TOTALS = new Map(cached.obcTotals);
                     }
+                    if (cached.obcInfo) {
+                        OBC_INFO = new Map(cached.obcInfo);
+                    }
                     
                     document.getElementById('bd-count').textContent = BD_CODES.size.toLocaleString();
                 }
@@ -1001,6 +1048,7 @@
                         codes: Array.from(BD_CODES),
                         obcMap: Array.from(BD_OBC_MAP.entries()).map(([obc, codes]) => [obc, Array.from(codes)]),
                         obcTotals: Array.from(OBC_TOTALS.entries()),
+                        obcInfo: Array.from(OBC_INFO.entries()),
                         timestamp: new Date().toISOString()
                     })
                 );
@@ -1077,93 +1125,122 @@
             const countElement = document.getElementById('bd-count');
             countElement.innerHTML = 'Cargando... <span class="loading"></span>';
 
-            // Lista de posibles nombres de la pestaña a intentar
-            const possibleSheetNames = [
-                'Outbound_出库单',
-                'Sheet1',
-                'Hoja 1',
-                'BD',
-                'Base de Datos'
-            ];
+            try {
+                console.log('Cargando desde pestaña "resumen"...');
+                
+                // 1. Cargar resumen de OBCs (columnas A a E)
+                const resumenResponse = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_ID_BD,
+                    range: 'Resumen!A:E',
+                });
 
-            let loadedSuccessfully = false;
+                const resumenRows = resumenResponse.result.values;
+                
+                if (!resumenRows || resumenRows.length < 2) {
+                    throw new Error('No se encontraron datos en la pestaña Resumen');
+                }
 
-            for (const sheetName of possibleSheetNames) {
-                try {
-                    console.log(`Intentando cargar desde: ${sheetName}!A:I`);
+                // Limpiar estructuras
+                OBC_TOTALS.clear();
+                OBC_INFO.clear();
+                
+                // Procesar resumen (saltar header)
+                for (let i = 1; i < resumenRows.length; i++) {
+                    const row = resumenRows[i];
+                    const obc = row[0] ? row[0].toString().trim() : '';
+                    const referenceOrder = row[1] ? row[1].toString().trim() : '';
+                    const arrivalTime = row[2] ? row[2].toString().trim() : '';
+                    const recipient = row[3] ? row[3].toString().trim() : '';
+                    const boxCount = row[4] ? parseInt(row[4]) : 0;
                     
-                    // Leer columnas A (OBC) e I (Concatenado) desde la hoja de CONSULTA
-                    const response = await gapi.client.sheets.spreadsheets.values.get({
-                        spreadsheetId: SPREADSHEET_ID_BD,
-                        range: `${sheetName}!A:I`,
-                    });
+                    if (obc && boxCount > 0) {
+                        OBC_TOTALS.set(obc, boxCount);
+                        OBC_INFO.set(obc, {
+                            recipient: recipient,
+                            arrivalTime: arrivalTime,
+                            referenceOrder: referenceOrder
+                        });
+                    }
+                }
+                
+                console.log('OBCs cargadas desde Resumen:', Array.from(OBC_TOTALS.keys()));
 
-                    const rows = response.result.values;
-                    if (rows && rows.length > 1) {
-                        // Limpiar estructuras
-                        BD_CODES.clear();
-                        BD_OBC_MAP.clear();
-                        OBC_TOTALS.clear();
+                // 2. Cargar códigos completos de la hoja principal
+                console.log('Cargando códigos desde hoja principal...');
+                
+                const possibleSheetNames = [
+                    'Outbound_出库单',
+                    'Sheet1',
+                    'Hoja 1'
+                ];
+
+                let codesLoaded = false;
+
+                for (const sheetName of possibleSheetNames) {
+                    try {
+                        const codesResponse = await gapi.client.sheets.spreadsheets.values.get({
+                            spreadsheetId: SPREADSHEET_ID_BD,
+                            range: `${sheetName}!A:I`,
+                        });
+
+                        const codeRows = codesResponse.result.values;
                         
-                        // Procesar filas (saltar header)
-                        let processedCount = 0;
-                        
-                        for (let i = 1; i < rows.length; i++) {
-                            const row = rows[i];
-                            const obc = row[0] ? row[0].toString().trim() : ''; // Columna A
-                            const concatenated = row[8] ? row[8].toString().trim() : ''; // Columna I
+                        if (codeRows && codeRows.length > 1) {
+                            BD_CODES.clear();
+                            BD_OBC_MAP.clear();
                             
-                            if (obc && concatenated) {
-                                const normalizedConcat = normalizeCode(concatenated);
+                            // Procesar códigos
+                            for (let i = 1; i < codeRows.length; i++) {
+                                const row = codeRows[i];
+                                const obc = row[0] ? row[0].toString().trim() : '';
+                                const concatenated = row[8] ? row[8].toString().trim() : '';
                                 
-                                // Agregar al Set general
-                                BD_CODES.add(normalizedConcat);
-                                
-                                // Agregar al mapa de OBC
-                                if (!BD_OBC_MAP.has(obc)) {
-                                    BD_OBC_MAP.set(obc, new Set());
-                                    OBC_TOTALS.set(obc, 0);
+                                if (obc && concatenated) {
+                                    const normalizedConcat = normalizeCode(concatenated);
+                                    
+                                    BD_CODES.add(normalizedConcat);
+                                    
+                                    if (!BD_OBC_MAP.has(obc)) {
+                                        BD_OBC_MAP.set(obc, new Set());
+                                    }
+                                    BD_OBC_MAP.get(obc).add(normalizedConcat);
                                 }
-                                BD_OBC_MAP.get(obc).add(normalizedConcat);
-                                OBC_TOTALS.set(obc, OBC_TOTALS.get(obc) + 1);
-                                
-                                processedCount++;
                             }
-                        }
-                        
-                        if (processedCount > 0) {
-                            countElement.textContent = BD_CODES.size.toLocaleString();
                             
-                            // Guardar caché
-                            await saveBDCache();
-                            
-                            console.log('OBCs cargadas:', Array.from(OBC_TOTALS.keys()));
-                            console.log('Totales por OBC:', Object.fromEntries(OBC_TOTALS));
-                            
-                            showNotification(`✅ BD cargada desde "${sheetName}": ${BD_CODES.size.toLocaleString()} códigos en ${OBC_TOTALS.size} OBCs`, 'success');
-                            playAudio('ok');
-                            loadedSuccessfully = true;
-                            renderApp(); // Actualizar la UI con los nuevos datos
+                            console.log(`Códigos cargados desde "${sheetName}":`, BD_CODES.size);
+                            codesLoaded = true;
                             break;
                         }
+                    } catch (err) {
+                        console.log(`No se pudo cargar desde ${sheetName}`);
                     }
-                } catch (err) {
-                    console.log(`No se pudo cargar desde ${sheetName}:`, err.result?.error?.message || err.message);
                 }
-            }
 
-            if (!loadedSuccessfully) {
-                countElement.textContent = '0 (Error)';
-                showNotification('❌ No se encontró la pestaña con datos. Verifica el nombre de la hoja.', 'error');
+                if (!codesLoaded) {
+                    throw new Error('No se pudieron cargar los códigos de la hoja principal');
+                }
+
+                // Éxito
+                countElement.textContent = BD_CODES.size.toLocaleString();
+                await saveBDCache();
                 
+                showNotification(`✅ BD cargada: ${BD_CODES.size.toLocaleString()} códigos en ${OBC_TOTALS.size} OBCs`, 'success');
+                playAudio('ok');
+                renderApp();
+
+            } catch (err) {
+                console.error('Error al cargar BD:', err);
+                countElement.textContent = '0 (Error)';
+                showNotification(`❌ Error: ${err.message}`, 'error');
+                
+                // Mostrar pestañas disponibles
                 try {
                     const metadata = await gapi.client.sheets.spreadsheets.get({
                         spreadsheetId: SPREADSHEET_ID_BD
                     });
-                    
                     const sheetNames = metadata.result.sheets.map(s => s.properties.title);
                     console.log('Pestañas disponibles:', sheetNames);
-                    alert(`❌ Error al cargar BD.\n\nPestañas disponibles:\n${sheetNames.join('\n')}\n\nIntenta cambiar el nombre en el código o verifica que las columnas A e I tengan datos.`);
+                    alert(`❌ Error al cargar BD.\n\nPestañas disponibles:\n${sheetNames.join('\n')}\n\nAsegúrate de tener:\n- Pestaña "Resumen" con columnas A-E\n- Pestaña principal con columna I`);
                 } catch (metaErr) {
                     console.error('Error al obtener metadata:', metaErr);
                 }
@@ -1386,7 +1463,7 @@
         }
 
         function addOBC() {
-            const newOBC = prompt("Ingresa el número de la nueva OBC (Ej: OBC31251120RV):");
+            const newOBC = prompt("Ingresa el número de la nueva Orden (Ej: OBC31251120RV):");
             if (!newOBC) return;
             
             const obcName = newOBC.toUpperCase().trim();
@@ -1398,18 +1475,18 @@
                     rejections: []
                 };
                 switchOBC(obcName);
-                showNotification(`✅ OBC ${obcName} creada`, 'success');
+                showNotification(`✅ Orden ${obcName} creada`, 'success');
             }
         }
 
         function removeOBC(obc) {
             const obcKeys = Object.keys(GLOBAL_STATE.tabs);
             if (obcKeys.length <= 1) {
-                showNotification('⚠️ Debe haber al menos una OBC activa', 'warning');
+                showNotification('⚠️ Debe haber al menos una Orden activa', 'warning');
                 return;
             }
 
-            if (confirm(`¿Eliminar OBC ${obc}? Los datos se mantendrán en el storage.`)) {
+            if (confirm(`¿Eliminar Orden ${obc}? Los datos se mantendrán en el storage.`)) {
                 delete GLOBAL_STATE.tabs[obc];
                 
                 if (GLOBAL_STATE.activeOBC === obc) {
@@ -1418,7 +1495,7 @@
                 
                 renderApp();
                 saveState();
-                showNotification(`OBC ${obc} eliminada`, 'info');
+                showNotification(`Orden ${obc} eliminada`, 'info');
             }
         }
 
@@ -1443,11 +1520,9 @@
             });
 
             const newTabBtn = document.createElement('div');
-            newTabBtn.className = 'tab';
-            newTabBtn.textContent = '+ Nueva OBC';
+            newTabBtn.className = 'tab new-tab';
+            newTabBtn.textContent = '+ Nueva Orden';
             newTabBtn.onclick = addOBC;
-            newTabBtn.style.backgroundColor = 'var(--primary-color)';
-            newTabBtn.style.color = 'white';
             tabBar.appendChild(newTabBtn);
 
             // Actualizar campos
@@ -1477,14 +1552,17 @@
             const activeOBC = GLOBAL_STATE.activeOBC;
             const tab = GLOBAL_STATE.tabs[activeOBC];
             
-            // Obtener total esperado de la BD
+            // Obtener datos de la OBC
             const totalExpected = OBC_TOTALS.get(activeOBC) || 0;
+            const obcInfo = OBC_INFO.get(activeOBC) || { recipient: '-', arrivalTime: '-' };
             const scannedCount = tab.validations.length;
             const remaining = Math.max(0, totalExpected - scannedCount);
             const percentage = totalExpected > 0 ? Math.min(100, (scannedCount / totalExpected) * 100) : 0;
             
             // Actualizar elementos
             document.getElementById('progress-obc-name').textContent = activeOBC;
+            document.getElementById('progress-obc-recipient').textContent = obcInfo.recipient || '-';
+            document.getElementById('progress-obc-arrival').textContent = obcInfo.arrivalTime || '-';
             document.getElementById('progress-percentage').textContent = `${percentage.toFixed(0)}%`;
             document.getElementById('progress-scanned').textContent = scannedCount.toLocaleString();
             document.getElementById('progress-total').textContent = totalExpected.toLocaleString();
@@ -1494,9 +1572,13 @@
             // Actualizar estado
             let status = '';
             if (totalExpected === 0) {
-                status = '⚠️ OBC no encontrada en la BD';
+                status = '⚠️ Orden no encontrada en la BD';
             } else if (percentage === 100) {
-                status = '✅ ¡OBC completada!';
+                status = '✅ ¡ORDEN COMPLETADA!';
+                // Mostrar mensaje de éxito
+                if (scannedCount === totalExpected && scannedCount > 0) {
+                    showCompletionMessage(activeOBC, scannedCount);
+                }
             } else if (percentage >= 75) {
                 status = '🔥 ¡Casi terminado!';
             } else if (percentage >= 50) {
@@ -1508,6 +1590,36 @@
             }
             
             document.getElementById('progress-status').textContent = status;
+        }
+
+        function showCompletionMessage(obc, count) {
+            // Evitar mostrar múltiples veces
+            const completionKey = `completion_${obc}_${count}`;
+            if (sessionStorage.getItem(completionKey)) {
+                return;
+            }
+            sessionStorage.setItem(completionKey, 'true');
+            
+            // Sonido de éxito (tono más alegre)
+            if (audioContext) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                gainNode.gain.value = 0.3;
+                
+                // Secuencia de tonos ascendentes
+                oscillator.frequency.setValueAtTime(523, audioContext.currentTime); // C5
+                oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.15); // E5
+                oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.3); // G5
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.6);
+            }
+            
+            // Mensaje visual
+            setTimeout(() => {
+                alert(`🎉 ¡FELICIDADES!\n\n✅ ORDEN ${obc} COMPLETADA\n\n📦 Total validado: ${count} cajas\n\n¡Excelente trabajo!`);
+            }, 500);
         }
 
         function renderOBCList() {
@@ -1601,7 +1713,7 @@
             // Personalizar el mensaje según el tipo de error
             let displayReason = reason.replace(/_/g, ' ');
             if (reason === 'CODIGO_DE_OTRA_OBC') {
-                displayReason = '⚠️ CÓDIGO DE OTRA OBC - Este código existe pero pertenece a una orden diferente';
+                displayReason = '⚠️ CÓDIGO DE OTRA ORDEN - Este código existe pero pertenece a una orden diferente';
             }
             
             document.getElementById('error-reason').textContent = displayReason;
