@@ -248,7 +248,7 @@
         }
 
         .progress-obc-meta {
-            font-size: 0.75em;
+            font-size: 0.85em;
             opacity: 0.9;
             display: flex;
             gap: 12px;
@@ -1312,24 +1312,40 @@
             
             lastScannedCode = { rawCode, extracted: null, obc: activeOBC, user, location };
 
+            // 1. Extraer el código puro (sin OBC)
             const extractedCode = extractCode(rawCode);
             const normalizedCode = normalizeCode(extractedCode);
             lastScannedCode.extracted = normalizedCode;
 
-            // 1. Buscar en BD general
-            if (!BD_CODES.has(normalizedCode)) {
-                await handleRejection('NO_EXISTE_EN_BD', rawCode, normalizedCode, activeOBC);
+            // 2. Concatenar Código + OBC para buscar en columna I
+            const concatenatedForSearch = normalizedCode + activeOBC.toLowerCase();
+            
+            console.log('Código escaneado:', rawCode);
+            console.log('Código extraído:', normalizedCode);
+            console.log('OBC activa:', activeOBC);
+            console.log('Concatenado para buscar:', concatenatedForSearch);
+
+            // 3. Buscar el código concatenado en BD
+            if (!BD_CODES.has(concatenatedForSearch)) {
+                // Verificar si existe en otra OBC
+                let existsInOtherOBC = false;
+                for (const [obc, codes] of BD_OBC_MAP.entries()) {
+                    const testConcat = normalizedCode + obc.toLowerCase();
+                    if (BD_CODES.has(testConcat)) {
+                        existsInOtherOBC = true;
+                        break;
+                    }
+                }
+                
+                if (existsInOtherOBC) {
+                    await handleRejection('CODIGO_DE_OTRA_ORDEN', rawCode, normalizedCode, activeOBC);
+                } else {
+                    await handleRejection('NO_EXISTE_EN_BD', rawCode, normalizedCode, activeOBC);
+                }
                 return;
             }
 
-            // 2. Verificar que el código pertenezca a la OBC activa
-            const obcCodes = BD_OBC_MAP.get(activeOBC);
-            if (obcCodes && !obcCodes.has(normalizedCode)) {
-                await handleRejection('CODIGO_DE_OTRA_OBC', rawCode, normalizedCode, activeOBC);
-                return;
-            }
-
-            // 3. Verificar Duplicados (Solo con la OBC actual)
+            // 4. Verificar Duplicados (Solo con la OBC actual)
             const isDuplicate = tab.validations.find(v => 
                 v.extractedCode === normalizedCode && v.obc === activeOBC
             );
@@ -1341,7 +1357,7 @@
                 return;
             }
             
-            // 4. Validar OK
+            // 5. Validar OK
             await handleValidationOK(rawCode, extractedCode, normalizedCode, activeOBC, user, location);
         }
 
