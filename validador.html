@@ -4,2391 +4,1512 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Validación WMS</title>
-    <meta name="theme-color" content="#ed5224">
     <style>
         :root {
-            --primary-color: #ed5224;
-            --secondary-color: #333;
-            --background-color: #f7f7f7;
-            --text-color: #333;
-            --success-color: #4CAF50;
-            --error-color: #F44336;
-            --warning-color: #FF9800;
-            --border-radius: 8px;
-            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --primary: #ed5224;
+            --success: #4CAF50;
+            --error: #F44336;
+            --warning: #FF9800;
+            --text: #333;
+            --bg: #f7f7f7;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: var(--background-color); 
-            display: flex; 
-            min-height: 100vh;
-            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: var(--bg); 
+            color: var(--text);
         }
 
-        .container {
-            display: flex;
-            width: 100%;
-        }
-
-        .sidebar { 
-            width: 280px; 
-            background-color: var(--secondary-color); 
-            color: white; 
-            padding: 20px; 
-            flex-shrink: 0; 
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            overflow-y: auto;
-        }
+        /* === DASHBOARD === */
+        #dashboard { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+        .dash-header { text-align: center; margin-bottom: 40px; }
+        .dash-header h1 { font-size: 2.2em; color: var(--primary); margin-bottom: 8px; }
         
-        .main-content { 
-            flex-grow: 1; 
-            padding: 20px; 
-            overflow-y: auto;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .dash-card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+        .dash-card-icon { font-size: 2.5em; margin-bottom: 10px; }
+        .dash-card-value { font-size: 2em; font-weight: 700; color: var(--primary); margin-top: 5px; }
         
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .header h1 { 
-            color: var(--primary-color); 
-            font-size: 1.8em;
-        }
-
-        .card { 
-            background-color: white; 
-            padding: 20px; 
-            border-radius: var(--border-radius); 
-            box-shadow: var(--shadow); 
-            margin-bottom: 20px; 
-        }
+        .status-grid { display: grid; gap: 12px; margin-bottom: 20px; }
+        .status-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9f9f9; border-radius: 6px; }
+        .status-indicator { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+        .status-ok { background: var(--success); }
+        .status-error { background: var(--error); }
         
-        .btn { 
-            padding: 12px 18px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: all 0.2s;
-            font-size: 0.95em;
-        }
+        .btn { padding: 15px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 1.1em; transition: all 0.2s; width: 100%; }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; font-size: 1.4em; padding: 20px; }
+        .btn-google { background: #4285F4; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-small { padding: 8px 15px; font-size: 0.85em; width: auto; }
 
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-primary { 
-            background-color: var(--primary-color); 
+        /* === VALIDATION SCREEN === */
+        #validation { display: none; min-height: 100vh; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 200px; background: #333; color: white; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; }
+        .main-content { flex: 1; padding: 15px; overflow-y: auto; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .header h1 { color: var(--primary); font-size: 1.6em; flex: 1; }
+        
+        .card { background: white; padding: 18px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        
+        /* Progress Card */
+        .progress-card { 
+            background: linear-gradient(135deg, #ffa07a 0%, #ff8a52 100%); 
             color: white; 
-        }
-
-        .btn-primary:hover { 
-            background-color: #c94017; 
-        }
-
-        .btn-secondary { 
-            background-color: #6c757d; 
-            color: white; 
-        }
-
-        .btn-google { 
-            background-color: #4285F4;
-            color: white; 
-            width: 100%;
+            padding: 15px; 
+            border-radius: 8px; 
             margin-bottom: 15px; 
         }
-        
-        .input-group { 
-            margin-bottom: 15px;
-        }
-
-        .input-group label { 
-            display: block; 
-            margin-bottom: 5px; 
-            font-weight: 600; 
-            font-size: 0.9em; 
-        }
-
-        .input-group input, .input-group select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 2px solid #ddd; 
-            border-radius: 6px; 
-            font-size: 1em;
-            transition: border-color 0.2s;
-        }
-
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        /* AJUSTE: Fondo naranja tenue para input de escaneo */
-        .scanner-input { 
-            font-size: 1.8em !important; 
-            text-transform: uppercase; 
-            font-weight: bold;
-            padding: 15px !important;
-            text-align: center;
-            border: 3px solid #ddd !important;
-            background-color: #fff5ed !important; /* Naranja tenue */
-        }
-
-        /* AJUSTE: Estado deshabilitado del input de escaneo */
-        .scanner-input:disabled {
-            background-color: #f5f5f5 !important; /* Gris */
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        .stats { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 15px; 
-            margin-bottom: 25px; 
-        }
-        
-        .stat-box { 
-            text-align: center; 
-            padding: 20px; 
-            border-radius: var(--border-radius); 
-            font-size: 0.9em;
-            font-weight: 600;
-            transition: transform 0.2s;
-        }
-
-        .stat-box:hover {
-            transform: translateY(-2px);
-        }
-
-        .stat-ok { 
-            background-color: #e8f5e9; 
-            border: 2px solid var(--success-color); 
-            color: var(--success-color);
-        }
-
-        .stat-error { 
-            background-color: #ffebee; 
-            border: 2px solid var(--error-color); 
-            color: var(--error-color);
-        }
-
-        .stat-rate { 
-            background-color: #e3f2fd; 
-            border: 2px solid var(--primary-color); 
-            color: var(--primary-color);
-        }
-
-        .stat-number { 
-            font-size: 2.2em; 
-            font-weight: 700; 
-            margin-top: 5px;
-            color: var(--text-color);
-        }
-
-        /* Tarjeta de Progreso OBC (Por defecto: Naranja) */
-        .progress-card {
-            background: linear-gradient(135deg, #ffa07a 0%, #ff9566 50%, #ff8a52 100%);
-            color: white;
-            padding: 18px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(255, 160, 122, 0.3);
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-            transition: background 0.5s, box-shadow 0.5s; /* Transición para el cambio de color */
-        }
-        
-        /* AJUSTE: ESTADO COMPLETADO (VERDE) */
         .progress-card.completed {
-            background: linear-gradient(135deg, var(--success-color) 0%, #689f38 100%);
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.5); /* Sombra verde */
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%) !important;
         }
-        /* FIN AJUSTE: ESTADO COMPLETADO */
-
-        .progress-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: pulse 3s ease-in-out infinite;
+        .progress-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .progress-obc-name { font-size: 1.2em; font-weight: 700; }
+        .progress-percentage { font-size: 2em; font-weight: 800; }
+        .progress-counts { display: flex; justify-content: space-around; margin-bottom: 10px; }
+        .progress-count-item { text-align: center; }
+        .progress-count-number { font-size: 1.4em; font-weight: 700; }
+        .progress-count-label { font-size: 0.7em; opacity: 0.85; }
+        .progress-bar-container { background: rgba(0,0,0,0.25); height: 10px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.3); }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #fff, #ffd966); transition: width 0.5s; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .progress-bar-fill.completed { background: linear-gradient(90deg, #fff, #81c784) !important; }
+        
+        /* Link to faltantes */
+        .faltantes-link {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
         }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.3; }
+        .faltantes-link:hover {
+            opacity: 0.7;
         }
-
-        .progress-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .progress-header {
+        
+        /* Inputs en línea */
+        .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85em; }
+        .input-group input, .input-group select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; }
+        .scanner-input { font-size: 1.6em !important; text-transform: uppercase; font-weight: bold; text-align: center; background: #fff5ed !important; }
+        
+        /* Scanner section with manual button */
+        .scanner-section {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
+            gap: 10px;
+            align-items: flex-end;
         }
-
-        .progress-obc-info {
+        .scanner-wrapper {
             flex: 1;
         }
-
-        .progress-obc-name {
-            font-size: 1.3em;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            margin-bottom: 4px;
-        }
-
-        .progress-obc-meta {
-            font-size: 0.85em;
-            opacity: 0.9;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .progress-obc-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .progress-percentage {
-            font-size: 2.2em;
-            font-weight: 800;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            line-height: 1;
-        }
-
-        .progress-counts {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 12px;
-            font-size: 0.95em;
-            opacity: 0.95;
-        }
-
-        .progress-count-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .progress-count-number {
-            font-size: 1.5em;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .progress-count-label {
-            font-size: 0.7em;
-            opacity: 0.85;
-            margin-top: 3px;
-        }
-
-        .progress-bar-container {
-            background: rgba(0, 0, 0, 0.25);
-            height: 10px;
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        /* Color de la barra de progreso (por defecto: Dorado/Naranja) */
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #fff 0%, #ffeb99 50%, #ffd966 100%);
-            border-radius: 20px;
-            transition: width 0.5s ease-out;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-        
-        /* AJUSTE: Barra de progreso en estado completado (Verde) */
-        .progress-card.completed .progress-bar-fill {
-            background: linear-gradient(90deg, #dcedc8 0%, #8bc34a 100%);
-        }
-        /* FIN AJUSTE: Barra de progreso en estado completado */
-
-
-        .progress-bar-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255,255,255,0.4),
-                transparent
-            );
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .progress-status {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 0.85em;
-            opacity: 0.95;
+        .btn-manual {
+            padding: 10px 15px;
+            background: var(--warning);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
             font-weight: 600;
-        }
-
-        /* AJUSTE: Badge de completado con animación */
-        .progress-completed-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.3);
-            padding: 8px 16px;
-            border-radius: 20px;
             font-size: 0.9em;
-            font-weight: 700;
-            margin-top: 8px;
-            animation: completedPulse 2s ease-in-out infinite;
+            transition: all 0.2s;
+            white-space: nowrap;
         }
-
-        @keyframes completedPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* NUEVO: Contenedor para el alerta de conexión/BD */
-        .connection-alert-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0, 0, 0, 0.6); 
-            display: none; /* Inicia oculto */
-            justify-content: center; 
-            align-items: center; 
-            z-index: 10000;
-            animation: fadeIn 0.2s;
+        .btn-manual:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,152,0,0.3);
         }
         
-        .connection-alert {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            z-index: 10000;
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            animation: slideUp 0.3s;
-        }
-
-        .connection-alert-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-        }
-
-        .connection-alert-title {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: var(--error-color);
-            margin-bottom: 15px;
-        }
-
-        .connection-alert-message {
-            font-size: 1.1em;
-            color: #666;
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .connection-alert-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        /* FIN NUEVO: Alerta de conexión/BD */
-
-        .tab-bar { 
-            display: flex; 
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
+        /* Stats */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .stat-box { text-align: center; padding: 15px; border-radius: 8px; }
+        .stat-number { font-size: 2em; font-weight: 700; margin-top: 5px; }
+        .stat-ok { background: #e8f5e9; border: 2px solid var(--success); color: var(--success); }
+        .stat-error { background: #ffebee; border: 2px solid var(--error); color: var(--error); }
+        
+        /* Logs con numeración */
+        .logs-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+        .log-list { max-height: 350px; overflow-y: auto; list-style: none; background: #fafafa; padding: 10px; border-radius: 8px; counter-reset: log-counter; }
+        .log-item { display: flex; gap: 8px; padding: 8px; margin-bottom: 6px; background: white; border-radius: 4px; border-left: 4px solid; }
+        .log-item::before { content: counter(log-counter) "."; counter-increment: log-counter; font-weight: 700; min-width: 25px; }
+        .log-ok { border-color: var(--success); }
+        .log-ok::before { color: var(--success); }
+        .log-reject { border-color: var(--error); }
+        .log-reject::before { color: var(--error); }
+        .log-info { flex: 1; }
+        .log-code { font-weight: 600; }
+        
+        /* Tabs */
+        .tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
         .tab { 
-            padding: 10px 18px; 
+            padding: 8px 12px; 
             cursor: pointer; 
             border: 2px solid #ddd; 
             border-radius: 6px; 
-            background-color: #fff; 
-            font-weight: 600;
+            background: white; 
+            font-weight: 600; 
             transition: all 0.2s;
-            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-
-        .tab.active { 
-            background-color: var(--primary-color); 
-            color: white; 
-            border-color: var(--primary-color);
-        }
-
-        .tab.new-tab {
-            background: linear-gradient(135deg, #ffb399 0%, #ff9d7a 100%);
-            color: white;
-            border-color: #ffb399;
-        }
-
-        .tab.new-tab:hover {
-            background: linear-gradient(135deg, #ff9d7a 0%, #ff8a5c 100%);
-        }
-
-        .tab:hover:not(.active) {
-            background-color: #f0f0f0;
-            transform: translateY(-1px);
-        }
-        
-        /* AJUSTE: Pestaña Completada (Verde) */
-        .tab.completed {
-            background-color: var(--success-color);
-            color: white;
-            border-color: var(--success-color);
-        }
-        
-        .tab.completed:hover:not(.active) {
-            background-color: #689f38;
-        }
-
-        .tab.completed.active {
-            background-color: #388e3c; /* Verde más oscuro para el activo */
-            border-color: #388e3c;
-        }
-        /* FIN AJUSTE: Pestaña Completada (Verde) */
-
+        .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .tab.completed { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
+        .tab.new-tab { background: linear-gradient(135deg, #ffb399, #ff9d7a); color: white; }
         .tab-close {
-            margin-left: 8px;
-            font-weight: bold;
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
             opacity: 0.7;
         }
-
         .tab-close:hover {
             opacity: 1;
         }
-
-        .logs-container { 
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px; 
-        }
         
-        .log-section h3 {
-            margin-bottom: 15px;
-            color: var(--secondary-color);
-        }
-
-        .log-list { 
-            max-height: 400px; 
-            overflow-y: auto; 
-            list-style: none; 
-            /* AJUSTE: Aumento de tamaño de letra de logs */
-            font-size: 0.95em; 
-            background: #fafafa;
-            padding: 10px;
-            border-radius: var(--border-radius);
-            border: 1px solid #eee;
-        }
-
-        .log-item { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 10px; 
-            margin-bottom: 8px;
-            border-radius: 4px;
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
             background: white;
-            align-items: center;
-            transition: transform 0.1s;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .log-item:hover {
-            transform: translateX(4px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
         }
-        
-        .log-ok { 
-            border-left: 4px solid var(--success-color); 
-        }
-        
-        .log-reject { 
-            border-left: 4px solid var(--error-color); 
-        }
-
-        .log-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
-        }
-
-        .log-code {
-            font-weight: 600;
-            font-size: 1.05em;
-        }
-
-        .log-meta {
-            font-size: 0.85em;
+        .empty-state-text {
+            font-size: 1.2em;
             color: #666;
-        }
-
-        .btn-edit {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            cursor: pointer;
-            font-size: 0.9em;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .btn-edit:hover {
-            background-color: #f0f0f0;
-        }
-
-        .connection-status {
-            font-weight: bold;
-            padding: 8px;
-            border-radius: 4px;
-            margin-top: 10px;
-            font-size: 0.9em;
-            text-align: center;
-        }
-
-        .status-connected {
-            background-color: #e8f5e9;
-            color: var(--success-color);
-        }
-
-        .status-disconnected {
-            background-color: #fff3e0;
-            color: var(--warning-color);
-        }
-
-        .status-error {
-            background-color: #ffebee;
-            color: var(--error-color);
+            margin-bottom: 20px;
         }
         
-        .popup-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0, 0, 0, 0.6); 
-            display: none; 
-            justify-content: center; 
-            align-items: center; 
-            z-index: 1000;
-            animation: fadeIn 0.2s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .popup-content { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 12px; 
-            width: 90%;
-            max-width: 500px; 
-            text-align: center; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .popup-header { 
-            font-size: 1.6em; 
-            margin-bottom: 20px; 
-            font-weight: 700; 
-        }
-
-        .popup-details { 
-            text-align: left; 
-            margin-bottom: 20px; 
-            background: #f9f9f9; 
-            padding: 15px; 
-            border-radius: var(--border-radius);
-            line-height: 1.6;
-        }
+        /* Notificaciones */
+        .notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 350px; }
+        .notification { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border-left: 4px solid; animation: slideIn 0.3s; }
+        .notification.success { border-color: var(--success); }
+        .notification.error { border-color: var(--error); }
+        .notification.warning { border-color: var(--warning); }
+        .notification.info { border-color: #2196F3; }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
-        .popup-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .sidebar-section {
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #555;
-        }
-
-        .sidebar-section:last-child {
-            border-bottom: none;
-        }
-
-        .sidebar h2 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .sidebar h3 {
-            margin-bottom: 10px;
-            font-size: 1em;
-            opacity: 0.9;
-        }
-
-        .bd-info {
-            background: rgba(255,255,255,0.1);
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .bd-count {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .obc-list-item {
-            background: rgba(255,255,255,0.05);
-            padding: 8px 12px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer; /* Permite click para cambiar */
-            transition: background-color 0.1s;
-        }
-
-        .obc-list-item:hover {
-            background: rgba(255,255,255,0.15);
-        }
-
-        .loading {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 8px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 968px) {
-            .container {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                order: 2;
-            }
-            
-            .main-content {
-                order: 1;
-            }
-            
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            .logs-container {
-                grid-template-columns: 1fr;
-            }
-
-            .tab-bar {
-                justify-content: center;
-            }
-
-            .progress-header {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
-
-            .progress-counts {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .progress-percentage {
-                font-size: 2em;
-            }
-        }
-
-        .flash-success {
-            animation: flashSuccess 0.3s;
-        }
-
-        .flash-error {
-            animation: flashError 0.3s;
-        }
-
-        @keyframes flashSuccess {
-            0%, 100% { border-color: #ddd; }
-            50% { border-color: var(--success-color); background-color: #e8f5e9; }
-        }
-
-        @keyframes flashError {
-            0%, 100% { border-color: #ddd; }
-            50% { border-color: var(--error-color); background-color: #ffebee; }
-        }
-
-        .user-select-wrapper {
-            position: relative;
-        }
-
-        .user-select-wrapper::after {
-            content: '▼';
-            position: absolute;
-            right: 12px;
+        /* Popups */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .popup-content { background: white; padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .popup-header { font-size: 1.4em; font-weight: 700; margin-bottom: 15px; }
+        .popup-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        
+        /* Mini alert */
+        .mini-alert {
+            position: fixed;
             top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            color: #666;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(244, 67, 54, 0.95);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 10000;
+            animation: fadeInOut 0.4s ease-in-out;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+        
+        /* Resumen Module */
+        #resumen-module { display: none; }
+        .search-bar { padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px; width: 100%; font-size: 1em; }
+        .resumen-table { width: 100%; border-collapse: collapse; background: white; }
+        .resumen-table th, .resumen-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        .resumen-table th { background: #f5f5f5; font-weight: 700; }
+        
+        /* Faltantes Module */
+        #faltantes-module { display: none; }
+        .faltantes-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .faltantes-controls input {
+            flex: 1;
+            min-width: 200px;
+        }
+        .faltantes-controls select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            min-width: 200px;
+        }
+        .faltantes-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 8px; 
+            max-height: 600px; 
+            overflow-y: auto; 
+        }
+        .faltante-item { padding: 10px; border-radius: 6px; text-align: center; font-size: 0.8em; font-weight: 600; word-break: break-all; }
+        .faltante-ok { background: #e8f5e9; color: var(--success); }
+        .faltante-pending { background: #ffebee; color: var(--error); }
+        
+        @media (max-width: 1024px) {
+            .sidebar { width: 180px; }
+        }
+        
+        @media (max-width: 768px) {
+            .container { flex-direction: column; height: auto; }
+            .sidebar { width: 100%; }
+            .inline-inputs { grid-template-columns: 1fr; }
+            .faltantes-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <h2>🏭 WMS Validator</h2>
-                <button id="auth-button" class="btn btn-google">
-                    🔗 Conectar con Google Sheets
-                </button>
-                <div id="auth-status" class="connection-status status-disconnected">
-                    Desconectado ⚠️
-                </div>
-                <div style="font-size: 0.75em; opacity: 0.7; margin-top: 10px; line-height: 1.4;">
-                    <div>📖 Consulta: Resumen + Col I</div>
-                    <div>✍️ Escritura: ...0wV7EP...</div>
-                </div>
-            </div>
+    <div class="notification-container" id="notifications"></div>
 
-            <div class="sidebar-section">
-                <h3>📊 Base de Datos</h3>
-                <div class="bd-info">
-                    <div class="bd-count" id="bd-count">0</div>
-                    <div style="font-size: 0.85em; opacity: 0.8;">códigos cargados</div>
-                </div>
-                <button class="btn btn-primary" id="reload-bd-button" onclick="loadDatabase()" style="width: 100%;">
-                    🔄 Recargar BD
-                </button>
-            </div>
+    <!-- DASHBOARD -->
+    <div id="dashboard">
+        <div class="dash-header">
+            <h1>🏭 Sistema de Validación WMS</h1>
+            <p>Warehouse Management System</p>
+        </div>
 
-            <div class="sidebar-section">
-                <h3>👤 Usuario Activo</h3>
-                <div class="user-select-wrapper">
-                    <select id="user-select" onchange="updateGlobalState()">
-                    </select>
-                </div>
+        <div class="dash-grid">
+            <div class="dash-card">
+                <div class="dash-card-icon">📦</div>
+                <div>Órdenes de Hoy</div>
+                <div class="dash-card-value" id="dash-orders">-</div>
             </div>
-
-            <div class="sidebar-section">
-                <h3>📦 Órdenes Activas</h3>
-                <div id="obc-list"></div>
+            <div class="dash-card">
+                <div class="dash-card-icon">✅</div>
+                <div>Cajas Validadas</div>
+                <div class="dash-card-value" id="dash-validated">-</div>
+            </div>
+            <div class="dash-card">
+                <div class="dash-card-icon">📊</div>
+                <div>Códigos en BD</div>
+                <div class="dash-card-value" id="dash-bd">0</div>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="header">
-                <h1>🔍 Sistema de Validación</h1>
-                <button class="btn btn-secondary" onclick="exportData()">
-                    📥 Exportar CSV
-                </button>
+        <div class="card">
+            <h2 style="margin-bottom: 20px; color: var(--primary);">Estado del Sistema</h2>
+            <div class="status-grid">
+                <div class="status-row">
+                    <div style="display: flex; align-items: center;">
+                        <div class="status-indicator" id="status-conn"></div>
+                        Conexión Google Sheets
+                    </div>
+                    <span id="conn-label">Desconectado</span>
+                </div>
+                <div class="status-row">
+                    <div style="display: flex; align-items: center;">
+                        <div class="status-indicator" id="status-bd"></div>
+                        Base de Datos
+                    </div>
+                    <span id="bd-label">No cargada</span>
+                </div>
+            </div>
+            <button id="connect-btn" class="btn btn-google" onclick="handleAuthClick()">🔗 Conectar con Google Sheets</button>
+            <button id="load-bd-btn" class="btn btn-secondary" onclick="loadDatabase()" style="display:none; margin-top:10px;">📊 Cargar Base de Datos</button>
+        </div>
+
+        <button id="start-btn" class="btn btn-success" onclick="startValidation()" disabled style="margin-top: 20px;">
+            🚀 Iniciar Validación
+        </button>
+    </div>
+
+    <!-- VALIDATION SCREEN -->
+    <div id="validation">
+        <div class="container">
+            <div class="sidebar">
+                <h2 style="color: var(--primary); margin-bottom: 15px; font-size: 1.3em;">WMS</h2>
+                <button class="btn btn-primary btn-small" onclick="returnToDashboard()" style="margin-bottom: 10px; width: 100%;">← Dashboard</button>
+                <button class="btn btn-secondary btn-small" onclick="showResumen()" style="margin-bottom: 10px; width: 100%;">📋 Resumen</button>
+                <button class="btn btn-secondary btn-small" onclick="showFaltantes()" style="margin-bottom: 10px; width: 100%;">🔍 Faltantes</button>
+                <hr style="border-color: #555; margin: 15px 0;">
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div style="font-size: 1.3em; font-weight: 700; color: var(--primary);" id="bd-count-sidebar">0</div>
+                    <div style="font-size: 0.75em; opacity: 0.8;">códigos en BD</div>
+                </div>
+                <div id="obc-list" style="flex: 1; overflow-y: auto;"></div>
             </div>
 
-            <div id="tab-bar" class="tab-bar"></div>
+            <div class="main-content">
+                <div class="header">
+                    <h1>🔍 Validación de Cajas</h1>
+                    <button class="btn btn-secondary btn-small" onclick="exportData()">📥 CSV</button>
+                </div>
 
-            <div id="validation-area">
-                <div id="progress-card" class="progress-card">
-                    <div class="progress-content">
-                        <div class="progress-header">
-                            <div class="progress-obc-info">
-                                <div class="progress-obc-name" id="progress-obc-name">OBC_DEFAULT_1</div>
-                                <div class="progress-obc-meta">
-                                    <div class="progress-obc-meta-item">
-                                        <span>📍</span>
-                                        <span id="progress-obc-recipient">-</span>
-                                    </div>
-                                    <div class="progress-obc-meta-item">
-                                        <span>🕐</span>
-                                        <span id="progress-obc-arrival">-</span>
-                                    </div>
+                <div id="content-area">
+                    <!-- Empty state -->
+                    <div id="empty-state" class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <div class="empty-state-text">No hay órdenes activas</div>
+                        <button class="btn btn-primary" onclick="addOBC()" style="width: auto; padding: 12px 30px;">+ Nueva Orden</button>
+                    </div>
+
+                    <!-- Validation content -->
+                    <div id="validation-content" style="display: none;">
+                        <div class="tab-bar" id="tab-bar"></div>
+
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <div class="progress-obc-name" id="prog-obc">-</div>
+                                <div class="progress-percentage" id="prog-pct">0%</div>
+                            </div>
+                            <div class="progress-counts">
+                                <div class="progress-count-item">
+                                    <div class="progress-count-number" id="prog-scan">0</div>
+                                    <div class="progress-count-label">Escaneadas</div>
+                                </div>
+                                <div class="progress-count-item">
+                                    <div class="progress-count-number" id="prog-total">0</div>
+                                    <div class="progress-count-label">Total</div>
+                                </div>
+                                <div class="progress-count-item">
+                                    <div class="progress-count-number" id="prog-rest">0</div>
+                                    <div class="progress-count-label">Faltantes</div>
                                 </div>
                             </div>
-                            <div class="progress-percentage" id="progress-percentage">0%</div>
-                        </div>
-                        <div class="progress-counts">
-                            <div class="progress-count-item">
-                                <div class="progress-count-number" id="progress-scanned">0</div>
-                                <div class="progress-count-label">Escaneadas</div>
-                            </div>
-                            <div class="progress-count-item">
-                                <div class="progress-count-number" id="progress-total">0</div>
-                                <div class="progress-count-label">Total</div>
-                            </div>
-                            <div class="progress-count-item">
-                                <div class="progress-count-number" id="progress-remaining">0</div>
-                                <div class="progress-count-label">Faltantes</div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" id="prog-bar" style="width: 0%"></div>
                             </div>
                         </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%"></div>
+
+                        <div class="card">
+                            <div class="inline-inputs">
+                                <div class="input-group">
+                                    <label>📦 Orden:</label>
+                                    <input type="text" id="obc-display" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>📍 Destino:</label>
+                                    <input type="text" id="recipient-display" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>🕐 Horario:</label>
+                                    <input type="text" id="time-display" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>📍 Ubicación:</label>
+                                    <input type="text" id="location-input" placeholder="Ej: PLEC123" onchange="updateState()">
+                                </div>
+                            </div>
+                            <div class="scanner-section">
+                                <div class="scanner-wrapper">
+                                    <div class="input-group">
+                                        <label style="font-size: 1.1em; color: var(--primary);">📷 ESCANEAR CÓDIGO:</label>
+                                        <input type="text" id="scanner" class="scanner-input" placeholder="Escanea aquí..." autofocus readonly>
+                                    </div>
+                                </div>
+                                <button class="btn-manual" onclick="openManualInput()">✏️ Manual</button>
+                            </div>
                         </div>
-                        <div class="progress-status" id="progress-status">Esperando datos...</div>
+
+                        <div class="stats">
+                            <div class="stat-box stat-ok">
+                                VALIDADAS
+                                <div class="stat-number" id="stat-ok">0</div>
+                            </div>
+                            <div class="stat-box stat-error">
+                                RECHAZADAS
+                                <div class="stat-number" id="stat-error">0</div>
+                            </div>
+                        </div>
+
+                        <div class="logs-container">
+                            <div class="card">
+                                <h3>✅ Validaciones OK</h3>
+                                <ul id="log-ok" class="log-list"></ul>
+                            </div>
+                            <div class="card">
+                                <h3>❌ Rechazos</h3>
+                                <ul id="log-reject" class="log-list"></ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- RESUMEN MODULE -->
+    <div id="resumen-module">
+        <div class="container">
+            <div class="main-content" style="max-width: 100%;">
+                <div class="header">
+                    <h1>📋 Resumen de Órdenes</h1>
+                    <button class="btn btn-secondary btn-small" onclick="hideResumen()">← Volver</button>
+                </div>
                 <div class="card">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                        <div class="input-group">
-                            <label>👤 Usuario:</label>
-                            <input type="text" id="active-user-display" disabled>
-                        </div>
-                        <div class="input-group">
-                            <label>📦 Orden Activa:</label>
-                            <input type="text" id="active-obc-display" disabled>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="global-location">📍 Ubicación Global (Opcional):</label>
-                        <input type="text" id="global-location" placeholder="Ej: PLEC123, 4971098/1" onchange="updateGlobalState()">
-                    </div>
-                    
-                    <hr style="margin: 20px 0; border: none; border-top: 2px dashed #ddd;">
-                    
-                    <div class="input-group">
-                        <label for="scanner-input" style="font-size: 1.2em; color: var(--primary-color);">
-                            📷 ESCANEAR CÓDIGO (Presiona Enter):
-                        </label>
-                        <input type="text" id="scanner-input" class="scanner-input" autofocus placeholder="Escanea aquí...">
-                    </div>
-                </div>
-
-                <div class="stats">
-                    <div class="stat-box stat-ok">
-                        ✅ VALIDADAS OK
-                        <div class="stat-number" id="validated-count">0</div>
-                    </div>
-                    <div class="stat-box stat-error">
-                        ❌ RECHAZADAS
-                        <div class="stat-number" id="rejected-count">0</div>
-                    </div>
-                    <div class="stat-box stat-rate">
-                        📊 TASA ERROR
-                        <div class="stat-number" id="error-rate">0.0%</div>
-                    </div>
-                </div>
-
-                <div class="logs-container">
-                    <div class="log-section card">
-                        <h3>✅ Últimas Validaciones OK</h3>
-                        <ul id="ok-logs" class="log-list"></ul>
-                    </div>
-                    <div class="log-section card">
-                        <h3>❌ Rechazos Recientes</h3>
-                        <ul id="reject-logs" class="log-list"></ul>
+                    <input type="text" id="search-resumen" class="search-bar" placeholder="🔍 Buscar orden..." oninput="filterResumen()">
+                    <div style="overflow-x: auto;">
+                        <table class="resumen-table">
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Total</th>
+                                    <th>Validadas</th>
+                                    <th>Progreso</th>
+                                    <th>Destino</th>
+                                    <th>Horario</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resumen-tbody"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="critical-alert-overlay" class="connection-alert-overlay"></div>
-    
-    <div id="error-popup" class="popup-overlay">
-        <div class="popup-content">
-            <div class="popup-header" style="color: var(--error-color);">
-                ❌ VALIDACIÓN RECHAZADA
+    <!-- FALTANTES MODULE -->
+    <div id="faltantes-module">
+        <div class="container">
+            <div class="main-content" style="max-width: 100%;">
+                <div class="header">
+                    <h1>🔍 Códigos Faltantes</h1>
+                    <button class="btn btn-secondary btn-small" onclick="hideFaltantes()">← Volver</button>
+                </div>
+                <div class="card">
+                    <div class="faltantes-controls">
+                        <select id="faltantes-order-select" onchange="renderFaltantes()">
+                            <option value="">Seleccionar orden...</option>
+                        </select>
+                        <input type="text" id="search-faltantes" class="search-bar" placeholder="🔍 Buscar código..." oninput="filterFaltantes()">
+                    </div>
+                    <p style="margin-bottom: 15px;"><span style="color: var(--success);">✅ Validados</span> | <span style="color: var(--error);">❌ Faltantes</span></p>
+                    <div class="faltantes-grid" id="faltantes-grid"></div>
+                </div>
             </div>
-            <div class="popup-details">
-                <strong>Código:</strong> <span id="error-code"></span><br>
-                <strong>OBC:</strong> <span id="error-obc"></span><br>
-                <strong>Motivo:</strong> <span id="error-reason" style="color: var(--error-color);"></span>
+        </div>
+    </div>
+
+    <!-- POPUPS -->
+    <div id="popup-error" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--error);">❌ CÓDIGO RECHAZADO</div>
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                <strong>Código:</strong> <span id="err-code"></span><br>
+                <strong>Motivo:</strong> <span id="err-reason" style="color: var(--error);"></span>
             </div>
             <div class="popup-buttons">
-                <button class="btn btn-primary" onclick="closeErrorPopup()">
-                    Continuar Escaneando
-                </button>
+                <button class="btn btn-primary" onclick="closePopup('error')">Continuar</button>
             </div>
         </div>
     </div>
 
-    <div id="duplicate-popup" class="popup-overlay">
+    <div id="popup-dup" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--warning-color);">
-                ⚠️ CAJA YA VALIDADA
-            </div>
-            <div class="popup-details">
+            <div class="popup-header" style="color: var(--warning);">⚠️ DUPLICADO</div>
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin: 15px 0;">
                 <strong>Código:</strong> <span id="dup-code"></span><br>
-                <strong>OBC:</strong> <span id="dup-obc"></span><br>
-                <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
-                <strong>Validada anteriormente:</strong><br>
-                • <span id="dup-timestamp"></span><br>
-                • Usuario: <span id="dup-user"></span><br>
-                • Ubicación: <span id="dup-location"></span>
+                <strong>Validado:</strong> <span id="dup-when"></span><br>
+                <strong>Usuario:</strong> <span id="dup-user"></span>
             </div>
-            <p style="margin: 15px 0; font-weight: 600;">¿Qué deseas hacer?</p>
             <div class="popup-buttons">
-                <button class="btn btn-secondary" onclick="handleDuplicateAction('ignore')">
-                    Ignorar - No guardar
-                </button>
-                <button class="btn btn-primary" onclick="showForcedNoteModal()">
-                    Forzar entrada con nota
-                </button>
+                <button class="btn btn-secondary" onclick="closePopup('dup')">Ignorar</button>
+                <button class="btn btn-primary" onclick="forceDuplicate()">Forzar con Nota</button>
             </div>
         </div>
     </div>
 
-    <div id="forced-note-modal" class="popup-overlay">
+    <div id="popup-completed" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--primary-color);">
-                📝 Forzar Duplicado
+            <div class="popup-header" style="color: var(--success);">✅ ORDEN COMPLETADA</div>
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin: 15px 0; text-align: center;">
+                <div style="font-size: 1.8em; font-weight: 700; color: var(--success); margin-bottom: 10px;">🎉</div>
+                <strong>Orden:</strong> <span id="completed-obc"></span><br>
+                <strong>Cajas validadas:</strong> <span id="completed-count"></span><br>
+                <strong>Usuario:</strong> <span id="completed-user"></span>
             </div>
-            <p style="margin-bottom: 15px;">Añade una nota para justificar el duplicado:</p>
-            <input type="text" id="forced-note-input" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;" placeholder="Ej: Cambio de ubicación por error de pickeo">
             <div class="popup-buttons">
-                <button class="btn btn-primary" id="forced-note-save-button" onclick="handleDuplicateAction('force')">
-                    💾 Guardar Forzado
-                </button>
-                <button class="btn btn-secondary" onclick="closeForcedNoteModal()">
-                    ← Volver
-                </button>
+                <button class="btn btn-primary" onclick="continueToNewOrder()">Nueva Orden</button>
+                <button class="btn btn-success" onclick="saveAndClose()">Guardar y Cerrar</button>
+                <button class="btn btn-secondary" onclick="closePopup('completed')">Continuar Visualizando</button>
             </div>
         </div>
     </div>
 
-    <div id="previous-validation-popup" class="popup-overlay">
+    <div id="popup-manual" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--warning-color);">
-                ⚠️ YA VALIDADO EN SISTEMA
+            <div class="popup-header" style="color: var(--warning);">✏️ INGRESO MANUAL DE CÓDIGO</div>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                <p style="margin-bottom: 10px; color: #e65100;"><strong>⚠️ Advertencia:</strong> Solo usar para casos excepcionales</p>
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <label>Código:</label>
+                    <input type="text" id="manual-code" placeholder="Ingresa el código">
+                </div>
+                <div class="input-group">
+                    <label>Justificación (obligatoria):</label>
+                    <textarea id="manual-note" rows="3" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-family: inherit;" placeholder="Ej: Código borroso, daño en etiqueta..."></textarea>
+                </div>
             </div>
-            <div class="popup-details">
-                <strong>Código:</strong> <span id="prev-code"></span><br>
-                <strong>Orden:</strong> <span id="prev-obc"></span><br>
-                <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
-                <strong>Validado anteriormente en Google Sheets:</strong><br>
-                • <span id="prev-timestamp"></span><br>
-                • Usuario: <span id="prev-user"></span>
-            </div>
-            <p style="margin: 15px 0; font-weight: 600; color: var(--warning-color);">
-                Este código ya fue procesado. ¿Deseas continuar?
-            </p>
             <div class="popup-buttons">
-                <button class="btn btn-secondary" onclick="closePreviousValidationPopup()">
-                    Ignorar - Continuar
-                </button>
-                <button class="btn btn-primary" onclick="showForcedNoteModalForPrevious()">
-                    Forzar entrada con nota
-                </button>
+                <button class="btn btn-secondary" onclick="closePopup('manual')">Cancelar</button>
+                <button class="btn btn-primary" onclick="submitManualCode()">Validar Código</button>
             </div>
         </div>
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
-
     <script>
-        // ==================== CONFIGURACIÓN ====================
         const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
+        const SPREADSHEET_BD = '1nKqd0mqEkZ1l8wqW83_d5fyarp5BKbV1nXSNJBk4-Ck';
+        const SPREADSHEET_WRITE = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.profile';
         
-        // Hoja de CONSULTA (BD de códigos y usuarios)
-        const SPREADSHEET_ID_BD = '1nKqd0mqEkZ1l8wqW83_d5fyarp5BKbV1nXSNJBk4-Ck';
-        
-        // Hoja de ESCRITURA (Validaciones y rechazos)
-        const SPREADSHEET_ID_WRITE = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
-        
-        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
-        
-        let VALIDATORS = ['MIGUEL', 'PEDRO', 'ALEJANDRO', 'ESMERALDA', 'KATERYNE']; // Default
-        const STORAGE_KEY_PREFIX = 'wms_validation_';
-
-        // ==================== ESTADO GLOBAL ====================
+        let CURRENT_USER = '';
         let BD_CODES = new Set();
-        let BD_OBC_MAP = new Map(); // Mapa de OBC -> Set de códigos
-        let OBC_TOTALS = new Map(); // Mapa de OBC -> total de cajas
-        let OBC_INFO = new Map(); // Mapa de OBC -> {recipient, arrivalTime}
-        let OBC_VALIDATION_HISTORY = new Map(); // Mapa de código -> {user, timestamp, obc}
-        let GLOBAL_STATE = {
-            activeOBC: 'OBC_DEFAULT_1',
-            tabs: {
-                'OBC_DEFAULT_1': {
-                    user: 'MIGUEL',
-                    location: '',
-                    validations: [],
-                    rejections: []
-                }
-            }
+        let OBC_MAP = new Map();
+        let OBC_TOTALS = new Map();
+        let OBC_INFO = new Map();
+        let STATE = {
+            activeOBC: null,
+            tabs: {},
+            closedTabs: {}
         };
-        let lastScannedCode = null;
-        let TOKEN_CLIENT;
-        let audioContext;
-        let isAuth = false;
+        let TOKEN_CLIENT, audioCtx;
+        let lastScanned = null;
+        let typingTimer = null;
+        let scannerBuffer = '';
 
-        // ==================== INICIALIZACIÓN ====================
+        // === INIT ===
         document.addEventListener('DOMContentLoaded', async () => {
-            await initAudio();
+            initAudio();
             await loadFromStorage();
-            setupEventListeners();
-            populateUserSelect();
-            renderApp();
-            
-            // Inicializar Google API
-            gapi.load('client', initGoogleAPI);
+            setupListeners();
+            renderValidation();
+            gapi.load('client', initGAPI);
         });
 
-        async function initAudio() {
+        function initAudio() {
             try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                // Desbloquear el contexto de audio con una interacción del usuario
-                document.addEventListener('click', () => {
-                    if (audioContext.state === 'suspended') {
-                        audioContext.resume();
-                    }
-                }, { once: true });
-            } catch (e) {
-                console.warn('Web Audio API no disponible');
-            }
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                document.addEventListener('click', () => audioCtx.state === 'suspended' && audioCtx.resume(), { once: true });
+            } catch (e) {}
         }
 
-        async function initGoogleAPI() {
+        async function initGAPI() {
             try {
-                await gapi.client.init({
-                    discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-                });
-
+                await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
                 TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
                     client_id: CLIENT_ID,
                     scope: SCOPES,
-                    callback: handleAuthResponse,
+                    callback: async (res) => {
+                        if (res?.access_token) {
+                            gapi.client.setToken(res);
+                            await getUserProfile();
+                            updateConnectionStatus(true);
+                            loadDatabase();
+                        }
+                    }
                 });
-
-                // Intentar autenticación silenciosa si es posible
-                TOKEN_CLIENT.requestAccessToken({ prompt: 'none' });
-
-                updateAuthStatus(false);
-            } catch (error) {
-                console.error("Error al inicializar GAPI:", error);
+            } catch (e) {
                 showNotification('Error al inicializar Google API', 'error');
             }
         }
 
-        function handleAuthResponse(tokenResponse) {
-            if (tokenResponse && tokenResponse.access_token) {
-                gapi.client.setToken(tokenResponse);
-                isAuth = true;
-                updateAuthStatus(true);
-                loadUsers(); // Cargar usuarios primero
-                loadDatabase(); // Luego cargar BD
-                loadValidationHistory(); // Cargar historial de validaciones
-            } else {
-                isAuth = false;
-                updateAuthStatus(false);
+        async function getUserProfile() {
+            try {
+                const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                    headers: { Authorization: `Bearer ${gapi.client.getToken().access_token}` }
+                });
+                const data = await response.json();
+                CURRENT_USER = data.name || 'Usuario';
+                showNotification(`✅ Sesión iniciada: ${CURRENT_USER}`, 'success');
+            } catch (e) {
+                CURRENT_USER = 'Usuario';
             }
         }
 
-        // ==================== PERSISTENCIA CON WINDOW.STORAGE ====================
+        // === STORAGE ===
         async function loadFromStorage() {
             try {
-                // Cargar estado principal
-                const stateResult = await window.storage.get(`${STORAGE_KEY_PREFIX}state`);
-                if (stateResult && stateResult.value) {
-                    const parsedState = JSON.parse(stateResult.value);
-                    // Asegurar que todos los tabs tengan arrays
-                    for (const obc in parsedState.tabs) {
-                        parsedState.tabs[obc].validations = parsedState.tabs[obc].validations || [];
-                        parsedState.tabs[obc].rejections = parsedState.tabs[obc].rejections || [];
-                    }
-                    GLOBAL_STATE = parsedState;
+                const stateRes = await window.storage.get('wms_state');
+                if (stateRes?.value) {
+                    const loaded = JSON.parse(stateRes.value);
+                    STATE.tabs = loaded.tabs || {};
+                    STATE.closedTabs = loaded.closedTabs || {};
+                    STATE.activeOBC = loaded.activeOBC;
                 }
-
-                // Cargar BD caché
-                const bdResult = await window.storage.get(`${STORAGE_KEY_PREFIX}bd_cache`);
-                if (bdResult && bdResult.value) {
-                    const cached = JSON.parse(bdResult.value);
+                
+                const bdRes = await window.storage.get('wms_bd');
+                if (bdRes?.value) {
+                    const cached = JSON.parse(bdRes.value);
                     BD_CODES = new Set(cached.codes);
-                    
-                    // Restaurar mapas de OBC
-                    if (cached.obcMap) {
-                        BD_OBC_MAP = new Map(cached.obcMap.map(([obc, codes]) => [obc, new Set(codes)]));
-                    }
-                    if (cached.obcTotals) {
-                        OBC_TOTALS = new Map(cached.obcTotals);
-                    }
-                    if (cached.obcInfo) {
-                        OBC_INFO = new Map(cached.obcInfo);
-                    }
-                    
-                    document.getElementById('bd-count').textContent = BD_CODES.size.toLocaleString();
+                    OBC_MAP = new Map(cached.obcMap?.map(([k, v]) => [k, new Set(v)]));
+                    OBC_TOTALS = new Map(cached.totals);
+                    OBC_INFO = new Map(cached.info);
+                    updateDashboardStats();
                 }
-            } catch (error) {
-                console.log('Primera carga o storage no disponible:', error);
-            }
+            } catch (e) {}
         }
 
         async function saveState() {
             try {
-                await window.storage.set(
-                    `${STORAGE_KEY_PREFIX}state`,
-                    JSON.stringify(GLOBAL_STATE)
-                );
-            } catch (error) {
-                console.error('Error al guardar estado:', error);
-            }
+                await window.storage.set('wms_state', JSON.stringify(STATE));
+            } catch (e) {}
         }
 
-        async function saveBDCache() {
+        async function saveBD() {
             try {
-                await window.storage.set(
-                    `${STORAGE_KEY_PREFIX}bd_cache`,
-                    JSON.stringify({
-                        codes: Array.from(BD_CODES),
-                        obcMap: Array.from(BD_OBC_MAP.entries()).map(([obc, codes]) => [obc, Array.from(codes)]),
-                        obcTotals: Array.from(OBC_TOTALS.entries()),
-                        obcInfo: Array.from(OBC_INFO.entries()),
-                        timestamp: new Date().toISOString()
-                    })
-                );
-            } catch (error) {
-                console.error('Error al guardar caché de BD:', error);
-            }
+                await window.storage.set('wms_bd', JSON.stringify({
+                    codes: Array.from(BD_CODES),
+                    obcMap: Array.from(OBC_MAP.entries()).map(([k, v]) => [k, Array.from(v)]),
+                    totals: Array.from(OBC_TOTALS.entries()),
+                    info: Array.from(OBC_INFO.entries())
+                }));
+            } catch (e) {}
         }
 
-        // ==================== AUTENTICACIÓN ====================
-        function updateAuthStatus(isSignedIn) {
-            const statusElement = document.getElementById('auth-status');
-            const button = document.getElementById('auth-button');
-            isAuth = isSignedIn;
-            
-            if (isSignedIn) {
-                statusElement.textContent = "✅ Conectado";
-                statusElement.className = "connection-status status-connected";
-                button.textContent = "🔓 Cerrar Sesión";
-            } else {
-                statusElement.textContent = "⚠️ Desconectado";
-                statusElement.className = "connection-status status-disconnected";
-                button.textContent = "🔗 Conectar con Google Sheets";
-            }
-            // Asegurarse de que el input de escaneo no esté bloqueado si no es necesario por BD/Orden
-            document.getElementById('scanner-input').disabled = false;
-        }
-
+        // === AUTHENTICATION ===
         function handleAuthClick() {
-            if (!isAuth) {
-                TOKEN_CLIENT.requestAccessToken();
-            } else {
-                google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
-                    gapi.client.setToken(null);
-                    updateAuthStatus(false);
-                    showNotification('Sesión cerrada. Datos guardados localmente.', 'info');
-                });
-            }
+            gapi.client.getToken() ? google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
+                gapi.client.setToken(null);
+                updateConnectionStatus(false);
+            }) : TOKEN_CLIENT.requestAccessToken();
         }
 
-        document.getElementById('auth-button').onclick = handleAuthClick;
+        function updateConnectionStatus(connected) {
+            document.getElementById('status-conn').className = `status-indicator ${connected ? 'status-ok' : 'status-error'}`;
+            document.getElementById('conn-label').textContent = connected ? 'Conectado' : 'Desconectado';
+            document.getElementById('connect-btn').textContent = connected ? '🔓 Cerrar Sesión' : '🔗 Conectar';
+            document.getElementById('load-bd-btn').style.display = connected ? 'block' : 'none';
+            updateStartButton();
+        }
 
-        // ==================== CARGA DE USUARIOS ====================
-        async function loadUsers() {
-            if (!isAuth) {
-                console.log('No autenticado, usando usuarios por defecto');
+        function updateStartButton() {
+            const canStart = gapi.client.getToken() && BD_CODES.size > 0;
+            document.getElementById('start-btn').disabled = !canStart;
+        }
+
+        // === DATABASE LOADING ===
+        async function loadDatabase() {
+            if (!gapi.client.getToken()) {
+                showNotification('Conecta primero con Google Sheets', 'warning');
                 return;
             }
 
+            showNotification('Cargando base de datos...', 'info');
+            
             try {
-                const response = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: SPREADSHEET_ID_BD,
-                    range: 'Nombres!A2:A100', // Lee la columna A desde fila 2
+                const resRes = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_BD,
+                    range: 'Resumen!A:E'
                 });
 
-                const users = response.result.values;
-                if (users && users.length > 0) {
-                    VALIDATORS = users.flat().filter(user => user && user.trim() !== '');
-                    populateUserSelect();
-                    showNotification(`✅ ${VALIDATORS.length} usuarios cargados`, 'success');
-                    console.log('Usuarios cargados:', VALIDATORS);
-                } else {
-                    console.log('No se encontraron usuarios, usando lista por defecto');
-                }
-            } catch (err) {
-                console.error('Error al cargar usuarios:', err);
-                showNotification('⚠️ Usando lista de usuarios por defecto', 'warning');
-            }
-        }
-
-        // ==================== CARGA DE HISTORIAL DE VALIDACIONES ====================
-        async function loadValidationHistory() {
-            if (!isAuth) {
-                console.log('No autenticado, no se puede cargar historial');
-                return;
-            }
-
-            try {
-                console.log('Cargando historial de validaciones desde Val3...');
-                
-                const response = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: SPREADSHEET_ID_WRITE,
-                    range: 'Val3!A:E', // Fecha, Hora, Usuario, OBC, Código
-                });
-
-                const rows = response.result.values;
-                
-                if (rows && rows.length > 1) {
-                    OBC_VALIDATION_HISTORY.clear();
+                const resRows = resRes.result.values;
+                if (resRows?.length > 1) {
+                    OBC_TOTALS.clear();
+                    OBC_INFO.clear();
                     
-                    // Procesar filas (saltar header)
-                    for (let i = 1; i < rows.length; i++) {
-                        const row = rows[i];
-                        const fecha = row[0] || '';
-                        const hora = row[1] || '';
-                        const usuario = row[2] || '';
-                        const obc = row[3] || '';
-                        const codigo = row[4] || '';
-                        
-                        if (codigo && obc) {
-                            const normalizedCode = normalizeCode(codigo);
-                            const key = `${normalizedCode}_${obc}`;
-                            
-                            OBC_VALIDATION_HISTORY.set(key, {
-                                user: usuario,
-                                timestamp: `${fecha} ${hora}`,
-                                obc: obc
-                            });
+                    for (let i = 1; i < resRows.length; i++) {
+                        const [obc, ref, time, recipient, count] = resRows[i];
+                        if (obc && count) {
+                            OBC_TOTALS.set(obc, parseInt(count));
+                            OBC_INFO.set(obc, { recipient, arrivalTime: time, referenceOrder: ref });
                         }
                     }
-                    
-                    console.log(`Historial cargado: ${OBC_VALIDATION_HISTORY.size} registros`);
-                } else {
-                    console.log('No hay historial de validaciones aún');
-                }
-            } catch (err) {
-                console.warn('No se pudo cargar historial de validaciones:', err.message);
-                // No es crítico, continuar sin historial
-            }
-        }
-
-        // ==================== CARGA DE BASE DE DATOS ====================
-        async function loadDatabase() {
-            if (!isAuth) {
-                showConnectionAlert(
-                    '🔌 Sin Conexión a Google Sheets',
-                    'Debes conectar con Google Sheets para cargar la base de datos de validación.',
-                    [{ text: 'Conectar Ahora', action: handleAuthClick, primary: true }]
-                );
-                return;
-            }
-
-            const countElement = document.getElementById('bd-count');
-            countElement.innerHTML = 'Cargando... <span class="loading"></span>';
-            document.getElementById('reload-bd-button').disabled = true;
-
-            try {
-                // ... (lógica de carga de BD)
-                console.log('Cargando desde pestaña "resumen"...');
-                
-                // 1. Cargar resumen de OBCs (columnas A a E)
-                const resumenResponse = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: SPREADSHEET_ID_BD,
-                    range: 'Resumen!A:E',
-                });
-
-                const resumenRows = resumenResponse.result.values;
-                
-                if (!resumenRows || resumenRows.length < 2) {
-                    throw new Error('No se encontraron datos en la pestaña Resumen');
                 }
 
-                // Limpiar estructuras
-                OBC_TOTALS.clear();
-                OBC_INFO.clear();
-                
-                // Procesar resumen (saltar header)
-                for (let i = 1; i < resumenRows.length; i++) {
-                    const row = resumenRows[i];
-                    const obc = row[0] ? row[0].toString().trim() : '';
-                    const referenceOrder = row[1] ? row[1].toString().trim() : '';
-                    const arrivalTime = row[2] ? row[2].toString().trim() : '';
-                    const recipient = row[3] ? row[3].toString().trim() : '';
-                    const boxCount = row[4] ? parseInt(row[4]) : 0;
-                    
-                    if (obc && boxCount > 0) {
-                        OBC_TOTALS.set(obc, boxCount);
-                        OBC_INFO.set(obc, {
-                            recipient: recipient,
-                            arrivalTime: arrivalTime,
-                            referenceOrder: referenceOrder
-                        });
-                    }
-                }
-                
-                console.log('OBCs cargadas desde Resumen:', Array.from(OBC_TOTALS.keys()));
-
-                // 2. Cargar códigos completos de la hoja principal
-                console.log('Cargando códigos desde hoja principal...');
-                
-                const possibleSheetNames = [
-                    'BD',
-                    'Outbound_出库单',
-                    'Sheet1',
-                    'Hoja 1'
-                ];
-
-                let codesLoaded = false;
-
-                for (const sheetName of possibleSheetNames) {
+                const sheets = ['BD', 'Outbound_出库单', 'Sheet1'];
+                for (const sheet of sheets) {
                     try {
-                        console.log(`Intentando cargar códigos desde: ${sheetName}!A:I`);
-                        
-                        const codesResponse = await gapi.client.sheets.spreadsheets.values.get({
-                            spreadsheetId: SPREADSHEET_ID_BD,
-                            range: `${sheetName}!A:I`,
+                        const codesRes = await gapi.client.sheets.spreadsheets.values.get({
+                            spreadsheetId: SPREADSHEET_BD,
+                            range: `${sheet}!A:I`
                         });
 
-                        const codeRows = codesResponse.result.values;
-                        console.log(`Filas obtenidas de ${sheetName}:`, codeRows ? codeRows.length : 0);
-                        
-                        if (codeRows && codeRows.length > 1) {
+                        const rows = codesRes.result.values;
+                        if (rows?.length > 1) {
                             BD_CODES.clear();
-                            BD_OBC_MAP.clear();
+                            OBC_MAP.clear();
                             
-                            // Mostrar primera fila para debug
-                            console.log('Header de la hoja:', codeRows[0]);
-                            console.log('Primera fila de datos:', codeRows[1]);
-                            
-                            // Procesar códigos
-                            for (let i = 1; i < codeRows.length; i++) {
-                                const row = codeRows[i];
-                                const obc = row[0] ? row[0].toString().trim() : ''; // Columna A
-                                const concatenated = row[8] ? row[8].toString().trim() : ''; // Columna I (índice 8)
-                                
-                                if (obc && concatenated) {
-                                    const normalizedConcat = normalizeCode(concatenated);
-                                    
-                                    BD_CODES.add(normalizedConcat);
-                                    
-                                    if (!BD_OBC_MAP.has(obc)) {
-                                        BD_OBC_MAP.set(obc, new Set());
-                                    }
-                                    BD_OBC_MAP.get(obc).add(normalizedConcat);
+                            for (let i = 1; i < rows.length; i++) {
+                                const obc = rows[i][0]?.toString().trim();
+                                const concat = rows[i][8]?.toString().trim();
+                                if (obc && concat) {
+                                    const norm = normalizeCode(concat);
+                                    BD_CODES.add(norm);
+                                    if (!OBC_MAP.has(obc)) OBC_MAP.set(obc, new Set());
+                                    OBC_MAP.get(obc).add(norm);
                                 }
                             }
                             
-                            console.log(`Códigos cargados desde "${sheetName}":`, BD_CODES.size);
-                            console.log('Primeros códigos:', Array.from(BD_CODES).slice(0, 5));
-                            codesLoaded = true;
-                            break;
+                            await saveBD();
+                            updateDashboardStats();
+                            document.getElementById('status-bd').className = 'status-indicator status-ok';
+                            document.getElementById('bd-label').textContent = 'Cargada';
+                            updateStartButton();
+                            showNotification(`✅ BD cargada: ${BD_CODES.size} códigos en ${OBC_TOTALS.size} órdenes`, 'success');
+                            playSound('ok');
+                            return;
                         }
-                    } catch (err) {
-                        console.log(`No se pudo cargar desde ${sheetName}:`, err.message);
-                    }
+                    } catch (e) {}
                 }
-
-                if (!codesLoaded) {
-                    throw new Error('No se pudieron cargar los códigos de la hoja principal');
-                }
-                // ... (fin lógica de carga de BD)
-
-                // Éxito
-                countElement.textContent = BD_CODES.size.toLocaleString();
-                await saveBDCache();
                 
-                showNotification(`✅ BD cargada: ${BD_CODES.size.toLocaleString()} códigos en ${OBC_TOTALS.size} OBCs`, 'success');
-                playAudio('ok');
-                renderApp();
-
+                throw new Error('No se pudo cargar la BD');
             } catch (err) {
-                console.error('Error al cargar BD:', err);
-                countElement.textContent = '0 (Error)';
-                showNotification(`❌ Error: ${err.message}`, 'error');
-                
-                // Mostrar alerta modal de error
-                showConnectionAlert(
-                    '📊 Error al Cargar Base de Datos',
-                    `No se pudo cargar la base de datos de códigos. Por favor, verifica el archivo fuente y vuelve a intentarlo. Detalle: ${err.message}`,
-                    [{ text: 'Reintentar Carga', action: loadDatabase, primary: true }]
-                );
-
-            } finally {
-                document.getElementById('reload-bd-button').disabled = false;
+                showNotification('❌ Error al cargar BD', 'error');
+                console.error(err);
             }
         }
 
-        // ==================== EXTRACCIÓN Y NORMALIZACIÓN ====================
-        function normalizeCode(code) {
-            return code ? code.replace(/-/g, '/').toLowerCase().trim() : '';
+        function updateDashboardStats() {
+            document.getElementById('dash-bd').textContent = BD_CODES.size.toLocaleString();
+            document.getElementById('bd-count-sidebar').textContent = BD_CODES.size.toLocaleString();
+            document.getElementById('dash-orders').textContent = OBC_TOTALS.size || '-';
+            
+            let totalValidated = 0;
+            for (const obc in STATE.tabs) {
+                totalValidated += STATE.tabs[obc].validations.length;
+            }
+            for (const obc in STATE.closedTabs) {
+                totalValidated += STATE.closedTabs[obc].validations.length;
+            }
+            document.getElementById('dash-validated').textContent = totalValidated || '-';
         }
 
-        function extractCode(rawCode) {
-            const code = rawCode.trim();
+        // === CODE EXTRACTION ===
+        function extractCode(raw) {
+            const code = raw.trim();
             
-            // Patrones de formato JSON (se mantienen)
-            const pattern1 = '¨id¨ñ ¨';
-            const pattern2 = '[ID[ñ [';
+            const jsonPattern1 = /\[id\[.*?\[([\d\/\-]+)\[/i;
+            const jsonPattern2 = /¨id¨.*?¨([\d\/\-]+)¨/i;
             
-            // Intento de extracción por Formato JSON
-            if (code.includes(pattern1)) {
-                const startIndex = code.indexOf(pattern1) + pattern1.length;
-                const endIndex = code.indexOf('¨,', startIndex);
-                if (endIndex !== -1) {
-                    return code.substring(startIndex, endIndex).trim();
-                }
-            } else if (code.includes(pattern2)) {
-                const startIndex = code.indexOf(pattern2) + pattern2.length;
-                const endIndex = code.indexOf('[,', startIndex);
-                if (endIndex !== -1) {
-                    return code.substring(startIndex, endIndex).trim();
-                }
-            }
+            const match1 = code.match(jsonPattern1);
+            if (match1) return match1[1];
+            
+            const match2 = code.match(jsonPattern2);
+            if (match2) return match2[1];
+            
+            const directPattern = /^([\d\/\-]+)/;
+            const match3 = code.match(directPattern);
+            if (match3) return match3[1];
             
             return code;
         }
 
-        // ==================== LÓGICA DE VALIDACIÓN ====================
-        
-        // NUEVO: Función para mostrar alertas críticas (Conexión, BD, Completado)
-        function showConnectionAlert(title, message, actions) {
-            const overlay = document.getElementById('critical-alert-overlay');
-            const scannerInput = document.getElementById('scanner-input');
-            
-            // Bloquear el input de escaneo
-            scannerInput.disabled = true;
-            scannerInput.blur(); 
-            
-            const alertBox = document.createElement('div');
-            alertBox.className = 'connection-alert';
-            
-            let icon = '✅'; // Default
-            if (title.includes('Sin Conexión')) icon = '🔌';
-            else if (title.includes('Base de Datos')) icon = '📊';
-            else if (title.includes('ORDEN COMPLETADA')) icon = '🎉';
-            
-            alertBox.innerHTML = `
-                <div class="connection-alert-icon">${icon}</div>
-                <div class="connection-alert-title">${title}</div>
-                <div class="connection-alert-message">${message}</div>
-                <div class="connection-alert-actions" id="alert-actions"></div>
-            `;
-
-            overlay.innerHTML = '';
-            overlay.appendChild(alertBox);
-            overlay.style.display = 'flex';
-            
-            // Agregar botones de acción
-            const actionsContainer = alertBox.querySelector('#alert-actions');
-            actions.forEach(action => {
-                const button = document.createElement('button');
-                button.className = action.primary ? 'btn btn-primary' : 'btn btn-secondary';
-                button.textContent = action.text;
-                // Envuelve la acción para que cierre el popup y re-enfoque
-                button.onclick = () => {
-                    closeConnectionAlert();
-                    if (action.action) action.action();
-                };
-                actionsContainer.appendChild(button);
-            });
-            
-            playAudio('error'); // Usar sonido de error genérico para alertas críticas
+        function normalizeCode(code) {
+            return code ? code.replace(/-/g, '/').toLowerCase().trim() : '';
         }
 
-        function closeConnectionAlert() {
-            const overlay = document.getElementById('critical-alert-overlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-            }
-            document.getElementById('scanner-input').focus();
+        // === VALIDATION LOGIC ===
+        function setupListeners() {
+            const scanner = document.getElementById('scanner');
+            const location = document.getElementById('location-input');
             
-            // Asegurarse de que el input se desbloquea si no hay otra razón
-            const activeOBC = GLOBAL_STATE.activeOBC;
-            const totalExpected = OBC_TOTALS.get(activeOBC) || 0;
-            const scannedCount = GLOBAL_STATE.tabs[activeOBC]?.validations.length || 0;
-            const percentage = totalExpected > 0 ? (scannedCount / totalExpected) * 100 : 0;
-            
-            if (BD_CODES.size > 0 && percentage < 100) {
-                 document.getElementById('scanner-input').disabled = false;
-            }
-        }
-        
-        // NUEVO: Popup para orden completada
-        function showCompletedOrderPopup() {
-            const obc = GLOBAL_STATE.activeOBC;
-            showConnectionAlert(
-                `🎉 ORDEN ${obc} COMPLETADA AL 100%`,
-                'Esta orden ya alcanzó el 100% de las cajas esperadas. Por favor, selecciona una nueva acción.',
-                [
-                    { text: '➕ Nueva Orden', action: addOBC, primary: true },
-                    { text: '🔄 Cambiar Orden', action: () => { /* No hace nada más que cerrar */ }, primary: false },
-                    { text: '⚠️ Forzar Escaneo (con nota)', action: showForcedNoteModalForCompleted, primary: false }
-                ]
-            );
-        }
-
-        // NUEVO: Modal para forzar escaneo en orden completada
-        function showForcedNoteModalForCompleted() {
-            document.getElementById('critical-alert-overlay').style.display = 'none'; // Cierra la alerta de completado
-            document.getElementById('forced-note-modal').style.display = 'flex';
-            document.getElementById('forced-note-input').value = '';
-            document.getElementById('forced-note-input').focus();
-            
-            // Ajustar la acción del botón Guardar Forzado
-            document.getElementById('forced-note-save-button').onclick = handleForceScanCompleted;
-        }
-
-        // NUEVO: Manejar el forzado de escaneo en orden completada
-        async function handleForceScanCompleted() {
-            document.getElementById('forced-note-modal').style.display = 'none';
-            document.getElementById('scanner-input').focus();
-            
-            if (!lastScannedCode) {
-                showNotification('Error interno: Código no capturado', 'error');
-                return;
-            }
-            
-            const note = document.getElementById('forced-note-input').value.trim();
-            const finalNote = `FORZADO 100% COMPLETADO: ${note || 'Sin justificación'}`;
-
-            await handleValidationOK(
-                lastScannedCode.rawCode,
-                lastScannedCode.extracted,
-                lastScannedCode.extracted,
-                lastScannedCode.obc,
-                lastScannedCode.user,
-                lastScannedCode.location,
-                finalNote
-            );
-            
-            showNotification('⚠️ Escaneo forzado en orden 100% registrado', 'warning');
-            lastScannedCode = null;
-            renderApp();
-        }
-
-        async function processScan(rawCode) {
-            
-            // Comprobaciones de flujo
-            if (!isAuth) {
-                showConnectionAlert(
-                    '🔌 Sin Conexión a Google Sheets',
-                    'Debes conectar con Google Sheets para validar cajas. Pulsa el botón para continuar.',
-                    [{ text: 'Conectar Ahora', action: handleAuthClick, primary: true }]
-                );
-                return;
-            }
-            
-            if (BD_CODES.size === 0) {
-                showConnectionAlert(
-                    '📊 Base de Datos No Cargada',
-                    'Debes cargar la base de datos de códigos antes de comenzar a validar. Pulsa el botón para cargarla.',
-                    [{ text: 'Cargar BD Ahora', action: loadDatabase, primary: true }]
-                );
-                return;
-            }
-            
-            const activeOBC = GLOBAL_STATE.activeOBC;
-            const tab = GLOBAL_STATE.tabs[activeOBC];
-            const user = tab.user;
-            const location = tab.location;
-            
-            // Verificar si la orden ya está al 100%
-            const totalExpected = OBC_TOTALS.get(activeOBC) || 0;
-            const scannedCount = tab.validations.length;
-            const isCompleted = totalExpected > 0 && scannedCount >= totalExpected;
-            
-            if (isCompleted) {
-                // Pre-guardar el código escaneado para el forzado
-                const extractedCode = extractCode(rawCode);
-                const normalizedCode = normalizeCode(extractedCode);
-                lastScannedCode = { rawCode, extracted: normalizedCode, obc: activeOBC, user, location };
+            // Scanner handling - detect typing vs scanning
+            scanner.addEventListener('input', (e) => {
+                clearTimeout(typingTimer);
+                scannerBuffer = e.target.value;
                 
-                showCompletedOrderPopup();
-                return;
-            }
-            
-            lastScannedCode = { rawCode, extracted: null, obc: activeOBC, user, location };
-
-            // 1. Extraer el código puro (sin OBC)
-            const extractedCode = extractCode(rawCode);
-            const normalizedCode = normalizeCode(extractedCode);
-            lastScannedCode.extracted = normalizedCode;
-
-            // 2. Concatenar Código + OBC para buscar en columna I
-            const concatenatedForSearch = normalizedCode + activeOBC.toLowerCase();
-            
-            console.log('Código escaneado:', rawCode);
-            console.log('Código extraído:', normalizedCode);
-            console.log('OBC activa:', activeOBC);
-            console.log('Concatenado para buscar:', concatenatedForSearch);
-
-            // 3. Buscar el código concatenado en BD
-            if (!BD_CODES.has(concatenatedForSearch)) {
-                // Verificar si existe en otra OBC
-                let existsInOtherOBC = false;
-                for (const [obc, codes] of BD_OBC_MAP.entries()) {
-                    const testConcat = normalizedCode + obc.toLowerCase();
-                    if (BD_CODES.has(testConcat)) {
-                        existsInOtherOBC = true;
-                        break;
+                // Detect manual typing (slow input)
+                typingTimer = setTimeout(() => {
+                    if (scanner.value.length > 0) {
+                        showMiniAlert('⚠️ Use solo escaneo o botón Manual');
+                        scanner.value = '';
+                        scannerBuffer = '';
                     }
-                }
-                
-                if (existsInOtherOBC) {
-                    await handleRejection('CODIGO_DE_OTRA_ORDEN', rawCode, normalizedCode, activeOBC);
-                } else {
-                    await handleRejection('NO_EXISTE_EN_BD', rawCode, normalizedCode, activeOBC);
-                }
-                return;
-            }
-
-            // 4. Verificar si ya fue validado en la BD de escritura (historial)
-            const historyKey = `${normalizedCode}_${activeOBC}`;
-            const previousValidation = OBC_VALIDATION_HISTORY.get(historyKey);
-            
-            if (previousValidation) {
-                // Ya fue validado anteriormente en Google Sheets
-                lastScannedCode.previousValidation = previousValidation;
-                showPreviousValidationPopup(normalizedCode, activeOBC, previousValidation);
-                playAudio('warning');
-                return;
-            }
-
-            // 5. Verificar Duplicados locales (en la sesión actual)
-            const isDuplicate = tab.validations.find(v => 
-                v.extractedCode === normalizedCode && v.obc === activeOBC
-            );
-
-            if (isDuplicate) {
-                lastScannedCode.duplicateOf = isDuplicate;
-                showDuplicatePopup(normalizedCode, activeOBC, isDuplicate);
-                playAudio('duplicate');
-                return;
-            }
-            
-            // 6. Validar OK
-            await handleValidationOK(rawCode, extractedCode, normalizedCode, activeOBC, user, location);
-        }
-
-        async function handleValidationOK(rawCode, extractedCode, normalizedCode, obc, user, location, note = '') {
-            const tab = GLOBAL_STATE.tabs[obc];
-            const now = new Date();
-            
-            const newLog = {
-                id: now.getTime(),
-                timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                date: now.toISOString().slice(0, 10),
-                user,
-                obc,
-                originalCode: rawCode,
-                extractedCode: normalizedCode,
-                location,
-                note
-            };
-            
-            tab.validations.unshift(newLog);
-            playAudio('ok');
-            flashInput('success');
-            updateProgressCard(); // Actualizar progreso
-            renderLogs();
-            await saveState();
-
-            // Agregar al historial local
-            const historyKey = `${normalizedCode}_${obc}`;
-            OBC_VALIDATION_HISTORY.set(historyKey, {
-                user: user,
-                timestamp: `${newLog.date} ${newLog.timestamp}`,
-                obc: obc
+                }, 200);
             });
-
-            // Escritura a Google Sheets
-            if (isAuth) {
-                await saveValidationLog('Val3', newLog);
-            }
+            
+            scanner.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && scanner.value.trim()) {
+                    e.preventDefault();
+                    clearTimeout(typingTimer);
+                    
+                    if (!STATE.activeOBC) {
+                        showNotification('⚠️ Crea una orden primero', 'warning');
+                        playSound('error');
+                        scanner.value = '';
+                        return;
+                    }
+                    processScan(scanner.value.trim(), false);
+                    scanner.value = '';
+                    scannerBuffer = '';
+                }
+            });
+            
+            location.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    scanner.focus();
+                }
+            });
         }
 
-        async function handleRejection(reason, rawCode, normalizedCode, obc) {
-            const tab = GLOBAL_STATE.tabs[obc];
-            const now = new Date();
-            
-            const newLog = {
-                id: now.getTime(),
-                timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                date: now.toISOString().slice(0, 10),
-                user: tab.user,
-                obc,
-                codeScanned: rawCode,
-                extractedCode: normalizedCode,
-                rejectionReason: reason,
-            };
-            
-            tab.rejections.unshift(newLog);
-            playAudio('error');
-            flashInput('error');
-            showErrorPopup(normalizedCode, obc, reason);
-            renderLogs();
-            await saveState();
-
-            // Escritura a Google Sheets
-            if (isAuth) {
-                await saveValidationLog('Validaciones_RECHAZADAS', newLog);
-            }
+        function showMiniAlert(message) {
+            const alert = document.createElement('div');
+            alert.className = 'mini-alert';
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 400);
         }
 
-        // ==================== ESCRITURA A GOOGLE SHEETS ====================
-        async function saveValidationLog(sheetName, logRecord) {
-            if (!isAuth) {
+        async function processScan(raw, isManual = false) {
+            if (BD_CODES.size === 0) {
+                showNotification('⚠️ Carga la BD primero', 'warning');
+                playSound('error');
+                return;
+            }
+
+            const activeOBC = STATE.activeOBC;
+            if (!activeOBC) {
+                showNotification('⚠️ Crea una orden primero', 'warning');
+                playSound('error');
+                return;
+            }
+
+            const tab = STATE.tabs[activeOBC];
+            
+            if (tab.completed) {
+                showNotification('⚠️ Esta orden ya está completada', 'warning');
+                playSound('error');
                 return;
             }
             
-            const range = `${sheetName}!A1`;
-            let values = [];
-
-            if (sheetName.startsWith('Val')) {
-                values = [[
-                    logRecord.date,
-                    logRecord.timestamp,
-                    logRecord.user,
-                    logRecord.obc,
-                    logRecord.extractedCode,
-                    logRecord.location,
-                    logRecord.note
-                ]];
-            } else if (sheetName.includes('RECHAZADAS')) {
-                values = [[
-                    logRecord.date,
-                    logRecord.timestamp,
-                    logRecord.user,
-                    logRecord.obc,
-                    logRecord.codeScanned,
-                    logRecord.rejectionReason,
-                    logRecord.extractedCode
-                ]];
+            const extracted = extractCode(raw);
+            const normalized = normalizeCode(extracted);
+            const concatenated = normalized + activeOBC.toLowerCase();
+            
+            console.log('Raw:', raw);
+            console.log('Extracted:', extracted);
+            console.log('Normalized:', normalized);
+            console.log('Concatenated:', concatenated);
+            console.log('Is Manual:', isManual);
+            
+            if (!BD_CODES.has(concatenated)) {
+                await handleRejection('NO_EXISTE_EN_BD', raw, normalized, activeOBC);
+                return;
             }
+            
+            const isDup = tab.validations.find(v => v.code === normalized);
+            if (isDup) {
+                lastScanned = { raw, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup, isManual };
+                showPopup('dup', normalized, isDup);
+                playSound('duplicate');
+                return;
+            }
+            
+            await handleValidationOK(raw, normalized, activeOBC, tab.location, '', isManual);
+        }
 
-            if (values.length === 0) return;
+        async function handleValidationOK(raw, code, obc, location, note = '', isManual = false) {
+            const tab = STATE.tabs[obc];
+            const now = new Date();
+            
+            const finalNote = isManual && note ? `Codigo Escrito Manualmente: ${note}` : note;
+            
+            const log = {
+                id: now.getTime(),
+                timestamp: now.toLocaleTimeString('es-MX'),
+                date: now.toISOString().slice(0, 10),
+                user: CURRENT_USER, obc, raw, code, location, note: finalNote
+            };
+            
+            tab.validations.unshift(log);
+            playSound('ok');
+            flashInput('success');
+            
+            const total = OBC_TOTALS.get(obc) || 0;
+            if (tab.validations.length >= total && total > 0) {
+                tab.completed = true;
+                showOrderCompleted(obc);
+            }
+            
+            renderValidation();
+            await saveState();
+            
+            if (gapi.client.getToken()) await writeToSheets('Val3', log);
+        }
 
+        async function handleRejection(reason, raw, code, obc) {
+            const tab = STATE.tabs[obc];
+            const now = new Date();
+            
+            const log = {
+                id: now.getTime(),
+                timestamp: now.toLocaleTimeString('es-MX'),
+                date: now.toISOString().slice(0, 10),
+                user: CURRENT_USER, obc, raw, code, reason
+            };
+            
+            tab.rejections.unshift(log);
+            playSound('error');
+            flashInput('error');
+            showPopup('error', code, reason);
+            renderValidation();
+            await saveState();
+            
+            if (gapi.client.getToken()) await writeToSheets('Validaciones_RECHAZADAS', log);
+        }
+
+        async function writeToSheets(sheet, log) {
             try {
-                // Escribir en la hoja de ESCRITURA
+                const values = sheet === 'Val3' 
+                    ? [[log.date, log.timestamp, log.user, log.obc, log.code, log.location, log.note]]
+                    : [[log.date, log.timestamp, log.user, log.obc, log.raw, log.reason, log.code]];
+                
                 await gapi.client.sheets.spreadsheets.values.append({
-                    spreadsheetId: SPREADSHEET_ID_WRITE, // Hoja de escritura
-                    range: range,
+                    spreadsheetId: SPREADSHEET_WRITE,
+                    range: `${sheet}!A1`,
                     valueInputOption: 'USER_ENTERED',
                     insertDataOption: 'INSERT_ROWS',
                     resource: { values }
                 });
-                console.log(`✅ Log escrito en ${sheetName}`);
-            } catch (err) {
-                console.error(`❌ Error al escribir en ${sheetName}:`, err);
-                showNotification(`⚠️ No se pudo escribir en Google Sheets (${sheetName})`, 'warning');
+            } catch (e) {
+                console.error('Error writing to sheets:', e);
             }
         }
 
-        // ==================== RENDERIZADO ====================
-        function updateGlobalState() {
-            const activeOBC = GLOBAL_STATE.activeOBC;
-            const tab = GLOBAL_STATE.tabs[activeOBC];
-
-            tab.user = document.getElementById('user-select').value;
-            tab.location = document.getElementById('global-location').value.toUpperCase().trim();
+        // === RENDERING ===
+        function renderValidation() {
+            const activeOBC = STATE.activeOBC;
+            const hasOrders = Object.keys(STATE.tabs).length > 0;
             
-            document.getElementById('active-user-display').value = tab.user;
-            document.getElementById('active-obc-display').value = activeOBC;
+            document.getElementById('empty-state').style.display = hasOrders ? 'none' : 'block';
+            document.getElementById('validation-content').style.display = hasOrders ? 'block' : 'none';
+            
+            if (!hasOrders) {
+                updateSidebar();
+                return;
+            }
+            
+            const tab = STATE.tabs[activeOBC];
+            
+            const total = OBC_TOTALS.get(activeOBC) || 0;
+            const scanned = tab.validations.length;
+            const remaining = Math.max(0, total - scanned);
+            const pct = total > 0 ? Math.min(100, (scanned / total) * 100) : 0;
+            const isCompleted = tab.completed;
+            
+            const progressCard = document.querySelector('.progress-card');
+            const progressBar = document.getElementById('prog-bar');
+            if (isCompleted) {
+                progressCard.classList.add('completed');
+                progressBar.classList.add('completed');
+            } else {
+                progressCard.classList.remove('completed');
+                progressBar.classList.remove('completed');
+            }
+            
+            document.getElementById('prog-obc').textContent = activeOBC;
+            document.getElementById('prog-pct').textContent = `${pct.toFixed(0)}%`;
+            document.getElementById('prog-scan').textContent = scanned;
+            document.getElementById('prog-total').textContent = total;
+            document.getElementById('prog-rest').textContent = remaining;
+            document.getElementById('prog-bar').style.width = `${pct}%`;
+            
+            const rejected = tab.rejections.filter(r => r.reason === 'NO_EXISTE_EN_BD').length;
+            document.getElementById('stat-ok').textContent = scanned;
+            document.getElementById('stat-error').textContent = rejected;
+            
+            const tabBar = document.getElementById('tab-bar');
+            tabBar.innerHTML = '';
+            Object.keys(STATE.tabs).forEach(obc => {
+                const t = document.createElement('div');
+                const tabData = STATE.tabs[obc];
+                t.className = `tab ${obc === activeOBC ? 'active' : ''} ${tabData.completed ? 'completed' : ''}`;
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = obc;
+                nameSpan.onclick = () => switchOBC(obc);
+                t.appendChild(nameSpan);
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'tab-close';
+                closeBtn.innerHTML = '×';
+                closeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    closeTab(obc);
+                };
+                t.appendChild(closeBtn);
+                
+                tabBar.appendChild(t);
+            });
+            const newTab = document.createElement('div');
+            newTab.className = 'tab new-tab';
+            newTab.textContent = '+ Nueva Orden';
+            newTab.onclick = addOBC;
+            tabBar.appendChild(newTab);
+            
+            const info = OBC_INFO.get(activeOBC) || {};
+            document.getElementById('obc-display').value = activeOBC;
+            document.getElementById('recipient-display').value = info.recipient || '-';
+            document.getElementById('time-display').value = info.arrivalTime || '-';
+            document.getElementById('location-input').value = tab.location;
+            
+            const scanner = document.getElementById('scanner');
+            scanner.disabled = isCompleted;
+            scanner.placeholder = isCompleted ? '✅ Orden completada' : 'Escanea aquí...';
+            
+            const okList = document.getElementById('log-ok');
+            const rejectList = document.getElementById('log-reject');
+            okList.innerHTML = '';
+            rejectList.innerHTML = '';
+            
+            tab.validations.slice(0, 10).forEach(log => {
+                const li = document.createElement('li');
+                li.className = 'log-item log-ok';
+                li.innerHTML = `
+                    <div class="log-info">
+                        <div class="log-code">${log.code}</div>
+                        <div class="log-meta">${log.timestamp} • ${log.location || '-'}</div>
+                    </div>
+                `;
+                okList.appendChild(li);
+            });
+            
+            tab.rejections.slice(0, 10).forEach(log => {
+                const li = document.createElement('li');
+                li.className = 'log-item log-reject';
+                li.innerHTML = `
+                    <div class="log-info">
+                        <div class="log-code">${log.code}</div>
+                        <div class="log-meta">${log.timestamp} • ${log.reason}</div>
+                    </div>
+                `;
+                rejectList.appendChild(li);
+            });
+            
+            updateSidebar();
+            updateDashboardStats();
+        }
 
-            saveState();
+        function updateSidebar() {
+            const obcList = document.getElementById('obc-list');
+            obcList.innerHTML = '';
+            
+            Object.keys(STATE.tabs).forEach(obc => {
+                const tab = STATE.tabs[obc];
+                const total = OBC_TOTALS.get(obc) || 0;
+                const count = tab.validations.length;
+                const pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
+                
+                const div = document.createElement('div');
+                div.style.cssText = `padding: 8px; margin-bottom: 8px; background: ${tab.completed ? 'rgba(76,175,80,0.2)' : 'rgba(255,255,255,0.1)'}; border-radius: 6px; font-size: 0.8em; cursor: pointer;`;
+                div.innerHTML = `
+                    <div style="font-weight: 700; font-size: 0.9em;">${obc} ${tab.completed ? '✅' : ''}</div>
+                    <div style="opacity: 0.8; font-size: 0.85em;">${count}/${total} (${pct}%)</div>
+                `;
+                div.onclick = () => {
+                    if (document.getElementById('validation').style.display === 'block') {
+                        switchOBC(obc);
+                    }
+                };
+                obcList.appendChild(div);
+            });
         }
 
         function switchOBC(obc) {
-            GLOBAL_STATE.activeOBC = obc;
-            renderApp();
+            STATE.activeOBC = obc;
+            renderValidation();
+            document.getElementById('location-input').focus();
             saveState();
+        }
+
+        function closeTab(obc) {
+            if (!confirm(`¿Cerrar la orden ${obc}? Los datos se mantendrán en el historial.`)) return;
+            
+            STATE.closedTabs[obc] = STATE.tabs[obc];
+            delete STATE.tabs[obc];
+            
+            if (STATE.activeOBC === obc) {
+                const remaining = Object.keys(STATE.tabs);
+                STATE.activeOBC = remaining.length > 0 ? remaining[0] : null;
+            }
+            
+            renderValidation();
+            saveState();
+            showNotification(`Orden ${obc} cerrada`, 'info');
         }
 
         function addOBC() {
-            const newOBC = prompt("Ingresa el número de la nueva Orden (Ej: OBC31251120RV):");
-            if (!newOBC) return;
+            const obc = prompt('Ingresa el número de la nueva orden:');
+            if (!obc) return;
             
-            const obcName = newOBC.toUpperCase().trim();
-            if (obcName && !GLOBAL_STATE.tabs[obcName]) {
-                GLOBAL_STATE.tabs[obcName] = {
-                    user: GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC].user,
-                    location: '',
-                    validations: [],
-                    rejections: []
-                };
-                switchOBC(obcName);
-                showNotification(`✅ Orden ${obcName} creada`, 'success');
-            }
-        }
-
-        function removeOBC(obc) {
-            const obcKeys = Object.keys(GLOBAL_STATE.tabs);
-            if (obcKeys.length <= 1) {
-                showNotification('⚠️ Debe haber al menos una Orden activa', 'warning');
+            const obcName = obc.toUpperCase().trim();
+            if (STATE.tabs[obcName]) {
+                showNotification('⚠️ Esta orden ya existe', 'warning');
                 return;
             }
-
-            if (confirm(`¿Eliminar Orden ${obc}? Los datos se mantendrán en el storage.`)) {
-                delete GLOBAL_STATE.tabs[obc];
-                
-                if (GLOBAL_STATE.activeOBC === obc) {
-                    GLOBAL_STATE.activeOBC = Object.keys(GLOBAL_STATE.tabs)[0];
-                }
-                
-                renderApp();
-                saveState();
-                showNotification(`Orden ${obc} eliminada`, 'info');
-            }
-        }
-
-        function renderApp() {
-            const activeOBC = GLOBAL_STATE.activeOBC;
-            const tabData = GLOBAL_STATE.tabs[activeOBC];
-
-            // Renderizar tabs
-            const tabBar = document.getElementById('tab-bar');
-            tabBar.innerHTML = '';
-            const obcKeys = Object.keys(GLOBAL_STATE.tabs);
-
-            obcKeys.forEach(obc => {
-                const tab = GLOBAL_STATE.tabs[obc]; // Get tab data
-                const totalExpected = OBC_TOTALS.get(obc) || 0;
-                const scannedCount = tab.validations.length;
-                const percentage = totalExpected > 0 ? Math.min(100, (scannedCount / totalExpected) * 100) : 0;
-                const isCompleted = percentage === 100 && totalExpected > 0;
-                
-                const tabDiv = document.createElement('div');
-                // AJUSTE: Aplica la clase 'completed' si está al 100%
-                tabDiv.className = `tab ${obc === activeOBC ? 'active' : ''} ${isCompleted ? 'completed' : ''}`;
-                tabDiv.innerHTML = `
-                    ${obc}
-                    ${obcKeys.length > 1 ? `<span class="tab-close" onclick="event.stopPropagation(); removeOBC('${obc}')">×</span>` : ''}
-                `;
-                tabDiv.onclick = () => switchOBC(obc);
-                tabBar.appendChild(tabDiv);
-            });
-
-            const newTabBtn = document.createElement('div');
-            newTabBtn.className = 'tab new-tab';
-            newTabBtn.textContent = '+ Nueva Orden';
-            newTabBtn.onclick = addOBC;
-            tabBar.appendChild(newTabBtn);
-
-            // Actualizar campos
-            document.getElementById('active-user-display').value = tabData.user;
-            document.getElementById('active-obc-display').value = activeOBC;
-            document.getElementById('global-location').value = tabData.location;
-
-            // Calcular estadísticas
-            const validatedCount = tabData.validations.length;
-            const rejectedCount = tabData.rejections.filter(r => r.rejectionReason === 'NO_EXISTE_EN_BD').length;
-            const totalScans = validatedCount + rejectedCount;
-            const errorRate = totalScans > 0 ? ((rejectedCount / totalScans) * 100).toFixed(1) : '0.0';
-
-            document.getElementById('validated-count').textContent = validatedCount;
-            document.getElementById('rejected-count').textContent = rejectedCount;
-            document.getElementById('error-rate').textContent = `${errorRate}%`;
-
-            // Actualizar tarjeta de progreso
-            updateProgressCard();
-
-            // Renderizar lista de OBCs en sidebar
-            renderOBCList();
-            renderLogs();
-        }
-
-        function updateProgressCard() {
-            const activeOBC = GLOBAL_STATE.activeOBC;
-            const tab = GLOBAL_STATE.tabs[activeOBC];
-            const progressCard = document.getElementById('progress-card'); // Elemento a modificar
             
-            // Obtener datos de la OBC
-            const totalExpected = OBC_TOTALS.get(activeOBC) || 0;
-            const obcInfo = OBC_INFO.get(activeOBC) || { recipient: '-', arrivalTime: '-' };
-            const scannedCount = tab.validations.length;
-            const remaining = Math.max(0, totalExpected - scannedCount);
-            const percentage = totalExpected > 0 ? Math.min(100, (scannedCount / totalExpected) * 100) : 0;
-            
-            // Determinar si está completada
-            const isCompleted = percentage === 100 && totalExpected > 0;
-            
-            // AJUSTE: Aplica o remueve la clase 'completed' para cambiar el color de la tarjeta
-            if (isCompleted) {
-                progressCard.classList.add('completed');
-            } else {
-                progressCard.classList.remove('completed');
-            }
-            // FIN AJUSTE
-
-            // Actualizar elementos
-            document.getElementById('progress-obc-name').textContent = activeOBC;
-            document.getElementById('progress-obc-recipient').textContent = obcInfo.recipient || '-';
-            document.getElementById('progress-obc-arrival').textContent = obcInfo.arrivalTime || '-';
-            document.getElementById('progress-percentage').textContent = `${percentage.toFixed(0)}%`;
-            document.getElementById('progress-scanned').textContent = scannedCount.toLocaleString();
-            document.getElementById('progress-total').textContent = totalExpected.toLocaleString();
-            document.getElementById('progress-remaining').textContent = remaining.toLocaleString();
-            document.getElementById('progress-bar-fill').style.width = `${percentage}%`;
-            
-            // Control del input de escaneo (incluyendo BD y Auth)
-            const scannerInput = document.getElementById('scanner-input');
-            
-            if (isCompleted) {
-                // AJUSTE: Bloquear Input si está al 100%
-                scannerInput.disabled = true;
-                scannerInput.placeholder = '✅ Orden completada al 100%';
-            } else if (!isAuth || BD_CODES.size === 0) {
-                 // Bloqueo por falta de Auth o BD (la alerta modal se encarga de esto, pero el input se deshabilita preventivamente)
-                 scannerInput.disabled = true;
-                 scannerInput.placeholder = isAuth ? '📊 Cargando BD...' : '🔌 Conectar para escanear...';
-            } else {
-                scannerInput.disabled = false;
-                scannerInput.placeholder = 'Escanea aquí...';
-            }
-            
-            // Actualizar estado
-            let statusHTML = '';
-            if (totalExpected === 0) {
-                statusHTML = '⚠️ Orden no encontrada en la BD';
-            } else if (percentage === 100) {
-                // AJUSTE: Badge animado
-                statusHTML = '<div class="progress-completed-badge">✅ ¡ORDEN COMPLETADA AL 100%! 🎉</div>';
-                // Mostrar mensaje de éxito (solo la primera vez)
-                if (scannedCount === totalExpected && scannedCount > 0) {
-                    showCompletionMessage(activeOBC, scannedCount);
-                }
-            } else if (percentage >= 75) {
-                statusHTML = '🔥 ¡Casi terminado!';
-            } else if (percentage >= 50) {
-                statusHTML = '⚡ A medio camino';
-            } else if (percentage > 0) {
-                statusHTML = '🚀 En progreso';
-            } else {
-                statusHTML = '📦 Listo para escanear';
-            }
-            
-            document.getElementById('progress-status').innerHTML = statusHTML;
+            STATE.tabs[obcName] = {
+                location: '',
+                validations: [],
+                rejections: [],
+                completed: false
+            };
+            switchOBC(obcName);
+            showNotification(`✅ Orden ${obcName} creada`, 'success');
         }
 
-        function showCompletionMessage(obc, count) {
-            // Evitar mostrar múltiples veces
-            const completionKey = `completion_${obc}_${count}`;
-            if (sessionStorage.getItem(completionKey)) {
-                return;
-            }
-            sessionStorage.setItem(completionKey, 'true');
-            
-            // Sonido de éxito (tono más alegre) - Melodía
-            if (audioContext) {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                gainNode.gain.value = 0.3;
-                
-                // Secuencia de tonos ascendentes C5-E5-G5
-                oscillator.frequency.setValueAtTime(523, audioContext.currentTime); // C5
-                oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.15); // E5
-                oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.3); // G5
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.6);
-            }
-            
-            // Mostrar Popup de Orden Completada (en lugar del alert simple)
-            setTimeout(() => {
-                showConnectionAlert(
-                    `🎉 ORDEN ${obc} COMPLETADA AL 100%`,
-                    `¡Felicidades! Se validaron ${count} cajas en total para esta orden.`,
-                    [
-                        { text: '➕ Iniciar Nueva Orden', action: addOBC, primary: true },
-                        { text: '🔄 Cambiar a otra Orden', action: () => { /* No hace nada más que cerrar */ }, primary: false }
-                    ]
-                );
-            }, 500);
-        }
-
-        function renderOBCList() {
-            const obcList = document.getElementById('obc-list');
-            obcList.innerHTML = '';
-
-            for (const obc in GLOBAL_STATE.tabs) {
-                const tab = GLOBAL_STATE.tabs[obc];
-                const totalExpected = OBC_TOTALS.get(obc) || 0;
-                const scannedCount = tab.validations.length;
-                const percentage = totalExpected > 0 ? Math.min(100, (scannedCount / totalExpected) * 100) : 0;
-                const isCompleted = percentage === 100 && totalExpected > 0;
-                
-                const item = document.createElement('div');
-                item.className = 'obc-list-item';
-                // AJUSTE: Muestra la OBC activa y la marca de completado
-                item.innerHTML = `
-                    <span onclick="switchOBC('${obc}')" style="cursor:pointer; font-weight: ${obc === GLOBAL_STATE.activeOBC ? 'bold' : 'normal'}">${obc} ${isCompleted ? '✅' : ''}</span>
-                    <span style="opacity: 0.7; font-weight: ${obc === GLOBAL_STATE.activeOBC ? 'bold' : 'normal'}">${scannedCount} ✓ ${isCompleted ? '(100%)' : ''}</span>
-                `;
-                obcList.appendChild(item);
-            }
-        }
-
-        function renderLogs() {
-            const activeOBC = GLOBAL_STATE.activeOBC;
-            const tab = GLOBAL_STATE.tabs[activeOBC];
-            const okLogsList = document.getElementById('ok-logs');
-            const rejectLogsList = document.getElementById('reject-logs');
-
-            okLogsList.innerHTML = '';
-            rejectLogsList.innerHTML = '';
-
-            // Logs OK
-            tab.validations.slice(0, 10).forEach(log => {
-                const item = document.createElement('li');
-                item.className = 'log-item log-ok';
-                item.innerHTML = `
-                    <div class="log-info">
-                        <div class="log-code">${log.extractedCode}</div>
-                        <div class="log-meta">${log.timestamp} • ${log.location || 'Sin ubicación'}</div>
-                    </div>
-                    <button class="btn-edit" onclick="showEditModal(${log.id}, '${activeOBC}')">✏️</button>
-                `;
-                okLogsList.appendChild(item);
-            });
-
-            if (tab.validations.length === 0) {
-                okLogsList.innerHTML = '<li style="text-align: center; padding: 20px; color: #999;">No hay validaciones aún</li>';
-            }
-
-            // Logs Rechazo
-            tab.rejections.slice(0, 10).forEach(log => {
-                const item = document.createElement('li');
-                item.className = 'log-item log-reject';
-                const reasonDisplay = log.rejectionReason.replace(/_/g, ' ');
-                item.innerHTML = `
-                    <div class="log-info">
-                        <div class="log-code">${log.extractedCode || log.codeScanned}</div>
-                        <div class="log-meta">${log.timestamp} • ${reasonDisplay}</div>
-                    </div>
-                `;
-                rejectLogsList.appendChild(item);
-            });
-
-            if (tab.rejections.length === 0) {
-                rejectLogsList.innerHTML = '<li style="text-align: center; padding: 20px; color: #999;">No hay rechazos</li>';
-            }
-        }
-
-        function populateUserSelect() {
-            const select = document.getElementById('user-select');
-            select.innerHTML = ''; // Limpiar opciones existentes
-            
-            VALIDATORS.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user;
-                option.textContent = user;
-                select.appendChild(option);
-            });
-            
-            // Mantener el usuario actual si existe, sino usar el primero
-            const currentUser = GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC]?.user;
-            if (currentUser && VALIDATORS.includes(currentUser)) {
-                select.value = currentUser;
-            } else {
-                select.value = VALIDATORS[0];
-                GLOBAL_STATE.tabs[GLOBAL_STATE.activeOBC].user = VALIDATORS[0];
-            }
-        }
-
-        // ==================== EVENT LISTENERS ====================
-        function setupEventListeners() {
-            document.getElementById('scanner-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const rawCode = e.target.value;
-                    e.target.value = ''; // Limpiar el input inmediatamente
-                    
-                    if (rawCode.trim()) {
-                        processScan(rawCode);
-                    }
-                }
-            });
-        }
-        
-        // ==================== POPUPS (mantienen la lógica original) ====================
-        function showErrorPopup(code, obc, reason) {
-            document.getElementById('error-code').textContent = code;
-            document.getElementById('error-obc').textContent = obc;
-            
-            // Personalizar el mensaje según el tipo de error
-            let displayReason = reason.replace(/_/g, ' ');
-            if (reason === 'CODIGO_DE_OTRA_ORDEN') {
-                displayReason = '⚠️ CÓDIGO DE OTRA ORDEN - Este código existe pero pertenece a una orden diferente';
-            }
-            
-            document.getElementById('error-reason').textContent = displayReason;
-            document.getElementById('error-popup').style.display = 'flex';
-            document.getElementById('scanner-input').blur();
-        }
-
-        function closeErrorPopup() {
-            document.getElementById('error-popup').style.display = 'none';
-            document.getElementById('scanner-input').focus();
-        }
-
-        function showDuplicatePopup(code, obc, previousLog) {
-            document.getElementById('dup-code').textContent = code;
-            document.getElementById('dup-obc').textContent = obc;
-            document.getElementById('dup-timestamp').textContent = previousLog.date + ' ' + previousLog.timestamp;
-            document.getElementById('dup-user').textContent = previousLog.user;
-            document.getElementById('dup-location').textContent = previousLog.location || 'N/A';
-            document.getElementById('duplicate-popup').style.display = 'flex';
-            document.getElementById('scanner-input').blur();
-        }
-
-        function showForcedNoteModal() {
-            document.getElementById('duplicate-popup').style.display = 'none';
-            document.getElementById('forced-note-modal').style.display = 'flex';
-            document.getElementById('forced-note-input').value = '';
-            document.getElementById('forced-note-input').focus();
-            // Restaurar la acción del botón para duplicado normal
-            document.getElementById('forced-note-save-button').onclick = () => handleDuplicateAction('force');
-        }
-
-        function closeForcedNoteModal() {
-            document.getElementById('forced-note-modal').style.display = 'none';
-            document.getElementById('duplicate-popup').style.display = 'flex';
-        }
-
-        function showPreviousValidationPopup(code, obc, previousValidation) {
-            document.getElementById('prev-code').textContent = code;
-            document.getElementById('prev-obc').textContent = obc;
-            document.getElementById('prev-timestamp').textContent = previousValidation.timestamp;
-            document.getElementById('prev-user').textContent = previousValidation.user;
-            document.getElementById('previous-validation-popup').style.display = 'flex';
-            document.getElementById('scanner-input').blur();
-        }
-
-        function closePreviousValidationPopup() {
-            document.getElementById('previous-validation-popup').style.display = 'none';
-            document.getElementById('scanner-input').focus();
-            lastScannedCode = null;
-        }
-
-        function showForcedNoteModalForPrevious() {
-            document.getElementById('previous-validation-popup').style.display = 'none';
-            document.getElementById('forced-note-modal').style.display = 'flex';
-            document.getElementById('forced-note-input').value = '';
-            document.getElementById('forced-note-input').focus();
-            // Ajustar la acción del botón Guardar Forzado
-            document.getElementById('forced-note-save-button').onclick = () => handleDuplicateAction('force_previous');
-        }
-
-        async function handleDuplicateAction(action) {
-            document.getElementById('duplicate-popup').style.display = 'none';
-            document.getElementById('forced-note-modal').style.display = 'none';
-            document.getElementById('previous-validation-popup').style.display = 'none';
-            document.getElementById('scanner-input').focus();
-
-            if (!lastScannedCode) return;
-
-            if (action === 'force' || action === 'force_previous') {
-                const note = document.getElementById('forced-note-input').value.trim();
-                const prefix = action === 'force' ? 'DUPLICADO LOCAL FORZADO' : 'DUPLICADO GS FORZADO';
-                const finalNote = `${prefix}: ${note || 'Sin justificación'}`;
-
-                await handleValidationOK(
-                    lastScannedCode.rawCode,
-                    lastScannedCode.extracted,
-                    lastScannedCode.extracted,
-                    lastScannedCode.obc,
-                    lastScannedCode.user,
-                    lastScannedCode.location,
-                    finalNote
-                );
-                showNotification('⚠️ Forzado registrado', 'warning');
-            } else {
-                showNotification('Escaneo ignorado', 'info');
-            }
-
-            lastScannedCode = null;
-            renderApp();
-        }
-
-        function showEditModal(logId, obc) {
-            const log = GLOBAL_STATE.tabs[obc].validations.find(v => v.id === logId);
-            if (!log) return;
-
-            const newLocation = prompt(`Editando ${log.extractedCode}\n\nNueva Ubicación (actual: ${log.location || 'vacía'}):`);
-            if (newLocation === null) return;
-
-            const newNote = prompt(`Editando ${log.extractedCode}\n\nNueva Nota (actual: ${log.note || 'vacía'}):`);
-            if (newNote === null) return;
-
-            const shouldDelete = confirm("¿Deseas ELIMINAR este registro?");
-
-            if (shouldDelete) {
-                const index = GLOBAL_STATE.tabs[obc].validations.indexOf(log);
-                if (index > -1) {
-                    GLOBAL_STATE.tabs[obc].validations.splice(index, 1);
-                    showNotification('🗑️ Registro eliminado', 'info');
-                }
-            } else {
-                log.location = newLocation.toUpperCase().trim();
-                log.note = newNote.trim();
-                showNotification('✏️ Registro actualizado', 'success');
-            }
-
-            renderLogs();
+        function updateState() {
+            if (!STATE.activeOBC) return;
+            const tab = STATE.tabs[STATE.activeOBC];
+            tab.location = document.getElementById('location-input').value.toUpperCase().trim();
             saveState();
         }
 
-        // ==================== AUDIO Y FEEDBACK ====================
-        function playAudio(type) {
-            if (!audioContext) return;
-
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            gainNode.gain.value = 0.3;
-
-            if (type === 'ok') {
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.15);
-            } else if (type === 'error') {
-                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.3);
-            } else if (type === 'duplicate') {
-                oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.15);
-
-                setTimeout(() => {
-                    const osc2 = audioContext.createOscillator();
-                    const gain2 = audioContext.createGain();
-                    osc2.connect(gain2);
-                    gain2.connect(audioContext.destination);
-                    gain2.gain.value = 0.3;
-                    osc2.frequency.setValueAtTime(600, audioContext.currentTime);
-                    osc2.start();
-                    osc2.stop(audioContext.currentTime + 0.15);
-                }, 250);
+        // === NAVIGATION ===
+        function startValidation() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('validation').style.display = 'block';
+            renderValidation();
+            if (STATE.activeOBC) {
+                document.getElementById('scanner').focus();
             }
+        }
+
+        function returnToDashboard() {
+            document.getElementById('validation').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            updateDashboardStats();
+        }
+
+        function showResumen() {
+            document.getElementById('validation').style.display = 'none';
+            document.getElementById('resumen-module').style.display = 'block';
+            renderResumen();
+        }
+
+        function hideResumen() {
+            document.getElementById('resumen-module').style.display = 'none';
+            document.getElementById('validation').style.display = 'block';
+        }
+
+        function showFaltantes() {
+            document.getElementById('validation').style.display = 'none';
+            document.getElementById('faltantes-module').style.display = 'block';
+            populateFaltantesOrders();
+            renderFaltantes();
+        }
+
+        function hideFaltantes() {
+            document.getElementById('faltantes-module').style.display = 'none';
+            document.getElementById('validation').style.display = 'block';
+        }
+
+        // === RESUMEN MODULE ===
+        function renderResumen() {
+            const tbody = document.getElementById('resumen-tbody');
+            tbody.innerHTML = '';
+            
+            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
+            
+            Object.keys(allOrders).forEach(obc => {
+                const tab = allOrders[obc];
+                const total = OBC_TOTALS.get(obc) || 0;
+                const validated = tab.validations.length;
+                const pct = total > 0 ? ((validated / total) * 100).toFixed(0) : 0;
+                const info = OBC_INFO.get(obc) || {};
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${obc}</strong></td>
+                    <td>${total}</td>
+                    <td>${validated}</td>
+                    <td>${pct}%</td>
+                    <td>${info.recipient || '-'}</td>
+                    <td>${info.arrivalTime || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterResumen() {
+            const search = document.getElementById('search-resumen').value.toLowerCase();
+            const rows = document.querySelectorAll('#resumen-tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        // === FALTANTES MODULE ===
+        function populateFaltantesOrders() {
+            const select = document.getElementById('faltantes-order-select');
+            select.innerHTML = '<option value="">Seleccionar orden...</option>';
+            
+            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
+            Object.keys(allOrders).forEach(obc => {
+                const option = document.createElement('option');
+                option.value = obc;
+                option.textContent = obc;
+                select.appendChild(option);
+            });
+            
+            if (STATE.activeOBC && allOrders[STATE.activeOBC]) {
+                select.value = STATE.activeOBC;
+            }
+        }
+
+        function renderFaltantes() {
+            const selectedOBC = document.getElementById('faltantes-order-select').value;
+            const grid = document.getElementById('faltantes-grid');
+            grid.innerHTML = '';
+            
+            if (!selectedOBC) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">Selecciona una orden para ver los códigos</div>';
+                return;
+            }
+            
+            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
+            const tab = allOrders[selectedOBC];
+            const obcCodes = OBC_MAP.get(selectedOBC);
+            
+            if (!obcCodes || obcCodes.size === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">No hay datos para esta orden</div>';
+                return;
+            }
+            
+            const validated = new Set(tab.validations.map(v => v.code));
+            
+            // Extract only the code part (column H) without OBC concatenation
+            const codesArray = Array.from(obcCodes).map(concatenated => {
+                // Remove the OBC suffix to get original code
+                const obcLower = selectedOBC.toLowerCase();
+                if (concatenated.endsWith(obcLower)) {
+                    return concatenated.slice(0, -obcLower.length);
+                }
+                return concatenated;
+            });
+            
+            // Filter to show only pending codes
+            const pendingCodes = codesArray.filter(code => !validated.has(code));
+            
+            if (pendingCodes.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--success);">✅ ¡Todos los códigos han sido validados!</div>';
+                return;
+            }
+            
+            pendingCodes.forEach(code => {
+                const div = document.createElement('div');
+                div.className = 'faltante-item faltante-pending';
+                div.textContent = code;
+                div.dataset.code = code;
+                grid.appendChild(div);
+            });
+        }
+
+        function filterFaltantes() {
+            const search = document.getElementById('search-faltantes').value.toLowerCase();
+            const items = document.querySelectorAll('.faltante-item');
+            items.forEach(item => {
+                const code = item.dataset.code.toLowerCase();
+                item.style.display = code.includes(search) ? '' : 'none';
+            });
+        }
+
+        // === POPUPS ===
+        function showPopup(type, code, data) {
+            if (type === 'error') {
+                document.getElementById('err-code').textContent = code;
+                document.getElementById('err-reason').textContent = data;
+                document.getElementById('popup-error').style.display = 'flex';
+            } else if (type === 'dup') {
+                document.getElementById('dup-code').textContent = code;
+                document.getElementById('dup-when').textContent = `${data.date} ${data.timestamp}`;
+                document.getElementById('dup-user').textContent = data.user;
+                document.getElementById('popup-dup').style.display = 'flex';
+            }
+            document.getElementById('scanner').blur();
+        }
+
+        function closePopup(type) {
+            document.getElementById(`popup-${type}`).style.display = 'none';
+            if (type !== 'completed') {
+                document.getElementById('scanner').focus();
+            }
+            lastScanned = null;
+        }
+
+        function forceDuplicate() {
+            const note = prompt('Justificación del duplicado:') || 'Sin justificación';
+            if (lastScanned) {
+                const finalNote = lastScanned.isManual 
+                    ? `DUPLICADO FORZADO - Codigo Escrito Manualmente: ${note}`
+                    : `DUPLICADO FORZADO: ${note}`;
+                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, finalNote, false);
+            }
+            closePopup('dup');
+        }
+
+        // === MANUAL INPUT ===
+        function openManualInput() {
+            if (!STATE.activeOBC) {
+                showNotification('⚠️ Crea una orden primero', 'warning');
+                return;
+            }
+            
+            const tab = STATE.tabs[STATE.activeOBC];
+            if (tab.completed) {
+                showNotification('⚠️ Esta orden ya está completada', 'warning');
+                return;
+            }
+            
+            document.getElementById('manual-code').value = '';
+            document.getElementById('manual-note').value = '';
+            document.getElementById('popup-manual').style.display = 'flex';
+            document.getElementById('manual-code').focus();
+        }
+
+        async function submitManualCode() {
+            const code = document.getElementById('manual-code').value.trim();
+            const note = document.getElementById('manual-note').value.trim();
+            
+            if (!code) {
+                showNotification('⚠️ Ingresa un código', 'warning');
+                return;
+            }
+            
+            if (!note) {
+                showNotification('⚠️ La justificación es obligatoria', 'warning');
+                return;
+            }
+            
+            closePopup('manual');
+            
+            const activeOBC = STATE.activeOBC;
+            const tab = STATE.tabs[activeOBC];
+            const normalized = normalizeCode(code);
+            const concatenated = normalized + activeOBC.toLowerCase();
+            
+            if (!BD_CODES.has(concatenated)) {
+                await handleRejection('NO_EXISTE_EN_BD', code, normalized, activeOBC);
+                return;
+            }
+            
+            const isDup = tab.validations.find(v => v.code === normalized);
+            if (isDup) {
+                lastScanned = { raw: code, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup, isManual: true };
+                showPopup('dup', normalized, isDup);
+                playSound('duplicate');
+                return;
+            }
+            
+            await handleValidationOK(code, normalized, activeOBC, tab.location, note, true);
+        }
+
+        // === QUICK ACCESS TO FALTANTES ===
+        function quickFaltantes() {
+            showFaltantes();
+            document.getElementById('faltantes-order-select').value = STATE.activeOBC || '';
+            renderFaltantes();
+        }
+
+        // === ORDER COMPLETION ===
+        function showOrderCompleted(obc) {
+            const tab = STATE.tabs[obc];
+            document.getElementById('completed-obc').textContent = obc;
+            document.getElementById('completed-count').textContent = tab.validations.length;
+            document.getElementById('completed-user').textContent = CURRENT_USER;
+            document.getElementById('popup-completed').style.display = 'flex';
+            playSound('ok');
+            showNotification(`🎉 Orden ${obc} completada!`, 'success');
+        }
+
+        function continueToNewOrder() {
+            closePopup('completed');
+            addOBC();
+        }
+
+        function saveAndClose() {
+            closePopup('completed');
+            returnToDashboard();
+        }
+
+        // === AUDIO ===
+        function playSound(type) {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                
+                if (type === 'ok') {
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'error') {
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.35);
+                } else if (type === 'duplicate') {
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.1);
+                    setTimeout(() => {
+                        const osc2 = audioCtx.createOscillator();
+                        const gain2 = audioCtx.createGain();
+                        osc2.connect(gain2);
+                        gain2.connect(audioCtx.destination);
+                        gain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                        osc2.frequency.setValueAtTime(600, audioCtx.currentTime);
+                        osc2.start();
+                        osc2.stop(audioCtx.currentTime + 0.1);
+                    }, 150);
+                }
+            } catch (e) {}
         }
 
         function flashInput(type) {
-            const input = document.getElementById('scanner-input');
-            input.classList.remove('flash-success', 'flash-error');
+            const input = document.getElementById('scanner');
+            input.style.borderColor = type === 'success' ? 'var(--success)' : 'var(--error)';
+            setTimeout(() => input.style.borderColor = '#ddd', 300);
+        }
+
+        // === NOTIFICATIONS ===
+        function showNotification(msg, type) {
+            const container = document.getElementById('notifications');
+            const div = document.createElement('div');
+            div.className = `notification ${type}`;
+            div.innerHTML = `<strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong> ${msg}`;
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
+        }
+
+        // === EXPORT ===
+        function exportData() {
+            const rows = [];
+            rows.push('Fecha,Hora,Usuario,Orden,Código,Ubicación,Nota');
             
-            setTimeout(() => {
-                input.classList.add(type === 'success' ? 'flash-success' : 'flash-error');
-            }, 10);
-
-            setTimeout(() => {
-                input.classList.remove('flash-success', 'flash-error');
-            }, 300);
-        }
-
-        function showNotification(message, type = 'info') {
-            // Notificación simple con alert (mejorable con toast notifications)
-            console.log(`[${type.toUpperCase()}] ${message}`);
-        }
-
-        // ==================== EXPORTACIÓN ====================
-        async function exportData() {
-            const allLogs = [];
-            const header = "Timestamp,Usuario,OBC,Código Original,Código Extraído,Ubicación,Nota\n";
-
-            for (const obc in GLOBAL_STATE.tabs) {
-                GLOBAL_STATE.tabs[obc].validations.forEach(log => {
-                    const timestampString = new Date(log.id).toISOString();
-                    allLogs.push([
-                        timestampString,
-                        log.user,
-                        log.obc,
-                        `"${log.originalCode.replace(/"/g, '""')}"`,
-                        log.extractedCode,
-                        log.location || '',
-                        log.note || ''
-                    ].join(','));
+            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
+            for (const obc in allOrders) {
+                allOrders[obc].validations.forEach(log => {
+                    rows.push(`${log.date},${log.timestamp},${log.user},${log.obc},${log.code},${log.location || ''},${log.note || ''}`);
                 });
             }
-
-            const csvContent = header + allLogs.join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `validaciones_${new Date().toISOString().slice(0, 10)}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
             
-            showNotification(`📥 Exportadas ${allLogs.length} validaciones`, 'success');
-            playAudio('ok');
+            const csv = rows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `validaciones_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+            showNotification('📥 Datos exportados', 'success');
         }
     </script>
 </body>
