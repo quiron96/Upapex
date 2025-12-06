@@ -45,15 +45,16 @@
         .btn-success { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; font-size: 1.4em; padding: 20px; }
         .btn-google { background: #4285F4; color: white; }
         .btn-secondary { background: #6c757d; color: white; }
+        .btn-small { padding: 8px 15px; font-size: 0.85em; width: auto; }
 
         /* === VALIDATION SCREEN === */
         #validation { display: none; min-height: 100vh; }
-        .container { display: flex; }
-        .sidebar { width: 260px; background: #333; color: white; padding: 18px; overflow-y: auto; }
-        .main-content { flex: 1; padding: 15px; max-width: 1400px; margin: 0 auto; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 200px; background: #333; color: white; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; }
+        .main-content { flex: 1; padding: 15px; overflow-y: auto; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .header h1 { color: var(--primary); font-size: 1.6em; }
+        .header h1 { color: var(--primary); font-size: 1.6em; flex: 1; }
         
         .card { background: white; padding: 18px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
         
@@ -80,7 +81,7 @@
         .progress-bar-fill.completed { background: linear-gradient(90deg, #fff, #81c784) !important; }
         
         /* Inputs en línea */
-        .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85em; }
         .input-group input, .input-group select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; }
         .scanner-input { font-size: 1.6em !important; text-transform: uppercase; font-weight: bold; text-align: center; background: #fff5ed !important; }
@@ -105,11 +106,55 @@
         .log-code { font-weight: 600; }
         
         /* Tabs */
-        .tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-        .tab { padding: 8px 15px; cursor: pointer; border: 2px solid #ddd; border-radius: 6px; background: white; font-weight: 600; transition: all 0.2s; }
+        .tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
+        .tab { 
+            padding: 8px 12px; 
+            cursor: pointer; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            background: white; 
+            font-weight: 600; 
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
         .tab.completed { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
         .tab.new-tab { background: linear-gradient(135deg, #ffb399, #ff9d7a); color: white; }
+        .tab-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            opacity: 0.7;
+        }
+        .tab-close:hover {
+            opacity: 1;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .empty-state-text {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
         
         /* Notificaciones */
         .notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 350px; }
@@ -135,15 +180,43 @@
         
         /* Faltantes Module */
         #faltantes-module { display: none; }
-        .faltantes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; max-height: 500px; overflow-y: auto; }
-        .faltante-item { padding: 12px; border-radius: 6px; text-align: center; font-size: 0.85em; font-weight: 600; }
+        .faltantes-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .faltantes-controls input {
+            flex: 1;
+            min-width: 200px;
+        }
+        .faltantes-controls select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            min-width: 200px;
+        }
+        .faltantes-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 8px; 
+            max-height: 600px; 
+            overflow-y: auto; 
+        }
+        .faltante-item { padding: 10px; border-radius: 6px; text-align: center; font-size: 0.8em; font-weight: 600; word-break: break-all; }
         .faltante-ok { background: #e8f5e9; color: var(--success); }
         .faltante-pending { background: #ffebee; color: var(--error); }
         
+        @media (max-width: 1024px) {
+            .sidebar { width: 180px; }
+        }
+        
         @media (max-width: 768px) {
-            .container { flex-direction: column; }
+            .container { flex-direction: column; height: auto; }
             .sidebar { width: 100%; }
             .inline-inputs { grid-template-columns: 1fr; }
+            .faltantes-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
         }
     </style>
 </head>
@@ -206,94 +279,106 @@
     <div id="validation">
         <div class="container">
             <div class="sidebar">
-                <h2 style="color: var(--primary); margin-bottom: 15px;">WMS Validator</h2>
-                <button class="btn btn-primary" onclick="returnToDashboard()" style="margin-bottom: 15px;">← Dashboard</button>
-                <button class="btn btn-secondary" onclick="showResumen()" style="margin-bottom: 15px;">📋 Resumen</button>
-                <button class="btn btn-secondary" onclick="showFaltantes()" style="margin-bottom: 15px;">🔍 Faltantes</button>
+                <h2 style="color: var(--primary); margin-bottom: 15px; font-size: 1.3em;">WMS</h2>
+                <button class="btn btn-primary btn-small" onclick="returnToDashboard()" style="margin-bottom: 10px; width: 100%;">← Dashboard</button>
+                <button class="btn btn-secondary btn-small" onclick="showResumen()" style="margin-bottom: 10px; width: 100%;">📋 Resumen</button>
+                <button class="btn btn-secondary btn-small" onclick="showFaltantes()" style="margin-bottom: 10px; width: 100%;">🔍 Faltantes</button>
                 <hr style="border-color: #555; margin: 15px 0;">
                 <div style="text-align: center; margin-bottom: 15px;">
-                    <div style="font-size: 1.5em; font-weight: 700; color: var(--primary);" id="bd-count-sidebar">0</div>
-                    <div style="font-size: 0.8em; opacity: 0.8;">códigos en BD</div>
+                    <div style="font-size: 1.3em; font-weight: 700; color: var(--primary);" id="bd-count-sidebar">0</div>
+                    <div style="font-size: 0.75em; opacity: 0.8;">códigos en BD</div>
                 </div>
-                <div id="obc-list" style="max-height: 300px; overflow-y: auto;"></div>
+                <div id="obc-list" style="flex: 1; overflow-y: auto;"></div>
             </div>
 
             <div class="main-content">
                 <div class="header">
                     <h1>🔍 Validación de Cajas</h1>
-                    <button class="btn btn-secondary" onclick="exportData()">📥 Exportar CSV</button>
+                    <button class="btn btn-secondary btn-small" onclick="exportData()">📥 CSV</button>
                 </div>
 
-                <div id="tab-bar" class="tab-bar"></div>
+                <div id="content-area">
+                    <!-- Empty state -->
+                    <div id="empty-state" class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <div class="empty-state-text">No hay órdenes activas</div>
+                        <button class="btn btn-primary" onclick="addOBC()" style="width: auto; padding: 12px 30px;">+ Nueva Orden</button>
+                    </div>
 
-                <div class="progress-card">
-                    <div class="progress-header">
-                        <div class="progress-obc-name" id="prog-obc">-</div>
-                        <div class="progress-percentage" id="prog-pct">0%</div>
-                    </div>
-                    <div class="progress-counts">
-                        <div class="progress-count-item">
-                            <div class="progress-count-number" id="prog-scan">0</div>
-                            <div class="progress-count-label">Escaneadas</div>
-                        </div>
-                        <div class="progress-count-item">
-                            <div class="progress-count-number" id="prog-total">0</div>
-                            <div class="progress-count-label">Total</div>
-                        </div>
-                        <div class="progress-count-item">
-                            <div class="progress-count-number" id="prog-rest">0</div>
-                            <div class="progress-count-label">Faltantes</div>
-                        </div>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill" id="prog-bar" style="width: 0%"></div>
-                    </div>
-                </div>
+                    <!-- Validation content -->
+                    <div id="validation-content" style="display: none;">
+                        <div class="tab-bar" id="tab-bar"></div>
 
-                <div class="card">
-                    <div class="inline-inputs">
-                        <div class="input-group">
-                            <label>📦 Orden:</label>
-                            <input type="text" id="obc-display" disabled>
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <div class="progress-obc-name" id="prog-obc">-</div>
+                                <div class="progress-percentage" id="prog-pct">0%</div>
+                            </div>
+                            <div class="progress-counts">
+                                <div class="progress-count-item">
+                                    <div class="progress-count-number" id="prog-scan">0</div>
+                                    <div class="progress-count-label">Escaneadas</div>
+                                </div>
+                                <div class="progress-count-item">
+                                    <div class="progress-count-number" id="prog-total">0</div>
+                                    <div class="progress-count-label">Total</div>
+                                </div>
+                                <div class="progress-count-item">
+                                    <div class="progress-count-number" id="prog-rest">0</div>
+                                    <div class="progress-count-label">Faltantes</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" id="prog-bar" style="width: 0%"></div>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label>📍 Destino:</label>
-                            <input type="text" id="recipient-display" disabled>
-                        </div>
-                        <div class="input-group">
-                            <label>🕐 Horario:</label>
-                            <input type="text" id="time-display" disabled>
-                        </div>
-                        <div class="input-group">
-                            <label>📍 Ubicación:</label>
-                            <input type="text" id="location-input" placeholder="Ej: PLEC123" onchange="updateState()">
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <label style="font-size: 1.1em; color: var(--primary);">📷 ESCANEAR CÓDIGO:</label>
-                        <input type="text" id="scanner" class="scanner-input" placeholder="Escanea aquí..." autofocus>
-                    </div>
-                </div>
 
-                <div class="stats">
-                    <div class="stat-box stat-ok">
-                        VALIDADAS
-                        <div class="stat-number" id="stat-ok">0</div>
-                    </div>
-                    <div class="stat-box stat-error">
-                        RECHAZADAS
-                        <div class="stat-number" id="stat-error">0</div>
-                    </div>
-                </div>
+                        <div class="card">
+                            <div class="inline-inputs">
+                                <div class="input-group">
+                                    <label>📦 Orden:</label>
+                                    <input type="text" id="obc-display" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>📍 Destino:</label>
+                                    <input type="text" id="recipient-display" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>🕐 Horario:</label>
+                                    <input type="text" id="time-display" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>📍 Ubicación:</label>
+                                    <input type="text" id="location-input" placeholder="Ej: PLEC123" onchange="updateState()">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label style="font-size: 1.1em; color: var(--primary);">📷 ESCANEAR CÓDIGO:</label>
+                                <input type="text" id="scanner" class="scanner-input" placeholder="Escanea aquí..." autofocus>
+                            </div>
+                        </div>
 
-                <div class="logs-container">
-                    <div class="card">
-                        <h3>✅ Validaciones OK</h3>
-                        <ul id="log-ok" class="log-list"></ul>
-                    </div>
-                    <div class="card">
-                        <h3>❌ Rechazos</h3>
-                        <ul id="log-reject" class="log-list"></ul>
+                        <div class="stats">
+                            <div class="stat-box stat-ok">
+                                VALIDADAS
+                                <div class="stat-number" id="stat-ok">0</div>
+                            </div>
+                            <div class="stat-box stat-error">
+                                RECHAZADAS
+                                <div class="stat-number" id="stat-error">0</div>
+                            </div>
+                        </div>
+
+                        <div class="logs-container">
+                            <div class="card">
+                                <h3>✅ Validaciones OK</h3>
+                                <ul id="log-ok" class="log-list"></ul>
+                            </div>
+                            <div class="card">
+                                <h3>❌ Rechazos</h3>
+                                <ul id="log-reject" class="log-list"></ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -306,7 +391,7 @@
             <div class="main-content" style="max-width: 100%;">
                 <div class="header">
                     <h1>📋 Resumen de Órdenes</h1>
-                    <button class="btn btn-secondary" onclick="hideResumen()">← Volver</button>
+                    <button class="btn btn-secondary btn-small" onclick="hideResumen()">← Volver</button>
                 </div>
                 <div class="card">
                     <input type="text" id="search-resumen" class="search-bar" placeholder="🔍 Buscar orden..." oninput="filterResumen()">
@@ -336,11 +421,16 @@
             <div class="main-content" style="max-width: 100%;">
                 <div class="header">
                     <h1>🔍 Códigos Faltantes</h1>
-                    <button class="btn btn-secondary" onclick="hideFaltantes()">← Volver</button>
+                    <button class="btn btn-secondary btn-small" onclick="hideFaltantes()">← Volver</button>
                 </div>
                 <div class="card">
-                    <h3 id="faltantes-title">Orden: -</h3>
-                    <p style="margin-bottom: 15px;">✅ Validados | ❌ Faltantes</p>
+                    <div class="faltantes-controls">
+                        <select id="faltantes-order-select" onchange="renderFaltantes()">
+                            <option value="">Seleccionar orden...</option>
+                        </select>
+                        <input type="text" id="search-faltantes" class="search-bar" placeholder="🔍 Buscar código..." oninput="filterFaltantes()">
+                    </div>
+                    <p style="margin-bottom: 15px;"><span style="color: var(--success);">✅ Validados</span> | <span style="color: var(--error);">❌ Faltantes</span></p>
                     <div class="faltantes-grid" id="faltantes-grid"></div>
                 </div>
             </div>
@@ -407,10 +497,9 @@
         let OBC_TOTALS = new Map();
         let OBC_INFO = new Map();
         let STATE = {
-            activeOBC: 'OBC_DEFAULT',
-            tabs: {
-                'OBC_DEFAULT': { location: '', validations: [], rejections: [], completed: false }
-            }
+            activeOBC: null,
+            tabs: {},
+            closedTabs: {}
         };
         let TOKEN_CLIENT, audioCtx;
         let lastScanned = null;
@@ -468,7 +557,12 @@
         async function loadFromStorage() {
             try {
                 const stateRes = await window.storage.get('wms_state');
-                if (stateRes?.value) STATE = JSON.parse(stateRes.value);
+                if (stateRes?.value) {
+                    const loaded = JSON.parse(stateRes.value);
+                    STATE.tabs = loaded.tabs || {};
+                    STATE.closedTabs = loaded.closedTabs || {};
+                    STATE.activeOBC = loaded.activeOBC;
+                }
                 
                 const bdRes = await window.storage.get('wms_bd');
                 if (bdRes?.value) {
@@ -530,7 +624,6 @@
             showNotification('Cargando base de datos...', 'info');
             
             try {
-                // Load Resumen
                 const resRes = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: SPREADSHEET_BD,
                     range: 'Resumen!A:E'
@@ -550,7 +643,6 @@
                     }
                 }
 
-                // Load BD codes
                 const sheets = ['BD', 'Outbound_出库单', 'Sheet1'];
                 for (const sheet of sheets) {
                     try {
@@ -603,6 +695,9 @@
             for (const obc in STATE.tabs) {
                 totalValidated += STATE.tabs[obc].validations.length;
             }
+            for (const obc in STATE.closedTabs) {
+                totalValidated += STATE.closedTabs[obc].validations.length;
+            }
             document.getElementById('dash-validated').textContent = totalValidated || '-';
         }
 
@@ -638,6 +733,12 @@
             scanner.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && scanner.value.trim()) {
                     e.preventDefault();
+                    if (!STATE.activeOBC) {
+                        showNotification('⚠️ Crea una orden primero', 'warning');
+                        playSound('error');
+                        scanner.value = '';
+                        return;
+                    }
                     processScan(scanner.value.trim());
                     scanner.value = '';
                 }
@@ -659,6 +760,12 @@
             }
 
             const activeOBC = STATE.activeOBC;
+            if (!activeOBC) {
+                showNotification('⚠️ Crea una orden primero', 'warning');
+                playSound('error');
+                return;
+            }
+
             const tab = STATE.tabs[activeOBC];
             
             if (tab.completed) {
@@ -761,6 +868,16 @@
         // === RENDERING ===
         function renderValidation() {
             const activeOBC = STATE.activeOBC;
+            const hasOrders = Object.keys(STATE.tabs).length > 0;
+            
+            document.getElementById('empty-state').style.display = hasOrders ? 'none' : 'block';
+            document.getElementById('validation-content').style.display = hasOrders ? 'block' : 'none';
+            
+            if (!hasOrders) {
+                updateSidebar();
+                return;
+            }
+            
             const tab = STATE.tabs[activeOBC];
             
             const total = OBC_TOTALS.get(activeOBC) || 0;
@@ -796,8 +913,21 @@
                 const t = document.createElement('div');
                 const tabData = STATE.tabs[obc];
                 t.className = `tab ${obc === activeOBC ? 'active' : ''} ${tabData.completed ? 'completed' : ''}`;
-                t.textContent = obc;
-                t.onclick = () => switchOBC(obc);
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = obc;
+                nameSpan.onclick = () => switchOBC(obc);
+                t.appendChild(nameSpan);
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'tab-close';
+                closeBtn.innerHTML = '×';
+                closeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    closeTab(obc);
+                };
+                t.appendChild(closeBtn);
+                
                 tabBar.appendChild(t);
             });
             const newTab = document.createElement('div');
@@ -845,8 +975,14 @@
                 rejectList.appendChild(li);
             });
             
+            updateSidebar();
+            updateDashboardStats();
+        }
+
+        function updateSidebar() {
             const obcList = document.getElementById('obc-list');
             obcList.innerHTML = '';
+            
             Object.keys(STATE.tabs).forEach(obc => {
                 const tab = STATE.tabs[obc];
                 const total = OBC_TOTALS.get(obc) || 0;
@@ -854,15 +990,18 @@
                 const pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
                 
                 const div = document.createElement('div');
-                div.style.cssText = `padding: 8px; margin-bottom: 8px; background: ${tab.completed ? 'rgba(76,175,80,0.2)' : 'rgba(255,255,255,0.1)'}; border-radius: 6px; font-size: 0.85em;`;
+                div.style.cssText = `padding: 8px; margin-bottom: 8px; background: ${tab.completed ? 'rgba(76,175,80,0.2)' : 'rgba(255,255,255,0.1)'}; border-radius: 6px; font-size: 0.8em; cursor: pointer;`;
                 div.innerHTML = `
-                    <div style="font-weight: 700;">${obc} ${tab.completed ? '✅' : ''}</div>
-                    <div style="opacity: 0.8;">${count}/${total} (${pct}%)</div>
+                    <div style="font-weight: 700; font-size: 0.9em;">${obc} ${tab.completed ? '✅' : ''}</div>
+                    <div style="opacity: 0.8; font-size: 0.85em;">${count}/${total} (${pct}%)</div>
                 `;
+                div.onclick = () => {
+                    if (document.getElementById('validation').style.display === 'block') {
+                        switchOBC(obc);
+                    }
+                };
                 obcList.appendChild(div);
             });
-            
-            updateDashboardStats();
         }
 
         function switchOBC(obc) {
@@ -870,6 +1009,22 @@
             renderValidation();
             document.getElementById('location-input').focus();
             saveState();
+        }
+
+        function closeTab(obc) {
+            if (!confirm(`¿Cerrar la orden ${obc}? Los datos se mantendrán en el historial.`)) return;
+            
+            STATE.closedTabs[obc] = STATE.tabs[obc];
+            delete STATE.tabs[obc];
+            
+            if (STATE.activeOBC === obc) {
+                const remaining = Object.keys(STATE.tabs);
+                STATE.activeOBC = remaining.length > 0 ? remaining[0] : null;
+            }
+            
+            renderValidation();
+            saveState();
+            showNotification(`Orden ${obc} cerrada`, 'info');
         }
 
         function addOBC() {
@@ -893,6 +1048,7 @@
         }
 
         function updateState() {
+            if (!STATE.activeOBC) return;
             const tab = STATE.tabs[STATE.activeOBC];
             tab.location = document.getElementById('location-input').value.toUpperCase().trim();
             saveState();
@@ -902,8 +1058,10 @@
         function startValidation() {
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('validation').style.display = 'block';
-            document.getElementById('scanner').focus();
             renderValidation();
+            if (STATE.activeOBC) {
+                document.getElementById('scanner').focus();
+            }
         }
 
         function returnToDashboard() {
@@ -926,6 +1084,7 @@
         function showFaltantes() {
             document.getElementById('validation').style.display = 'none';
             document.getElementById('faltantes-module').style.display = 'block';
+            populateFaltantesOrders();
             renderFaltantes();
         }
 
@@ -939,8 +1098,10 @@
             const tbody = document.getElementById('resumen-tbody');
             tbody.innerHTML = '';
             
-            Object.keys(STATE.tabs).forEach(obc => {
-                const tab = STATE.tabs[obc];
+            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
+            
+            Object.keys(allOrders).forEach(obc => {
+                const tab = allOrders[obc];
                 const total = OBC_TOTALS.get(obc) || 0;
                 const validated = tab.validations.length;
                 const pct = total > 0 ? ((validated / total) * 100).toFixed(0) : 0;
@@ -969,28 +1130,60 @@
         }
 
         // === FALTANTES MODULE ===
+        function populateFaltantesOrders() {
+            const select = document.getElementById('faltantes-order-select');
+            select.innerHTML = '<option value="">Seleccionar orden...</option>';
+            
+            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
+            Object.keys(allOrders).forEach(obc => {
+                const option = document.createElement('option');
+                option.value = obc;
+                option.textContent = obc;
+                select.appendChild(option);
+            });
+            
+            if (STATE.activeOBC && allOrders[STATE.activeOBC]) {
+                select.value = STATE.activeOBC;
+            }
+        }
+
         function renderFaltantes() {
-            const activeOBC = STATE.activeOBC;
-            const tab = STATE.tabs[activeOBC];
-            const obcCodes = OBC_MAP.get(activeOBC);
-            
-            document.getElementById('faltantes-title').textContent = `Orden: ${activeOBC}`;
-            
+            const selectedOBC = document.getElementById('faltantes-order-select').value;
             const grid = document.getElementById('faltantes-grid');
             grid.innerHTML = '';
             
-            if (!obcCodes) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">No hay datos para esta orden</div>';
+            if (!selectedOBC) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">Selecciona una orden para ver los códigos</div>';
+                return;
+            }
+            
+            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
+            const tab = allOrders[selectedOBC];
+            const obcCodes = OBC_MAP.get(selectedOBC);
+            
+            if (!obcCodes || obcCodes.size === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">No hay datos para esta orden</div>';
                 return;
             }
             
             const validated = new Set(tab.validations.map(v => v.code));
+            const codesArray = Array.from(obcCodes);
             
-            Array.from(obcCodes).forEach(code => {
+            codesArray.forEach(code => {
                 const div = document.createElement('div');
                 div.className = `faltante-item ${validated.has(code) ? 'faltante-ok' : 'faltante-pending'}`;
                 div.textContent = code;
+                div.dataset.code = code;
                 grid.appendChild(div);
+            });
+        }
+
+        function filterFaltantes() {
+            const search = document.getElementById('search-faltantes').value.toLowerCase();
+            const items = document.querySelectorAll('.faltante-item');
+            items.forEach(item => {
+                const code = item.dataset.code.toLowerCase();
+                item.style.display = code.includes(search) ? '' : 'none';
             });
         }
 
@@ -1104,8 +1297,9 @@
             const rows = [];
             rows.push('Fecha,Hora,Usuario,Orden,Código,Ubicación,Nota');
             
-            for (const obc in STATE.tabs) {
-                STATE.tabs[obc].validations.forEach(log => {
+            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
+            for (const obc in allOrders) {
+                allOrders[obc].validations.forEach(log => {
                     rows.push(`${log.date},${log.timestamp},${log.user},${log.obc},${log.code},${log.location || ''},${log.note || ''}`);
                 });
             }
