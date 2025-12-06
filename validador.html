@@ -45,16 +45,15 @@
         .btn-success { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; font-size: 1.4em; padding: 20px; }
         .btn-google { background: #4285F4; color: white; }
         .btn-secondary { background: #6c757d; color: white; }
-        .btn-small { padding: 8px 15px; font-size: 0.85em; width: auto; }
 
         /* === VALIDATION SCREEN === */
         #validation { display: none; min-height: 100vh; }
-        .container { display: flex; height: 100vh; }
-        .sidebar { width: 200px; background: #333; color: white; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; }
-        .main-content { flex: 1; padding: 15px; overflow-y: auto; }
+        .container { display: flex; }
+        .sidebar { width: 260px; background: #333; color: white; padding: 18px; overflow-y: auto; }
+        .main-content { flex: 1; padding: 15px; max-width: 1400px; margin: 0 auto; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .header h1 { color: var(--primary); font-size: 1.6em; flex: 1; }
+        .header h1 { color: var(--primary); font-size: 1.6em; }
         
         .card { background: white; padding: 18px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
         
@@ -66,9 +65,6 @@
             border-radius: 8px; 
             margin-bottom: 15px; 
         }
-        .progress-card.completed {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%) !important;
-        }
         .progress-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .progress-obc-name { font-size: 1.2em; font-weight: 700; }
         .progress-percentage { font-size: 2em; font-weight: 800; }
@@ -78,56 +74,12 @@
         .progress-count-label { font-size: 0.7em; opacity: 0.85; }
         .progress-bar-container { background: rgba(0,0,0,0.25); height: 10px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.3); }
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #fff, #ffd966); transition: width 0.5s; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        .progress-bar-fill.completed { background: linear-gradient(90deg, #fff, #81c784) !important; }
-        
-        /* Link to faltantes */
-        .faltantes-link {
-            color: white;
-            text-decoration: underline;
-            text-decoration-thickness: 2px;
-            text-underline-offset: 2px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.2s;
-            display: inline-block;
-        }
-        .faltantes-link:hover {
-            text-decoration-thickness: 3px;
-            transform: scale(1.05);
-        }
         
         /* Inputs en línea */
-        .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85em; }
         .input-group input, .input-group select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; }
-        .input-group textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; font-family: inherit; resize: vertical; }
         .scanner-input { font-size: 1.6em !important; text-transform: uppercase; font-weight: bold; text-align: center; background: #fff5ed !important; }
-        
-        /* Scanner section with manual button */
-        .scanner-section {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-        .scanner-wrapper {
-            flex: 1;
-        }
-        .btn-manual {
-            padding: 10px 15px;
-            background: var(--warning);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9em;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .btn-manual:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255,152,0,0.3);
-        }
         
         /* Stats */
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
@@ -149,55 +101,10 @@
         .log-code { font-weight: 600; }
         
         /* Tabs */
-        .tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
-        .tab { 
-            padding: 8px 12px; 
-            cursor: pointer; 
-            border: 2px solid #ddd; 
-            border-radius: 6px; 
-            background: white; 
-            font-weight: 600; 
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+        .tab { padding: 8px 15px; cursor: pointer; border: 2px solid #ddd; border-radius: 6px; background: white; font-weight: 600; transition: all 0.2s; }
         .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .tab.completed { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
         .tab.new-tab { background: linear-gradient(135deg, #ffb399, #ff9d7a); color: white; }
-        .tab-close {
-            background: none;
-            border: none;
-            color: inherit;
-            cursor: pointer;
-            font-size: 1.2em;
-            padding: 0;
-            margin: 0;
-            line-height: 1;
-            opacity: 0.7;
-        }
-        .tab-close:hover {
-            opacity: 1;
-        }
-        
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .empty-state-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        .empty-state-text {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 20px;
-        }
         
         /* Notificaciones */
         .notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 350px; }
@@ -205,7 +112,6 @@
         .notification.success { border-color: var(--success); }
         .notification.error { border-color: var(--error); }
         .notification.warning { border-color: var(--warning); }
-        .notification.info { border-color: #2196F3; }
         @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
         /* Popups */
@@ -213,27 +119,6 @@
         .popup-content { background: white; padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
         .popup-header { font-size: 1.4em; font-weight: 700; margin-bottom: 15px; }
         .popup-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        
-        /* Mini alert */
-        .mini-alert {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(244, 67, 54, 0.95);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            z-index: 10000;
-            animation: fadeInOut 0.4s ease-in-out;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-        }
         
         /* Resumen Module */
         #resumen-module { display: none; }
@@ -244,43 +129,15 @@
         
         /* Faltantes Module */
         #faltantes-module { display: none; }
-        .faltantes-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        .faltantes-controls input {
-            flex: 1;
-            min-width: 200px;
-        }
-        .faltantes-controls select {
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 1em;
-            min-width: 200px;
-        }
-        .faltantes-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
-            gap: 8px; 
-            max-height: 600px; 
-            overflow-y: auto; 
-        }
-        .faltante-item { padding: 10px; border-radius: 6px; text-align: center; font-size: 0.8em; font-weight: 600; word-break: break-all; }
+        .faltantes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; max-height: 500px; overflow-y: auto; }
+        .faltante-item { padding: 12px; border-radius: 6px; text-align: center; font-size: 0.85em; font-weight: 600; }
         .faltante-ok { background: #e8f5e9; color: var(--success); }
         .faltante-pending { background: #ffebee; color: var(--error); }
         
-        @media (max-width: 1024px) {
-            .sidebar { width: 180px; }
-        }
-        
         @media (max-width: 768px) {
-            .container { flex-direction: column; height: auto; }
+            .container { flex-direction: column; }
             .sidebar { width: 100%; }
             .inline-inputs { grid-template-columns: 1fr; }
-            .faltantes-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
         }
     </style>
 </head>
@@ -343,111 +200,90 @@
     <div id="validation">
         <div class="container">
             <div class="sidebar">
-                <h2 style="color: var(--primary); margin-bottom: 15px; font-size: 1.3em;">WMS</h2>
-                <button class="btn btn-primary btn-small" onclick="returnToDashboard()" style="margin-bottom: 10px; width: 100%;">← Dashboard</button>
-                <button class="btn btn-secondary btn-small" onclick="showResumen()" style="margin-bottom: 10px; width: 100%;">📋 Resumen</button>
-                <button class="btn btn-secondary btn-small" onclick="showFaltantes()" style="margin-bottom: 10px; width: 100%;">🔍 Faltantes</button>
+                <h2 style="color: var(--primary); margin-bottom: 15px;">WMS Validator</h2>
+                <button class="btn btn-primary" onclick="returnToDashboard()" style="margin-bottom: 15px;">← Dashboard</button>
+                <button class="btn btn-secondary" onclick="showResumen()" style="margin-bottom: 15px;">📋 Resumen</button>
+                <button class="btn btn-secondary" onclick="showFaltantes()" style="margin-bottom: 15px;">🔍 Faltantes</button>
                 <hr style="border-color: #555; margin: 15px 0;">
                 <div style="text-align: center; margin-bottom: 15px;">
-                    <div style="font-size: 1.3em; font-weight: 700; color: var(--primary);" id="bd-count-sidebar">0</div>
-                    <div style="font-size: 0.75em; opacity: 0.8;">códigos en BD</div>
+                    <div style="font-size: 1.5em; font-weight: 700; color: var(--primary);" id="bd-count-sidebar">0</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">códigos en BD</div>
                 </div>
-                <div id="obc-list" style="flex: 1; overflow-y: auto;"></div>
+                <div id="obc-list" style="max-height: 300px; overflow-y: auto;"></div>
             </div>
 
             <div class="main-content">
                 <div class="header">
                     <h1>🔍 Validación de Cajas</h1>
-                    <button class="btn btn-secondary btn-small" onclick="exportData()">📥 CSV</button>
+                    <button class="btn btn-secondary" onclick="exportData()">📥 Exportar CSV</button>
                 </div>
 
-                <div id="content-area">
-                    <!-- Empty state -->
-                    <div id="empty-state" class="empty-state">
-                        <div class="empty-state-icon">📦</div>
-                        <div class="empty-state-text">No hay órdenes activas</div>
-                        <button class="btn btn-primary" onclick="addOBC()" style="width: auto; padding: 12px 30px;">+ Nueva Orden</button>
+                <div id="tab-bar" class="tab-bar"></div>
+
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <div class="progress-obc-name" id="prog-obc">-</div>
+                        <div class="progress-percentage" id="prog-pct">0%</div>
                     </div>
-
-                    <!-- Validation content -->
-                    <div id="validation-content" style="display: none;">
-                        <div class="tab-bar" id="tab-bar"></div>
-
-                        <div class="progress-card">
-                            <div class="progress-header">
-                                <div class="progress-obc-name" id="prog-obc">-</div>
-                                <div class="progress-percentage" id="prog-pct">0%</div>
-                            </div>
-                            <div class="progress-counts">
-                                <div class="progress-count-item">
-                                    <div class="progress-count-number" id="prog-scan">0</div>
-                                    <div class="progress-count-label">Escaneadas</div>
-                                </div>
-                                <div class="progress-count-item">
-                                    <div class="progress-count-number" id="prog-total">0</div>
-                                    <div class="progress-count-label">Total</div>
-                                </div>
-                                <div class="progress-count-item">
-                                    <div class="progress-count-number" id="prog-rest">0</div>
-                                    <div class="progress-count-label">Faltantes</div>
-                                </div>
-                            </div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar-fill" id="prog-bar" style="width: 0%"></div>
-                            </div>
+                    <div class="progress-counts">
+                        <div class="progress-count-item">
+                            <div class="progress-count-number" id="prog-scan">0</div>
+                            <div class="progress-count-label">Escaneadas</div>
                         </div>
-
-                        <div class="card">
-                            <div class="inline-inputs">
-                                <div class="input-group">
-                                    <label>📦 Orden:</label>
-                                    <input type="text" id="obc-display" disabled>
-                                </div>
-                                <div class="input-group">
-                                    <label>📍 Destino:</label>
-                                    <input type="text" id="recipient-display" disabled>
-                                </div>
-                                <div class="input-group">
-                                    <label>🕐 Horario:</label>
-                                    <input type="text" id="time-display" disabled>
-                                </div>
-                                <div class="input-group">
-                                    <label>📍 Ubicación:</label>
-                                    <input type="text" id="location-input" placeholder="Ej: PLEC123" onchange="updateState()">
-                                </div>
-                            </div>
-                            <div class="scanner-section">
-                                <div class="scanner-wrapper">
-                                    <div class="input-group">
-                                        <label style="font-size: 1.1em; color: var(--primary);">📷 ESCANEAR CÓDIGO:</label>
-                                        <input type="text" id="scanner" class="scanner-input" placeholder="Escanea aquí..." autofocus>
-                                    </div>
-                                </div>
-                                <button class="btn-manual" onclick="openManualInput()">✏️ Manual</button>
-                            </div>
+                        <div class="progress-count-item">
+                            <div class="progress-count-number" id="prog-total">0</div>
+                            <div class="progress-count-label">Total</div>
                         </div>
-
-                        <div class="stats">
-                            <div class="stat-box stat-ok">
-                                VALIDADAS
-                                <div class="stat-number" id="stat-ok">0</div>
-                            </div>
-                            <div class="stat-box stat-error">
-                                RECHAZADAS
-                                <div class="stat-number" id="stat-error">0</div>
-                            </div>
+                        <div class="progress-count-item">
+                            <div class="progress-count-number" id="prog-rest">0</div>
+                            <div class="progress-count-label">Faltantes</div>
                         </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="prog-bar" style="width: 0%"></div>
+                    </div>
+                </div>
 
-                        <div class="logs-container">
-                            <div class="card">
-                                <h3>✅ Validaciones OK</h3>
-                                <ul id="log-ok" class="log-list"></ul>
-                            </div>
-                            <div class="card">
-                                <h3>❌ Rechazos</h3>
-                                <ul id="log-reject" class="log-list"></ul>
-                            </div>
+                <div class="card">
+                    <div class="inline-inputs">
+                        <div class="input-group">
+                            <label>👤 Usuario:</label>
+                            <select id="user-select" onchange="updateState()"></select>
                         </div>
+                        <div class="input-group">
+                            <label>📦 Orden Activa:</label>
+                            <input type="text" id="obc-display" disabled>
+                        </div>
+                        <div class="input-group">
+                            <label>📍 Ubicación Global:</label>
+                            <input type="text" id="location-input" placeholder="Ej: PLEC123" onchange="updateState()">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label style="font-size: 1.1em; color: var(--primary);">📷 ESCANEAR CÓDIGO:</label>
+                        <input type="text" id="scanner" class="scanner-input" placeholder="Escanea aquí..." autofocus>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box stat-ok">
+                        VALIDADAS
+                        <div class="stat-number" id="stat-ok">0</div>
+                    </div>
+                    <div class="stat-box stat-error">
+                        RECHAZADAS
+                        <div class="stat-number" id="stat-error">0</div>
+                    </div>
+                </div>
+
+                <div class="logs-container">
+                    <div class="card">
+                        <h3>✅ Validaciones OK</h3>
+                        <ul id="log-ok" class="log-list"></ul>
+                    </div>
+                    <div class="card">
+                        <h3>❌ Rechazos</h3>
+                        <ul id="log-reject" class="log-list"></ul>
                     </div>
                 </div>
             </div>
@@ -460,7 +296,7 @@
             <div class="main-content" style="max-width: 100%;">
                 <div class="header">
                     <h1>📋 Resumen de Órdenes</h1>
-                    <button class="btn btn-secondary btn-small" onclick="hideResumen()">← Volver</button>
+                    <button class="btn btn-secondary" onclick="hideResumen()">← Volver</button>
                 </div>
                 <div class="card">
                     <input type="text" id="search-resumen" class="search-bar" placeholder="🔍 Buscar orden..." oninput="filterResumen()">
@@ -490,16 +326,11 @@
             <div class="main-content" style="max-width: 100%;">
                 <div class="header">
                     <h1>🔍 Códigos Faltantes</h1>
-                    <button class="btn btn-secondary btn-small" onclick="hideFaltantes()">← Volver</button>
+                    <button class="btn btn-secondary" onclick="hideFaltantes()">← Volver</button>
                 </div>
                 <div class="card">
-                    <div class="faltantes-controls">
-                        <select id="faltantes-order-select" onchange="renderFaltantes()">
-                            <option value="">Seleccionar orden...</option>
-                        </select>
-                        <input type="text" id="search-faltantes" class="search-bar" placeholder="🔍 Buscar código..." oninput="filterFaltantes()">
-                    </div>
-                    <p style="margin-bottom: 15px;"><span style="color: var(--success);">✅ Validados</span> | <span style="color: var(--error);">❌ Faltantes</span></p>
+                    <h3 id="faltantes-title">Orden: -</h3>
+                    <p style="margin-bottom: 15px;">✅ Validados | ❌ Faltantes</p>
                     <div class="faltantes-grid" id="faltantes-grid"></div>
                 </div>
             </div>
@@ -535,50 +366,19 @@
         </div>
     </div>
 
-    <div id="popup-completed" class="popup-overlay">
+    <div id="popup-history" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--success);">✅ ORDEN COMPLETADA</div>
-            <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin: 15px 0; text-align: center;">
-                <div style="font-size: 1.8em; font-weight: 700; color: var(--success); margin-bottom: 10px;">🎉</div>
-                <strong>Orden:</strong> <span id="completed-obc"></span><br>
-                <strong>Cajas validadas:</strong> <span id="completed-count"></span><br>
-                <strong>Usuario:</strong> <span id="completed-user"></span>
-            </div>
-            <div class="popup-buttons">
-                <button class="btn btn-primary" onclick="continueToNewOrder()">Nueva Orden</button>
-                <button class="btn btn-success" onclick="saveAndClose()">Guardar y Cerrar</button>
-                <button class="btn btn-secondary" onclick="closePopup('completed')">Continuar Visualizando</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="popup-manual" class="popup-overlay">
-        <div class="popup-content">
-            <div class="popup-header" style="color: var(--warning);">✏️ INGRESO MANUAL DE CÓDIGO</div>
+            <div class="popup-header" style="color: var(--warning);">🔔 YA VALIDADO EN SISTEMA</div>
             <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
-                <p style="margin-bottom: 15px; color: #e65100;"><strong>⚠️ Advertencia:</strong> Solo usar para casos excepcionales</p>
-                <div class="input-group" style="margin-bottom: 15px;">
-                    <label>Código:</label>
-                    <input type="text" id="manual-code" placeholder="Ingresa el código">
-                </div>
-                <div class="input-group" style="margin-bottom: 15px;">
-                    <label>Motivo:</label>
-                    <select id="manual-reason" onchange="toggleManualOtherNote()">
-                        <option value="">Seleccionar motivo...</option>
-                        <option value="Codigo Borroso">Código Borroso</option>
-                        <option value="Etiqueta Dañada">Etiqueta Dañada</option>
-                        <option value="Error Surtido">Error Surtido</option>
-                        <option value="Otro">Otro</option>
-                    </select>
-                </div>
-                <div class="input-group" id="manual-other-container" style="display: none;">
-                    <label>Especificar motivo (obligatorio):</label>
-                    <textarea id="manual-other-note" rows="3" placeholder="Describe el motivo..."></textarea>
-                </div>
+                <p style="color: #e65100; font-weight: 600; margin-bottom: 10px;">⚠️ Este código ya fue validado anteriormente en Google Sheets</p>
+                <strong>Código:</strong> <span id="history-code"></span><br>
+                <strong>Validado:</strong> <span id="history-when"></span><br>
+                <strong>Usuario:</strong> <span id="history-user"></span>
             </div>
+            <p style="margin: 15px 0; font-weight: 600;">¿Qué deseas hacer?</p>
             <div class="popup-buttons">
-                <button class="btn btn-secondary" onclick="closePopup('manual')">Cancelar</button>
-                <button class="btn btn-primary" onclick="submitManualCode()">Validar Código</button>
+                <button class="btn btn-secondary" onclick="closePopup('history')">Ignorar - No validar</button>
+                <button class="btn btn-primary" onclick="forceHistoryValidation()">Forzar Validación con Nota</button>
             </div>
         </div>
     </div>
@@ -589,28 +389,29 @@
         const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
         const SPREADSHEET_BD = '1nKqd0mqEkZ1l8wqW83_d5fyarp5BKbV1nXSNJBk4-Ck';
         const SPREADSHEET_WRITE = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
-        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.profile';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
         
-        let CURRENT_USER = '';
+        let USERS = ['MIGUEL', 'PEDRO', 'ALEJANDRO', 'ESMERALDA', 'KATERYNE'];
         let BD_CODES = new Set();
         let OBC_MAP = new Map();
         let OBC_TOTALS = new Map();
         let OBC_INFO = new Map();
+        let VALIDATION_HISTORY = new Map(); // Historial de validaciones de la BD
         let STATE = {
-            activeOBC: null,
-            tabs: {},
-            closedTabs: {}
+            activeOBC: 'OBC_DEFAULT',
+            tabs: {
+                'OBC_DEFAULT': { user: 'MIGUEL', location: '', validations: [], rejections: [] }
+            }
         };
         let TOKEN_CLIENT, audioCtx;
         let lastScanned = null;
-        let typingTimer = null;
-        let scannerBuffer = '';
 
         // === INIT ===
         document.addEventListener('DOMContentLoaded', async () => {
             initAudio();
             await loadFromStorage();
             setupListeners();
+            populateUsers();
             renderValidation();
             gapi.load('client', initGAPI);
         });
@@ -628,10 +429,9 @@
                 TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
                     client_id: CLIENT_ID,
                     scope: SCOPES,
-                    callback: async (res) => {
+                    callback: (res) => {
                         if (res?.access_token) {
                             gapi.client.setToken(res);
-                            await getUserProfile();
                             updateConnectionStatus(true);
                             loadDatabase();
                         }
@@ -642,29 +442,11 @@
             }
         }
 
-        async function getUserProfile() {
-            try {
-                const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-                    headers: { Authorization: `Bearer ${gapi.client.getToken().access_token}` }
-                });
-                const data = await response.json();
-                CURRENT_USER = data.name || 'Usuario';
-                showNotification(`✅ Sesión iniciada: ${CURRENT_USER}`, 'success');
-            } catch (e) {
-                CURRENT_USER = 'Usuario';
-            }
-        }
-
         // === STORAGE ===
         async function loadFromStorage() {
             try {
                 const stateRes = await window.storage.get('wms_state');
-                if (stateRes?.value) {
-                    const loaded = JSON.parse(stateRes.value);
-                    STATE.tabs = loaded.tabs || {};
-                    STATE.closedTabs = loaded.closedTabs || {};
-                    STATE.activeOBC = loaded.activeOBC;
-                }
+                if (stateRes?.value) STATE = JSON.parse(stateRes.value);
                 
                 const bdRes = await window.storage.get('wms_bd');
                 if (bdRes?.value) {
@@ -726,6 +508,7 @@
             showNotification('Cargando base de datos...', 'info');
             
             try {
+                // Load Resumen
                 const resRes = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: SPREADSHEET_BD,
                     range: 'Resumen!A:E'
@@ -745,6 +528,7 @@
                     }
                 }
 
+                // Load BD codes
                 const sheets = ['BD', 'Outbound_出库单', 'Sheet1'];
                 for (const sheet of sheets) {
                     try {
@@ -774,6 +558,10 @@
                             document.getElementById('status-bd').className = 'status-indicator status-ok';
                             document.getElementById('bd-label').textContent = 'Cargada';
                             updateStartButton();
+                            
+                            // Cargar historial de validaciones
+                            await loadValidationHistory();
+                            
                             showNotification(`✅ BD cargada: ${BD_CODES.size} códigos en ${OBC_TOTALS.size} órdenes`, 'success');
                             playSound('ok');
                             return;
@@ -788,6 +576,41 @@
             }
         }
 
+        // === LOAD VALIDATION HISTORY ===
+        async function loadValidationHistory() {
+            if (!gapi.client.getToken()) return;
+
+            try {
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_WRITE,
+                    range: 'Val3!A:E'
+                });
+
+                const rows = response.result.values;
+                if (rows && rows.length > 1) {
+                    VALIDATION_HISTORY.clear();
+                    
+                    for (let i = 1; i < rows.length; i++) {
+                        const [fecha, hora, usuario, obc, codigo] = rows[i];
+                        if (codigo && obc) {
+                            const normalized = normalizeCode(codigo);
+                            const key = `${normalized}_${obc}`;
+                            VALIDATION_HISTORY.set(key, {
+                                user: usuario,
+                                timestamp: `${fecha} ${hora}`,
+                                obc: obc
+                            });
+                        }
+                    }
+                    
+                    console.log(`Historial cargado: ${VALIDATION_HISTORY.size} validaciones previas`);
+                    showNotification(`📋 Historial: ${VALIDATION_HISTORY.size} validaciones previas`, 'info');
+                }
+            } catch (err) {
+                console.warn('No se pudo cargar historial:', err);
+            }
+        }
+
         function updateDashboardStats() {
             document.getElementById('dash-bd').textContent = BD_CODES.size.toLocaleString();
             document.getElementById('bd-count-sidebar').textContent = BD_CODES.size.toLocaleString();
@@ -797,16 +620,14 @@
             for (const obc in STATE.tabs) {
                 totalValidated += STATE.tabs[obc].validations.length;
             }
-            for (const obc in STATE.closedTabs) {
-                totalValidated += STATE.closedTabs[obc].validations.length;
-            }
             document.getElementById('dash-validated').textContent = totalValidated || '-';
         }
 
-        // === CODE EXTRACTION ===
+        // === CODE EXTRACTION (MEJORADO) ===
         function extractCode(raw) {
             const code = raw.trim();
             
+            // Patrón 1: JSON format - buscar entre corchetes [ID[Ñ [CODIGO[
             const jsonPattern1 = /\[id\[.*?\[([\d\/\-]+)\[/i;
             const jsonPattern2 = /¨id¨.*?¨([\d\/\-]+)¨/i;
             
@@ -816,10 +637,12 @@
             const match2 = code.match(jsonPattern2);
             if (match2) return match2[1];
             
+            // Patrón 2: Código directo numérico con / o -
             const directPattern = /^([\d\/\-]+)/;
             const match3 = code.match(directPattern);
             if (match3) return match3[1];
             
+            // Fallback: retornar tal cual
             return code;
         }
 
@@ -832,35 +655,11 @@
             const scanner = document.getElementById('scanner');
             const location = document.getElementById('location-input');
             
-            // Scanner handling - detect typing vs scanning with 500ms delay
-            scanner.addEventListener('input', (e) => {
-                clearTimeout(typingTimer);
-                scannerBuffer = e.target.value;
-                
-                // Detect manual typing (slow input) - 500ms threshold
-                typingTimer = setTimeout(() => {
-                    if (scanner.value.length > 0 && scanner.value.length < 15) {
-                        showMiniAlert('⚠️ Use solo escaneo o botón Manual');
-                        scanner.value = '';
-                        scannerBuffer = '';
-                    }
-                }, 500);
-            });
-            
             scanner.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && scanner.value.trim()) {
                     e.preventDefault();
-                    clearTimeout(typingTimer);
-                    
-                    if (!STATE.activeOBC) {
-                        showNotification('⚠️ Crea una orden primero', 'warning');
-                        playSound('error');
-                        scanner.value = '';
-                        return;
-                    }
-                    processScan(scanner.value.trim(), false);
+                    processScan(scanner.value.trim());
                     scanner.value = '';
-                    scannerBuffer = '';
                 }
             });
             
@@ -872,15 +671,7 @@
             });
         }
 
-        function showMiniAlert(message) {
-            const alert = document.createElement('div');
-            alert.className = 'mini-alert';
-            alert.textContent = message;
-            document.body.appendChild(alert);
-            setTimeout(() => alert.remove(), 400);
-        }
-
-        async function processScan(raw, isManual = false) {
+        async function processScan(raw) {
             if (BD_CODES.size === 0) {
                 showNotification('⚠️ Carga la BD primero', 'warning');
                 playSound('error');
@@ -888,19 +679,7 @@
             }
 
             const activeOBC = STATE.activeOBC;
-            if (!activeOBC) {
-                showNotification('⚠️ Crea una orden primero', 'warning');
-                playSound('error');
-                return;
-            }
-
             const tab = STATE.tabs[activeOBC];
-            
-            if (tab.completed) {
-                showNotification('⚠️ Esta orden ya está completada', 'warning');
-                playSound('error');
-                return;
-            }
             
             const extracted = extractCode(raw);
             const normalized = normalizeCode(extracted);
@@ -910,47 +689,49 @@
             console.log('Extracted:', extracted);
             console.log('Normalized:', normalized);
             console.log('Concatenated:', concatenated);
-            console.log('Is Manual:', isManual);
             
+            // Check if exists
             if (!BD_CODES.has(concatenated)) {
                 await handleRejection('NO_EXISTE_EN_BD', raw, normalized, activeOBC);
                 return;
             }
             
+            // Check duplicates
             const isDup = tab.validations.find(v => v.code === normalized);
             if (isDup) {
-                lastScanned = { raw, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup, isManual };
+                lastScanned = { raw, code: normalized, obc: activeOBC, user: tab.user, location: tab.location, duplicate: isDup };
                 showPopup('dup', normalized, isDup);
                 playSound('duplicate');
                 return;
             }
             
-            await handleValidationOK(raw, normalized, activeOBC, tab.location, '', isManual);
+            // Validate OK
+            await handleValidationOK(raw, normalized, activeOBC, tab.user, tab.location);
         }
 
-        async function handleValidationOK(raw, code, obc, location, note = '', isManual = false) {
+        async function handleValidationOK(raw, code, obc, user, location, note = '') {
             const tab = STATE.tabs[obc];
             const now = new Date();
-            
-            const finalNote = isManual && note ? `Codigo Escrito Manualmente: ${note}` : note;
             
             const log = {
                 id: now.getTime(),
                 timestamp: now.toLocaleTimeString('es-MX'),
                 date: now.toISOString().slice(0, 10),
-                user: CURRENT_USER, obc, raw, code, location, note: finalNote
+                user, obc, raw, code, location, note
             };
             
             tab.validations.unshift(log);
+            
+            // Add to history cache
+            const historyKey = `${code}_${obc}`;
+            VALIDATION_HISTORY.set(historyKey, {
+                user: CURRENT_USER,
+                timestamp: `${log.date} ${log.timestamp}`,
+                obc: obc
+            });
+            
             playSound('ok');
             flashInput('success');
-            
-            const total = OBC_TOTALS.get(obc) || 0;
-            if (tab.validations.length >= total && total > 0) {
-                tab.completed = true;
-                showOrderCompleted(obc);
-            }
-            
             renderValidation();
             await saveState();
             
@@ -965,7 +746,7 @@
                 id: now.getTime(),
                 timestamp: now.toLocaleTimeString('es-MX'),
                 date: now.toISOString().slice(0, 10),
-                user: CURRENT_USER, obc, raw, code, reason
+                user: tab.user, obc, raw, code, reason
             };
             
             tab.rejections.unshift(log);
@@ -999,33 +780,13 @@
         // === RENDERING ===
         function renderValidation() {
             const activeOBC = STATE.activeOBC;
-            const hasOrders = Object.keys(STATE.tabs).length > 0;
-            
-            document.getElementById('empty-state').style.display = hasOrders ? 'none' : 'block';
-            document.getElementById('validation-content').style.display = hasOrders ? 'block' : 'none';
-            
-            if (!hasOrders) {
-                updateSidebar();
-                return;
-            }
-            
             const tab = STATE.tabs[activeOBC];
             
+            // Update progress
             const total = OBC_TOTALS.get(activeOBC) || 0;
             const scanned = tab.validations.length;
             const remaining = Math.max(0, total - scanned);
             const pct = total > 0 ? Math.min(100, (scanned / total) * 100) : 0;
-            const isCompleted = tab.completed;
-            
-            const progressCard = document.querySelector('.progress-card');
-            const progressBar = document.getElementById('prog-bar');
-            if (isCompleted) {
-                progressCard.classList.add('completed');
-                progressBar.classList.add('completed');
-            } else {
-                progressCard.classList.remove('completed');
-                progressBar.classList.remove('completed');
-            }
             
             document.getElementById('prog-obc').textContent = activeOBC;
             document.getElementById('prog-pct').textContent = `${pct.toFixed(0)}%`;
@@ -1034,31 +795,19 @@
             document.getElementById('prog-rest').textContent = remaining;
             document.getElementById('prog-bar').style.width = `${pct}%`;
             
+            // Update stats
             const rejected = tab.rejections.filter(r => r.reason === 'NO_EXISTE_EN_BD').length;
             document.getElementById('stat-ok').textContent = scanned;
             document.getElementById('stat-error').textContent = rejected;
             
+            // Update tabs
             const tabBar = document.getElementById('tab-bar');
             tabBar.innerHTML = '';
             Object.keys(STATE.tabs).forEach(obc => {
                 const t = document.createElement('div');
-                const tabData = STATE.tabs[obc];
-                t.className = `tab ${obc === activeOBC ? 'active' : ''} ${tabData.completed ? 'completed' : ''}`;
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = obc;
-                nameSpan.onclick = () => switchOBC(obc);
-                t.appendChild(nameSpan);
-                
-                const closeBtn = document.createElement('button');
-                closeBtn.className = 'tab-close';
-                closeBtn.innerHTML = '×';
-                closeBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    closeTab(obc);
-                };
-                t.appendChild(closeBtn);
-                
+                t.className = `tab ${obc === activeOBC ? 'active' : ''}`;
+                t.textContent = obc;
+                t.onclick = () => switchOBC(obc);
                 tabBar.appendChild(t);
             });
             const newTab = document.createElement('div');
@@ -1067,16 +816,12 @@
             newTab.onclick = addOBC;
             tabBar.appendChild(newTab);
             
-            const info = OBC_INFO.get(activeOBC) || {};
+            // Update inputs
+            document.getElementById('user-select').value = tab.user;
             document.getElementById('obc-display').value = activeOBC;
-            document.getElementById('recipient-display').value = info.recipient || '-';
-            document.getElementById('time-display').value = info.arrivalTime || '-';
             document.getElementById('location-input').value = tab.location;
             
-            const scanner = document.getElementById('scanner');
-            scanner.disabled = isCompleted;
-            scanner.placeholder = isCompleted ? '✅ Orden completada' : 'Escanea aquí...';
-            
+            // Update logs
             const okList = document.getElementById('log-ok');
             const rejectList = document.getElementById('log-reject');
             okList.innerHTML = '';
@@ -1106,14 +851,9 @@
                 rejectList.appendChild(li);
             });
             
-            updateSidebar();
-            updateDashboardStats();
-        }
-
-        function updateSidebar() {
+            // Update sidebar OBC list
             const obcList = document.getElementById('obc-list');
             obcList.innerHTML = '';
-            
             Object.keys(STATE.tabs).forEach(obc => {
                 const tab = STATE.tabs[obc];
                 const total = OBC_TOTALS.get(obc) || 0;
@@ -1121,18 +861,15 @@
                 const pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
                 
                 const div = document.createElement('div');
-                div.style.cssText = `padding: 8px; margin-bottom: 8px; background: ${tab.completed ? 'rgba(76,175,80,0.2)' : 'rgba(255,255,255,0.1)'}; border-radius: 6px; font-size: 0.8em; cursor: pointer;`;
+                div.style.cssText = 'padding: 8px; margin-bottom: 8px; background: rgba(255,255,255,0.1); border-radius: 6px; font-size: 0.85em;';
                 div.innerHTML = `
-                    <div style="font-weight: 700; font-size: 0.9em;">${obc} ${tab.completed ? '✅' : ''}</div>
-                    <div style="opacity: 0.8; font-size: 0.85em;">${count}/${total} (${pct}%)</div>
+                    <div style="font-weight: 700;">${obc}</div>
+                    <div style="opacity: 0.8;">${count}/${total} (${pct}%)</div>
                 `;
-                div.onclick = () => {
-                    if (document.getElementById('validation').style.display === 'block') {
-                        switchOBC(obc);
-                    }
-                };
                 obcList.appendChild(div);
             });
+            
+            updateDashboardStats();
         }
 
         function switchOBC(obc) {
@@ -1140,22 +877,6 @@
             renderValidation();
             document.getElementById('location-input').focus();
             saveState();
-        }
-
-        function closeTab(obc) {
-            if (!confirm(`¿Cerrar la orden ${obc}? Los datos se mantendrán en el historial.`)) return;
-            
-            STATE.closedTabs[obc] = STATE.tabs[obc];
-            delete STATE.tabs[obc];
-            
-            if (STATE.activeOBC === obc) {
-                const remaining = Object.keys(STATE.tabs);
-                STATE.activeOBC = remaining.length > 0 ? remaining[0] : null;
-            }
-            
-            renderValidation();
-            saveState();
-            showNotification(`Orden ${obc} cerrada`, 'info');
         }
 
         function addOBC() {
@@ -1169,30 +890,38 @@
             }
             
             STATE.tabs[obcName] = {
+                user: STATE.tabs[STATE.activeOBC].user,
                 location: '',
                 validations: [],
-                rejections: [],
-                completed: false
+                rejections: []
             };
             switchOBC(obcName);
             showNotification(`✅ Orden ${obcName} creada`, 'success');
         }
 
         function updateState() {
-            if (!STATE.activeOBC) return;
             const tab = STATE.tabs[STATE.activeOBC];
+            tab.user = document.getElementById('user-select').value;
             tab.location = document.getElementById('location-input').value.toUpperCase().trim();
             saveState();
+        }
+
+        function populateUsers() {
+            const select = document.getElementById('user-select');
+            USERS.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u;
+                opt.textContent = u;
+                select.appendChild(opt);
+            });
         }
 
         // === NAVIGATION ===
         function startValidation() {
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('validation').style.display = 'block';
+            document.getElementById('scanner').focus();
             renderValidation();
-            if (STATE.activeOBC) {
-                document.getElementById('scanner').focus();
-            }
         }
 
         function returnToDashboard() {
@@ -1215,7 +944,6 @@
         function showFaltantes() {
             document.getElementById('validation').style.display = 'none';
             document.getElementById('faltantes-module').style.display = 'block';
-            populateFaltantesOrders();
             renderFaltantes();
         }
 
@@ -1229,10 +957,8 @@
             const tbody = document.getElementById('resumen-tbody');
             tbody.innerHTML = '';
             
-            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
-            
-            Object.keys(allOrders).forEach(obc => {
-                const tab = allOrders[obc];
+            Object.keys(STATE.tabs).forEach(obc => {
+                const tab = STATE.tabs[obc];
                 const total = OBC_TOTALS.get(obc) || 0;
                 const validated = tab.validations.length;
                 const pct = total > 0 ? ((validated / total) * 100).toFixed(0) : 0;
@@ -1261,77 +987,28 @@
         }
 
         // === FALTANTES MODULE ===
-        function populateFaltantesOrders() {
-            const select = document.getElementById('faltantes-order-select');
-            select.innerHTML = '<option value="">Seleccionar orden...</option>';
-            
-            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
-            Object.keys(allOrders).forEach(obc => {
-                const option = document.createElement('option');
-                option.value = obc;
-                option.textContent = obc;
-                select.appendChild(option);
-            });
-            
-            if (STATE.activeOBC && allOrders[STATE.activeOBC]) {
-                select.value = STATE.activeOBC;
-            }
-        }
-
         function renderFaltantes() {
-            const selectedOBC = document.getElementById('faltantes-order-select').value;
+            const activeOBC = STATE.activeOBC;
+            const tab = STATE.tabs[activeOBC];
+            const obcCodes = OBC_MAP.get(activeOBC);
+            
+            document.getElementById('faltantes-title').textContent = `Orden: ${activeOBC}`;
+            
             const grid = document.getElementById('faltantes-grid');
             grid.innerHTML = '';
             
-            if (!selectedOBC) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">Selecciona una orden para ver los códigos</div>';
-                return;
-            }
-            
-            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
-            const tab = allOrders[selectedOBC];
-            const obcCodes = OBC_MAP.get(selectedOBC);
-            
-            if (!obcCodes || obcCodes.size === 0) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">No hay datos para esta orden</div>';
+            if (!obcCodes) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;">No hay datos para esta orden</div>';
                 return;
             }
             
             const validated = new Set(tab.validations.map(v => v.code));
             
-            // Extract only the code part (column H) without OBC concatenation
-            const codesArray = Array.from(obcCodes).map(concatenated => {
-                // Remove the OBC suffix to get original code
-                const obcLower = selectedOBC.toLowerCase();
-                if (concatenated.endsWith(obcLower)) {
-                    return concatenated.slice(0, -obcLower.length);
-                }
-                return concatenated;
-            });
-            
-            // Filter to show only pending codes
-            const pendingCodes = codesArray.filter(code => !validated.has(code));
-            
-            if (pendingCodes.length === 0) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--success);">✅ ¡Todos los códigos han sido validados!</div>';
-                return;
-            }
-            
-            pendingCodes.forEach(code => {
+            Array.from(obcCodes).forEach(code => {
                 const div = document.createElement('div');
-                div.className = 'faltante-item faltante-pending';
+                div.className = `faltante-item ${validated.has(code) ? 'faltante-ok' : 'faltante-pending'}`;
                 div.textContent = code;
-                div.dataset.code = code;
                 grid.appendChild(div);
-            });
-        }
-
-        function filterFaltantes() {
-            const search = document.getElementById('search-faltantes').value.toLowerCase();
-            const items = document.querySelectorAll('.faltante-item');
-            items.forEach(item => {
-                const code = item.dataset.code.toLowerCase();
-                item.style.display = code.includes(search) ? '' : 'none';
             });
         }
 
@@ -1346,132 +1023,27 @@
                 document.getElementById('dup-when').textContent = `${data.date} ${data.timestamp}`;
                 document.getElementById('dup-user').textContent = data.user;
                 document.getElementById('popup-dup').style.display = 'flex';
+            } else if (type === 'history') {
+                document.getElementById('history-code').textContent = code;
+                document.getElementById('history-when').textContent = data.timestamp;
+                document.getElementById('history-user').textContent = data.user;
+                document.getElementById('popup-history').style.display = 'flex';
             }
             document.getElementById('scanner').blur();
         }
 
         function closePopup(type) {
             document.getElementById(`popup-${type}`).style.display = 'none';
-            if (type !== 'completed') {
-                document.getElementById('scanner').focus();
-            }
+            document.getElementById('scanner').focus();
             lastScanned = null;
         }
 
         function forceDuplicate() {
             const note = prompt('Justificación del duplicado:') || 'Sin justificación';
             if (lastScanned) {
-                let finalNote;
-                if (lastScanned.isManual && lastScanned.manualNote) {
-                    finalNote = `DUPLICADO FORZADO - Codigo Escrito Manualmente: ${lastScanned.manualNote} - ${note}`;
-                } else if (lastScanned.isManual) {
-                    finalNote = `DUPLICADO FORZADO - Codigo Escrito Manualmente: ${note}`;
-                } else {
-                    finalNote = `DUPLICADO FORZADO: ${note}`;
-                }
-                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, finalNote, false);
+                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.user, lastScanned.location, `DUPLICADO FORZADO: ${note}`);
             }
             closePopup('dup');
-        }
-
-        // === MANUAL INPUT ===
-        function toggleManualOtherNote() {
-            const reason = document.getElementById('manual-reason').value;
-            const otherContainer = document.getElementById('manual-other-container');
-            otherContainer.style.display = reason === 'Otro' ? 'block' : 'none';
-        }
-
-        function openManualInput() {
-            if (!STATE.activeOBC) {
-                showNotification('⚠️ Crea una orden primero', 'warning');
-                return;
-            }
-            
-            const tab = STATE.tabs[STATE.activeOBC];
-            if (tab.completed) {
-                showNotification('⚠️ Esta orden ya está completada', 'warning');
-                return;
-            }
-            
-            document.getElementById('manual-code').value = '';
-            document.getElementById('manual-reason').value = '';
-            document.getElementById('manual-other-note').value = '';
-            document.getElementById('manual-other-container').style.display = 'none';
-            document.getElementById('popup-manual').style.display = 'flex';
-            document.getElementById('manual-code').focus();
-        }
-
-        async function submitManualCode() {
-            const code = document.getElementById('manual-code').value.trim();
-            const reason = document.getElementById('manual-reason').value;
-            const otherNote = document.getElementById('manual-other-note').value.trim();
-            
-            if (!code) {
-                showNotification('⚠️ Ingresa un código', 'warning');
-                return;
-            }
-            
-            if (!reason) {
-                showNotification('⚠️ Selecciona un motivo', 'warning');
-                return;
-            }
-            
-            if (reason === 'Otro' && !otherNote) {
-                showNotification('⚠️ Especifica el motivo', 'warning');
-                return;
-            }
-            
-            const finalNote = reason === 'Otro' ? `Otro: ${otherNote}` : reason;
-            
-            closePopup('manual');
-            
-            const activeOBC = STATE.activeOBC;
-            const tab = STATE.tabs[activeOBC];
-            const normalized = normalizeCode(code);
-            const concatenated = normalized + activeOBC.toLowerCase();
-            
-            if (!BD_CODES.has(concatenated)) {
-                await handleRejection('NO_EXISTE_EN_BD', code, normalized, activeOBC);
-                return;
-            }
-            
-            const isDup = tab.validations.find(v => v.code === normalized);
-            if (isDup) {
-                lastScanned = { raw: code, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup, isManual: true, manualNote: finalNote };
-                showPopup('dup', normalized, isDup);
-                playSound('duplicate');
-                return;
-            }
-            
-            await handleValidationOK(code, normalized, activeOBC, tab.location, finalNote, true);
-        }
-
-        // === QUICK ACCESS TO FALTANTES ===
-        function quickFaltantes() {
-            showFaltantes();
-            document.getElementById('faltantes-order-select').value = STATE.activeOBC || '';
-            renderFaltantes();
-        }
-
-        // === ORDER COMPLETION ===
-        function showOrderCompleted(obc) {
-            const tab = STATE.tabs[obc];
-            document.getElementById('completed-obc').textContent = obc;
-            document.getElementById('completed-count').textContent = tab.validations.length;
-            document.getElementById('completed-user').textContent = CURRENT_USER;
-            document.getElementById('popup-completed').style.display = 'flex';
-            playSound('ok');
-            showNotification(`🎉 Orden ${obc} completada!`, 'success');
-        }
-
-        function continueToNewOrder() {
-            closePopup('completed');
-            addOBC();
-        }
-
-        function saveAndClose() {
-            closePopup('completed');
-            returnToDashboard();
         }
 
         // === AUDIO ===
@@ -1507,6 +1079,20 @@
                         osc2.start();
                         osc2.stop(audioCtx.currentTime + 0.1);
                     }, 150);
+                } else if (type === 'warning') {
+                    // Tono de advertencia - 3 beeps
+                    [0, 0.15, 0.3].forEach(delay => {
+                        setTimeout(() => {
+                            const oscW = audioCtx.createOscillator();
+                            const gainW = audioCtx.createGain();
+                            oscW.connect(gainW);
+                            gainW.connect(audioCtx.destination);
+                            gainW.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                            oscW.frequency.setValueAtTime(500, audioCtx.currentTime);
+                            oscW.start();
+                            oscW.stop(audioCtx.currentTime + 0.08);
+                        }, delay * 1000);
+                    });
                 }
             } catch (e) {}
         }
@@ -1532,9 +1118,8 @@
             const rows = [];
             rows.push('Fecha,Hora,Usuario,Orden,Código,Ubicación,Nota');
             
-            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
-            for (const obc in allOrders) {
-                allOrders[obc].validations.forEach(log => {
+            for (const obc in STATE.tabs) {
+                STATE.tabs[obc].validations.forEach(log => {
                     rows.push(`${log.date},${log.timestamp},${log.user},${log.obc},${log.code},${log.location || ''},${log.note || ''}`);
                 });
             }
