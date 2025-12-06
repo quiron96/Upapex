@@ -65,6 +65,9 @@
             border-radius: 8px; 
             margin-bottom: 15px; 
         }
+        .progress-card.completed {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%) !important;
+        }
         .progress-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .progress-obc-name { font-size: 1.2em; font-weight: 700; }
         .progress-percentage { font-size: 2em; font-weight: 800; }
@@ -74,6 +77,7 @@
         .progress-count-label { font-size: 0.7em; opacity: 0.85; }
         .progress-bar-container { background: rgba(0,0,0,0.25); height: 10px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.3); }
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #fff, #ffd966); transition: width 0.5s; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .progress-bar-fill.completed { background: linear-gradient(90deg, #fff, #81c784) !important; }
         
         /* Inputs en línea */
         .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
@@ -104,6 +108,7 @@
         .tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
         .tab { padding: 8px 15px; cursor: pointer; border: 2px solid #ddd; border-radius: 6px; background: white; font-weight: 600; transition: all 0.2s; }
         .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .tab.completed { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
         .tab.new-tab { background: linear-gradient(135deg, #ffb399, #ff9d7a); color: white; }
         
         /* Notificaciones */
@@ -112,6 +117,7 @@
         .notification.success { border-color: var(--success); }
         .notification.error { border-color: var(--error); }
         .notification.warning { border-color: var(--warning); }
+        .notification.info { border-color: #2196F3; }
         @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
         /* Popups */
@@ -247,15 +253,19 @@
                 <div class="card">
                     <div class="inline-inputs">
                         <div class="input-group">
-                            <label>👤 Usuario:</label>
-                            <select id="user-select" onchange="updateState()"></select>
-                        </div>
-                        <div class="input-group">
-                            <label>📦 Orden Activa:</label>
+                            <label>📦 Orden:</label>
                             <input type="text" id="obc-display" disabled>
                         </div>
                         <div class="input-group">
-                            <label>📍 Ubicación Global:</label>
+                            <label>📍 Destino:</label>
+                            <input type="text" id="recipient-display" disabled>
+                        </div>
+                        <div class="input-group">
+                            <label>🕐 Horario:</label>
+                            <input type="text" id="time-display" disabled>
+                        </div>
+                        <div class="input-group">
+                            <label>📍 Ubicación:</label>
                             <input type="text" id="location-input" placeholder="Ej: PLEC123" onchange="updateState()">
                         </div>
                     </div>
@@ -366,15 +376,32 @@
         </div>
     </div>
 
+    <div id="popup-completed" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--success);">✅ ORDEN COMPLETADA</div>
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin: 15px 0; text-align: center;">
+                <div style="font-size: 1.8em; font-weight: 700; color: var(--success); margin-bottom: 10px;">🎉</div>
+                <strong>Orden:</strong> <span id="completed-obc"></span><br>
+                <strong>Cajas validadas:</strong> <span id="completed-count"></span><br>
+                <strong>Usuario:</strong> <span id="completed-user"></span>
+            </div>
+            <div class="popup-buttons">
+                <button class="btn btn-primary" onclick="continueToNewOrder()">Nueva Orden</button>
+                <button class="btn btn-success" onclick="saveAndClose()">Guardar y Cerrar</button>
+                <button class="btn btn-secondary" onclick="closePopup('completed')">Continuar Visualizando</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script>
         const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
         const SPREADSHEET_BD = '1nKqd0mqEkZ1l8wqW83_d5fyarp5BKbV1nXSNJBk4-Ck';
         const SPREADSHEET_WRITE = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
-        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.profile';
         
-        let USERS = ['MIGUEL', 'PEDRO', 'ALEJANDRO', 'ESMERALDA', 'KATERYNE'];
+        let CURRENT_USER = '';
         let BD_CODES = new Set();
         let OBC_MAP = new Map();
         let OBC_TOTALS = new Map();
@@ -382,7 +409,7 @@
         let STATE = {
             activeOBC: 'OBC_DEFAULT',
             tabs: {
-                'OBC_DEFAULT': { user: 'MIGUEL', location: '', validations: [], rejections: [] }
+                'OBC_DEFAULT': { location: '', validations: [], rejections: [], completed: false }
             }
         };
         let TOKEN_CLIENT, audioCtx;
@@ -393,7 +420,6 @@
             initAudio();
             await loadFromStorage();
             setupListeners();
-            populateUsers();
             renderValidation();
             gapi.load('client', initGAPI);
         });
@@ -411,9 +437,10 @@
                 TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
                     client_id: CLIENT_ID,
                     scope: SCOPES,
-                    callback: (res) => {
+                    callback: async (res) => {
                         if (res?.access_token) {
                             gapi.client.setToken(res);
+                            await getUserProfile();
                             updateConnectionStatus(true);
                             loadDatabase();
                         }
@@ -421,6 +448,19 @@
                 });
             } catch (e) {
                 showNotification('Error al inicializar Google API', 'error');
+            }
+        }
+
+        async function getUserProfile() {
+            try {
+                const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                    headers: { Authorization: `Bearer ${gapi.client.getToken().access_token}` }
+                });
+                const data = await response.json();
+                CURRENT_USER = data.name || 'Usuario';
+                showNotification(`✅ Sesión iniciada: ${CURRENT_USER}`, 'success');
+            } catch (e) {
+                CURRENT_USER = 'Usuario';
             }
         }
 
@@ -566,11 +606,10 @@
             document.getElementById('dash-validated').textContent = totalValidated || '-';
         }
 
-        // === CODE EXTRACTION (MEJORADO) ===
+        // === CODE EXTRACTION ===
         function extractCode(raw) {
             const code = raw.trim();
             
-            // Patrón 1: JSON format - buscar entre corchetes [ID[Ñ [CODIGO[
             const jsonPattern1 = /\[id\[.*?\[([\d\/\-]+)\[/i;
             const jsonPattern2 = /¨id¨.*?¨([\d\/\-]+)¨/i;
             
@@ -580,12 +619,10 @@
             const match2 = code.match(jsonPattern2);
             if (match2) return match2[1];
             
-            // Patrón 2: Código directo numérico con / o -
             const directPattern = /^([\d\/\-]+)/;
             const match3 = code.match(directPattern);
             if (match3) return match3[1];
             
-            // Fallback: retornar tal cual
             return code;
         }
 
@@ -624,6 +661,12 @@
             const activeOBC = STATE.activeOBC;
             const tab = STATE.tabs[activeOBC];
             
+            if (tab.completed) {
+                showNotification('⚠️ Esta orden ya está completada', 'warning');
+                playSound('error');
+                return;
+            }
+            
             const extracted = extractCode(raw);
             const normalized = normalizeCode(extracted);
             const concatenated = normalized + activeOBC.toLowerCase();
@@ -633,26 +676,23 @@
             console.log('Normalized:', normalized);
             console.log('Concatenated:', concatenated);
             
-            // Check if exists
             if (!BD_CODES.has(concatenated)) {
                 await handleRejection('NO_EXISTE_EN_BD', raw, normalized, activeOBC);
                 return;
             }
             
-            // Check duplicates
             const isDup = tab.validations.find(v => v.code === normalized);
             if (isDup) {
-                lastScanned = { raw, code: normalized, obc: activeOBC, user: tab.user, location: tab.location, duplicate: isDup };
+                lastScanned = { raw, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup };
                 showPopup('dup', normalized, isDup);
                 playSound('duplicate');
                 return;
             }
             
-            // Validate OK
-            await handleValidationOK(raw, normalized, activeOBC, tab.user, tab.location);
+            await handleValidationOK(raw, normalized, activeOBC, tab.location);
         }
 
-        async function handleValidationOK(raw, code, obc, user, location, note = '') {
+        async function handleValidationOK(raw, code, obc, location, note = '') {
             const tab = STATE.tabs[obc];
             const now = new Date();
             
@@ -660,12 +700,19 @@
                 id: now.getTime(),
                 timestamp: now.toLocaleTimeString('es-MX'),
                 date: now.toISOString().slice(0, 10),
-                user, obc, raw, code, location, note
+                user: CURRENT_USER, obc, raw, code, location, note
             };
             
             tab.validations.unshift(log);
             playSound('ok');
             flashInput('success');
+            
+            const total = OBC_TOTALS.get(obc) || 0;
+            if (tab.validations.length >= total && total > 0) {
+                tab.completed = true;
+                showOrderCompleted(obc);
+            }
+            
             renderValidation();
             await saveState();
             
@@ -680,7 +727,7 @@
                 id: now.getTime(),
                 timestamp: now.toLocaleTimeString('es-MX'),
                 date: now.toISOString().slice(0, 10),
-                user: tab.user, obc, raw, code, reason
+                user: CURRENT_USER, obc, raw, code, reason
             };
             
             tab.rejections.unshift(log);
@@ -716,11 +763,21 @@
             const activeOBC = STATE.activeOBC;
             const tab = STATE.tabs[activeOBC];
             
-            // Update progress
             const total = OBC_TOTALS.get(activeOBC) || 0;
             const scanned = tab.validations.length;
             const remaining = Math.max(0, total - scanned);
             const pct = total > 0 ? Math.min(100, (scanned / total) * 100) : 0;
+            const isCompleted = tab.completed;
+            
+            const progressCard = document.querySelector('.progress-card');
+            const progressBar = document.getElementById('prog-bar');
+            if (isCompleted) {
+                progressCard.classList.add('completed');
+                progressBar.classList.add('completed');
+            } else {
+                progressCard.classList.remove('completed');
+                progressBar.classList.remove('completed');
+            }
             
             document.getElementById('prog-obc').textContent = activeOBC;
             document.getElementById('prog-pct').textContent = `${pct.toFixed(0)}%`;
@@ -729,17 +786,16 @@
             document.getElementById('prog-rest').textContent = remaining;
             document.getElementById('prog-bar').style.width = `${pct}%`;
             
-            // Update stats
             const rejected = tab.rejections.filter(r => r.reason === 'NO_EXISTE_EN_BD').length;
             document.getElementById('stat-ok').textContent = scanned;
             document.getElementById('stat-error').textContent = rejected;
             
-            // Update tabs
             const tabBar = document.getElementById('tab-bar');
             tabBar.innerHTML = '';
             Object.keys(STATE.tabs).forEach(obc => {
                 const t = document.createElement('div');
-                t.className = `tab ${obc === activeOBC ? 'active' : ''}`;
+                const tabData = STATE.tabs[obc];
+                t.className = `tab ${obc === activeOBC ? 'active' : ''} ${tabData.completed ? 'completed' : ''}`;
                 t.textContent = obc;
                 t.onclick = () => switchOBC(obc);
                 tabBar.appendChild(t);
@@ -750,12 +806,16 @@
             newTab.onclick = addOBC;
             tabBar.appendChild(newTab);
             
-            // Update inputs
-            document.getElementById('user-select').value = tab.user;
+            const info = OBC_INFO.get(activeOBC) || {};
             document.getElementById('obc-display').value = activeOBC;
+            document.getElementById('recipient-display').value = info.recipient || '-';
+            document.getElementById('time-display').value = info.arrivalTime || '-';
             document.getElementById('location-input').value = tab.location;
             
-            // Update logs
+            const scanner = document.getElementById('scanner');
+            scanner.disabled = isCompleted;
+            scanner.placeholder = isCompleted ? '✅ Orden completada' : 'Escanea aquí...';
+            
             const okList = document.getElementById('log-ok');
             const rejectList = document.getElementById('log-reject');
             okList.innerHTML = '';
@@ -785,7 +845,6 @@
                 rejectList.appendChild(li);
             });
             
-            // Update sidebar OBC list
             const obcList = document.getElementById('obc-list');
             obcList.innerHTML = '';
             Object.keys(STATE.tabs).forEach(obc => {
@@ -795,9 +854,9 @@
                 const pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
                 
                 const div = document.createElement('div');
-                div.style.cssText = 'padding: 8px; margin-bottom: 8px; background: rgba(255,255,255,0.1); border-radius: 6px; font-size: 0.85em;';
+                div.style.cssText = `padding: 8px; margin-bottom: 8px; background: ${tab.completed ? 'rgba(76,175,80,0.2)' : 'rgba(255,255,255,0.1)'}; border-radius: 6px; font-size: 0.85em;`;
                 div.innerHTML = `
-                    <div style="font-weight: 700;">${obc}</div>
+                    <div style="font-weight: 700;">${obc} ${tab.completed ? '✅' : ''}</div>
                     <div style="opacity: 0.8;">${count}/${total} (${pct}%)</div>
                 `;
                 obcList.appendChild(div);
@@ -824,10 +883,10 @@
             }
             
             STATE.tabs[obcName] = {
-                user: STATE.tabs[STATE.activeOBC].user,
                 location: '',
                 validations: [],
-                rejections: []
+                rejections: [],
+                completed: false
             };
             switchOBC(obcName);
             showNotification(`✅ Orden ${obcName} creada`, 'success');
@@ -835,19 +894,8 @@
 
         function updateState() {
             const tab = STATE.tabs[STATE.activeOBC];
-            tab.user = document.getElementById('user-select').value;
             tab.location = document.getElementById('location-input').value.toUpperCase().trim();
             saveState();
-        }
-
-        function populateUsers() {
-            const select = document.getElementById('user-select');
-            USERS.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u;
-                opt.textContent = u;
-                select.appendChild(opt);
-            });
         }
 
         // === NAVIGATION ===
@@ -963,16 +1011,39 @@
 
         function closePopup(type) {
             document.getElementById(`popup-${type}`).style.display = 'none';
-            document.getElementById('scanner').focus();
+            if (type !== 'completed') {
+                document.getElementById('scanner').focus();
+            }
             lastScanned = null;
         }
 
         function forceDuplicate() {
             const note = prompt('Justificación del duplicado:') || 'Sin justificación';
             if (lastScanned) {
-                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.user, lastScanned.location, `DUPLICADO FORZADO: ${note}`);
+                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, `DUPLICADO FORZADO: ${note}`);
             }
             closePopup('dup');
+        }
+
+        // === ORDER COMPLETION ===
+        function showOrderCompleted(obc) {
+            const tab = STATE.tabs[obc];
+            document.getElementById('completed-obc').textContent = obc;
+            document.getElementById('completed-count').textContent = tab.validations.length;
+            document.getElementById('completed-user').textContent = CURRENT_USER;
+            document.getElementById('popup-completed').style.display = 'flex';
+            playSound('ok');
+            showNotification(`🎉 Orden ${obc} completada!`, 'success');
+        }
+
+        function continueToNewOrder() {
+            closePopup('completed');
+            addOBC();
+        }
+
+        function saveAndClose() {
+            closePopup('completed');
+            returnToDashboard();
         }
 
         // === AUDIO ===
