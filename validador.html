@@ -82,20 +82,25 @@
         
         /* Link to faltantes */
         .faltantes-link {
-            color: var(--primary);
+            color: white;
             text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 2px;
             cursor: pointer;
-            font-weight: 600;
-            transition: opacity 0.2s;
+            font-weight: 700;
+            transition: all 0.2s;
+            display: inline-block;
         }
         .faltantes-link:hover {
-            opacity: 0.7;
+            text-decoration-thickness: 3px;
+            transform: scale(1.05);
         }
         
         /* Inputs en línea */
         .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85em; }
         .input-group input, .input-group select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; }
+        .input-group textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; font-family: inherit; resize: vertical; }
         .scanner-input { font-size: 1.6em !important; text-transform: uppercase; font-weight: bold; text-align: center; background: #fff5ed !important; }
         
         /* Scanner section with manual button */
@@ -415,7 +420,7 @@
                                 <div class="scanner-wrapper">
                                     <div class="input-group">
                                         <label style="font-size: 1.1em; color: var(--primary);">📷 ESCANEAR CÓDIGO:</label>
-                                        <input type="text" id="scanner" class="scanner-input" placeholder="Escanea aquí..." autofocus readonly>
+                                        <input type="text" id="scanner" class="scanner-input" placeholder="Escanea aquí..." autofocus>
                                     </div>
                                 </div>
                                 <button class="btn-manual" onclick="openManualInput()">✏️ Manual</button>
@@ -551,14 +556,24 @@
         <div class="popup-content">
             <div class="popup-header" style="color: var(--warning);">✏️ INGRESO MANUAL DE CÓDIGO</div>
             <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
-                <p style="margin-bottom: 10px; color: #e65100;"><strong>⚠️ Advertencia:</strong> Solo usar para casos excepcionales</p>
-                <div class="input-group" style="margin-bottom: 10px;">
+                <p style="margin-bottom: 15px; color: #e65100;"><strong>⚠️ Advertencia:</strong> Solo usar para casos excepcionales</p>
+                <div class="input-group" style="margin-bottom: 15px;">
                     <label>Código:</label>
                     <input type="text" id="manual-code" placeholder="Ingresa el código">
                 </div>
-                <div class="input-group">
-                    <label>Justificación (obligatoria):</label>
-                    <textarea id="manual-note" rows="3" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-family: inherit;" placeholder="Ej: Código borroso, daño en etiqueta..."></textarea>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>Motivo:</label>
+                    <select id="manual-reason" onchange="toggleManualOtherNote()">
+                        <option value="">Seleccionar motivo...</option>
+                        <option value="Codigo Borroso">Código Borroso</option>
+                        <option value="Etiqueta Dañada">Etiqueta Dañada</option>
+                        <option value="Error Surtido">Error Surtido</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="input-group" id="manual-other-container" style="display: none;">
+                    <label>Especificar motivo (obligatorio):</label>
+                    <textarea id="manual-other-note" rows="3" placeholder="Describe el motivo..."></textarea>
                 </div>
             </div>
             <div class="popup-buttons">
@@ -817,19 +832,19 @@
             const scanner = document.getElementById('scanner');
             const location = document.getElementById('location-input');
             
-            // Scanner handling - detect typing vs scanning
+            // Scanner handling - detect typing vs scanning with 500ms delay
             scanner.addEventListener('input', (e) => {
                 clearTimeout(typingTimer);
                 scannerBuffer = e.target.value;
                 
-                // Detect manual typing (slow input)
+                // Detect manual typing (slow input) - 500ms threshold
                 typingTimer = setTimeout(() => {
-                    if (scanner.value.length > 0) {
+                    if (scanner.value.length > 0 && scanner.value.length < 15) {
                         showMiniAlert('⚠️ Use solo escaneo o botón Manual');
                         scanner.value = '';
                         scannerBuffer = '';
                     }
-                }, 200);
+                }, 500);
             });
             
             scanner.addEventListener('keydown', (e) => {
@@ -1346,15 +1361,26 @@
         function forceDuplicate() {
             const note = prompt('Justificación del duplicado:') || 'Sin justificación';
             if (lastScanned) {
-                const finalNote = lastScanned.isManual 
-                    ? `DUPLICADO FORZADO - Codigo Escrito Manualmente: ${note}`
-                    : `DUPLICADO FORZADO: ${note}`;
+                let finalNote;
+                if (lastScanned.isManual && lastScanned.manualNote) {
+                    finalNote = `DUPLICADO FORZADO - Codigo Escrito Manualmente: ${lastScanned.manualNote} - ${note}`;
+                } else if (lastScanned.isManual) {
+                    finalNote = `DUPLICADO FORZADO - Codigo Escrito Manualmente: ${note}`;
+                } else {
+                    finalNote = `DUPLICADO FORZADO: ${note}`;
+                }
                 handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, finalNote, false);
             }
             closePopup('dup');
         }
 
         // === MANUAL INPUT ===
+        function toggleManualOtherNote() {
+            const reason = document.getElementById('manual-reason').value;
+            const otherContainer = document.getElementById('manual-other-container');
+            otherContainer.style.display = reason === 'Otro' ? 'block' : 'none';
+        }
+
         function openManualInput() {
             if (!STATE.activeOBC) {
                 showNotification('⚠️ Crea una orden primero', 'warning');
@@ -1368,24 +1394,34 @@
             }
             
             document.getElementById('manual-code').value = '';
-            document.getElementById('manual-note').value = '';
+            document.getElementById('manual-reason').value = '';
+            document.getElementById('manual-other-note').value = '';
+            document.getElementById('manual-other-container').style.display = 'none';
             document.getElementById('popup-manual').style.display = 'flex';
             document.getElementById('manual-code').focus();
         }
 
         async function submitManualCode() {
             const code = document.getElementById('manual-code').value.trim();
-            const note = document.getElementById('manual-note').value.trim();
+            const reason = document.getElementById('manual-reason').value;
+            const otherNote = document.getElementById('manual-other-note').value.trim();
             
             if (!code) {
                 showNotification('⚠️ Ingresa un código', 'warning');
                 return;
             }
             
-            if (!note) {
-                showNotification('⚠️ La justificación es obligatoria', 'warning');
+            if (!reason) {
+                showNotification('⚠️ Selecciona un motivo', 'warning');
                 return;
             }
+            
+            if (reason === 'Otro' && !otherNote) {
+                showNotification('⚠️ Especifica el motivo', 'warning');
+                return;
+            }
+            
+            const finalNote = reason === 'Otro' ? `Otro: ${otherNote}` : reason;
             
             closePopup('manual');
             
@@ -1401,13 +1437,13 @@
             
             const isDup = tab.validations.find(v => v.code === normalized);
             if (isDup) {
-                lastScanned = { raw: code, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup, isManual: true };
+                lastScanned = { raw: code, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup, isManual: true, manualNote: finalNote };
                 showPopup('dup', normalized, isDup);
                 playSound('duplicate');
                 return;
             }
             
-            await handleValidationOK(code, normalized, activeOBC, tab.location, note, true);
+            await handleValidationOK(code, normalized, activeOBC, tab.location, finalNote, true);
         }
 
         // === QUICK ACCESS TO FALTANTES ===
