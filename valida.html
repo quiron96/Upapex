@@ -22,7 +22,6 @@
             color: var(--text);
         }
 
-        /* === DASHBOARD === */
         #dashboard { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
         .dash-header { text-align: center; margin-bottom: 40px; }
         .dash-header h1 { font-size: 2.2em; color: var(--primary); margin-bottom: 8px; }
@@ -47,7 +46,6 @@
         .btn-secondary { background: #6c757d; color: white; }
         .btn-small { padding: 8px 15px; font-size: 0.85em; width: auto; }
 
-        /* === VALIDATION SCREEN === */
         #validation { display: none; min-height: 100vh; }
         .container { display: flex; height: 100vh; }
         .sidebar { width: 200px; background: #333; color: white; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; }
@@ -58,7 +56,6 @@
         
         .card { background: white; padding: 18px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
         
-        /* Progress Card */
         .progress-card { 
             background: linear-gradient(135deg, #ffa07a 0%, #ff8a52 100%); 
             color: white; 
@@ -80,30 +77,12 @@
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #fff, #ffd966); transition: width 0.5s; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         .progress-bar-fill.completed { background: linear-gradient(90deg, #fff, #81c784) !important; }
         
-        /* Link to faltantes */
-        .faltantes-link {
-            color: white;
-            text-decoration: underline;
-            text-decoration-thickness: 2px;
-            text-underline-offset: 2px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.2s;
-            display: inline-block;
-        }
-        .faltantes-link:hover {
-            text-decoration-thickness: 3px;
-            transform: scale(1.05);
-        }
-        
-        /* Inputs en línea */
         .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85em; }
         .input-group input, .input-group select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; }
         .input-group textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; font-family: inherit; resize: vertical; }
         .scanner-input { font-size: 1.6em !important; text-transform: uppercase; font-weight: bold; text-align: center; background: #fff5ed !important; }
         
-        /* Scanner section with manual button */
         .scanner-section {
             display: flex;
             gap: 10px;
@@ -129,14 +108,12 @@
             box-shadow: 0 4px 12px rgba(255,152,0,0.3);
         }
         
-        /* Stats */
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .stat-box { text-align: center; padding: 15px; border-radius: 8px; }
         .stat-number { font-size: 2em; font-weight: 700; margin-top: 5px; }
         .stat-ok { background: #e8f5e9; border: 2px solid var(--success); color: var(--success); }
         .stat-error { background: #ffebee; border: 2px solid var(--error); color: var(--error); }
         
-        /* Logs con numeración */
         .logs-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
         .log-list { max-height: 350px; overflow-y: auto; list-style: none; background: #fafafa; padding: 10px; border-radius: 8px; counter-reset: log-counter; }
         .log-item { display: flex; gap: 8px; padding: 8px; margin-bottom: 6px; background: white; border-radius: 4px; border-left: 4px solid; }
@@ -148,7 +125,6 @@
         .log-info { flex: 1; }
         .log-code { font-weight: 600; }
         
-        /* Tabs */
         .tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
         .tab { 
             padding: 8px 12px; 
@@ -180,7 +156,6 @@
             opacity: 1;
         }
         
-        /* Empty state */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -199,7 +174,6 @@
             margin-bottom: 20px;
         }
         
-        /* Notificaciones */
         .notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 350px; }
         .notification { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border-left: 4px solid; animation: slideIn 0.3s; }
         .notification.success { border-color: var(--success); }
@@ -208,36 +182,32 @@
         .notification.info { border-color: #2196F3; }
         @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
-        /* Popups */
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .popup-content { background: white; padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-        .popup-header { 
-            font-size: 1.4em; 
-            font-weight: 700; 
-            margin: 0; 
-            text-align: center; 
-            flex-grow: 1;
-        }
-        .popup-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        /* New close button for popups */
+        .popup-content { background: white; padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative; }
+        .popup-header { font-size: 1.4em; font-weight: 700; margin-bottom: 15px; }
+        .popup-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
         .popup-close-x {
+            position: absolute;
+            top: 10px;
+            right: 15px;
             background: none;
             border: none;
-            font-size: 2em;
-            font-weight: 200;
-            color: #666;
+            font-size: 1.8em;
+            color: #999;
             cursor: pointer;
-            line-height: 1;
             padding: 0;
-            margin-right: 10px;
-            opacity: 0.8;
-            transition: opacity 0.2s;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
         }
         .popup-close-x:hover {
-            opacity: 1;
+            color: #333;
+            transform: scale(1.1);
         }
         
-        /* Mini alert */
         .mini-alert {
             position: fixed;
             top: 50%;
@@ -258,14 +228,12 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
         
-        /* Resumen Module */
         #resumen-module { display: none; }
         .search-bar { padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px; width: 100%; font-size: 1em; }
         .resumen-table { width: 100%; border-collapse: collapse; background: white; }
         .resumen-table th, .resumen-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         .resumen-table th { background: #f5f5f5; font-weight: 700; }
         
-        /* Faltantes Module */
         #faltantes-module { display: none; }
         .faltantes-controls {
             display: flex;
@@ -304,6 +272,7 @@
             .sidebar { width: 100%; }
             .inline-inputs { grid-template-columns: 1fr; }
             .faltantes-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+            .popup-buttons { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -360,7 +329,6 @@
             🚀 Iniciar Validación
         </button>
     </div>
-
     <div id="validation">
         <div class="container">
             <div class="sidebar">
@@ -530,7 +498,7 @@
                 <strong>Código:</strong> <span id="err-code"></span><br>
                 <strong>Motivo:</strong> <span id="err-reason" style="color: var(--error);"></span>
             </div>
-            <div class="popup-buttons">
+            <div class="popup-buttons" style="grid-template-columns: 1fr;">
                 <button class="btn btn-primary" onclick="closePopup('error')">Continuar</button>
             </div>
         </div>
@@ -538,44 +506,46 @@
 
     <div id="popup-history" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--warning);">🔔 VALIDACIÓN PREVIA DETECTADA</div>
-            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
-                <p style="margin-bottom: 15px; color: #e65100;"><strong>Este código ya fue validado en Google Sheets.</strong></p>
-                <strong>Código:</strong> <span id="hist-code"></span><br>
-                <strong>Orden Previa:</strong> <span id="hist-obc"></span><br>
-                <strong>Validado:</strong> <span id="hist-when"></span><br>
-                <strong>Usuario:</strong> <span id="hist-user"></span>
+            <div class="popup-header" style="color: #FF9800;">🔔 VALIDACIÓN PREVIA DETECTADA</div>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #FF9800;">
+                <p style="margin-bottom: 15px; color: #e65100; font-weight: 600;">⚠️ Este código ya fue validado anteriormente en Google Sheets</p>
+                <div style="background: white; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
+                    <strong>Código:</strong> <span id="history-code"></span><br>
+                    <strong>Orden:</strong> <span id="history-obc"></span><br>
+                    <strong>Fecha:</strong> <span id="history-date"></span><br>
+                    <strong>Hora:</strong> <span id="history-time"></span><br>
+                    <strong>Usuario:</strong> <span id="history-user"></span>
+                </div>
+                <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                    💡 <strong>Recomendación:</strong> Verifica si este código debería estar en esta orden o si es un error.
+                </p>
             </div>
-            <div class="popup-buttons">
+            <div class="popup-buttons" style="grid-template-columns: 1fr 1fr;">
                 <button class="btn btn-secondary" onclick="closePopup('history')">Cancelar</button>
-                <button class="btn btn-primary" onclick="forceValidation('history')">Forzar Validación con Nota</button>
+                <button class="btn btn-primary" onclick="forceHistoryValidation()">Forzar Validación</button>
             </div>
         </div>
     </div>
 
     <div id="popup-dup" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--warning);">⚠️ DUPLICADO EN SESIÓN</div>
-            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
-                <p style="margin-bottom: 15px; color: #e65100;"><strong>Este código ya fue validado en la orden actual.</strong></p>
+            <div class="popup-header" style="color: var(--warning);">⚠️ DUPLICADO EN SESIÓN ACTUAL</div>
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin: 15px 0;">
                 <strong>Código:</strong> <span id="dup-code"></span><br>
                 <strong>Validado:</strong> <span id="dup-when"></span><br>
                 <strong>Usuario:</strong> <span id="dup-user"></span>
             </div>
-            <div class="popup-buttons">
+            <div class="popup-buttons" style="grid-template-columns: 1fr 1fr;">
                 <button class="btn btn-secondary" onclick="closePopup('dup')">Ignorar</button>
-                <button class="btn btn-primary" onclick="forceValidation('dup')">Forzar con Nota</button>
+                <button class="btn btn-primary" onclick="forceDuplicate()">Forzar con Nota</button>
             </div>
         </div>
     </div>
 
     <div id="popup-completed" class="popup-overlay">
         <div class="popup-content">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                <button class="popup-close-x" onclick="closePopup('completed')">×</button>
-                <div class="popup-header" style="color: var(--success); margin: 0; text-align: center; flex-grow: 1;">✅ ORDEN COMPLETADA</div>
-                <div style="width: 2em;"></div> </div>
-            
+            <button class="popup-close-x" onclick="closePopupAndContinue()">×</button>
+            <div class="popup-header" style="color: var(--success);">✅ ORDEN COMPLETADA</div>
             <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin: 15px 0; text-align: center;">
                 <div style="font-size: 1.8em; font-weight: 700; color: var(--success); margin-bottom: 10px;">🎉</div>
                 <strong>Orden:</strong> <span id="completed-obc"></span><br>
@@ -583,9 +553,9 @@
                 <strong>Usuario:</strong> <span id="completed-user"></span>
             </div>
             <div class="popup-buttons">
-                <button class="btn btn-primary" id="btn-new-order-and-close" onclick="openNewAndCloseCurrent(STATE.activeOBC)" style="background: var(--primary);">Nueva Orden</button>
-                <button class="btn btn-primary" id="btn-save-and-continue" onclick="saveAndContinue()">Guardar y Continuar</button>
-                <button class="btn btn-secondary" id="btn-close-validation" onclick="closeValidationAndReturnToDashboard(STATE.activeOBC)">Cerrar Validación</button>
+                <button class="btn btn-primary" onclick="newOrderAndClose()">Nueva Orden</button>
+                <button class="btn btn-success" onclick="saveAndContinue()">Guardar y Continuar</button>
+                <button class="btn btn-secondary" onclick="closeCurrentOrder()">Cerrar Validación</button>
             </div>
         </div>
     </div>
@@ -614,9 +584,31 @@
                     <textarea id="manual-other-note" rows="3" placeholder="Describe el motivo..."></textarea>
                 </div>
             </div>
-            <div class="popup-buttons">
+            <div class="popup-buttons" style="grid-template-columns: 1fr 1fr;">
                 <button class="btn btn-secondary" onclick="closePopup('manual')">Cancelar</button>
                 <button class="btn btn-primary" onclick="submitManualCode()">Validar Código</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-order-validated" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--warning);">⚠️ ORDEN YA VALIDADA</div>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #FF9800;">
+                <p style="margin-bottom: 15px; color: #e65100; font-weight: 600;">Esta orden ya ha sido completada previamente</p>
+                <div style="background: white; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
+                    <strong>Orden:</strong> <span id="validated-obc"></span><br>
+                    <strong>Total de cajas:</strong> <span id="validated-total"></span><br>
+                    <strong>Validadas:</strong> <span id="validated-count"></span><br>
+                    <strong>Progreso:</strong> <span id="validated-progress"></span>
+                </div>
+                <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                    💡 <strong>Recomendación:</strong> Esta orden ya está al 100%. Considera abrir una orden diferente.
+                </p>
+            </div>
+            <div class="popup-buttons" style="grid-template-columns: 1fr 1fr;">
+                <button class="btn btn-secondary" onclick="closePopup('order-validated')">Cancelar</button>
+                <button class="btn btn-primary" onclick="forceOpenValidatedOrder()">Abrir de Todos Modos</button>
             </div>
         </div>
     </div>
@@ -624,7 +616,7 @@
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script>
-        const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
+const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
         const SPREADSHEET_BD = '1nKqd0mqEkZ1l8wqW83_d5fyarp5BKbV1nXSNJBk4-Ck';
         const SPREADSHEET_WRITE = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
         const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.profile';
@@ -634,7 +626,7 @@
         let OBC_MAP = new Map();
         let OBC_TOTALS = new Map();
         let OBC_INFO = new Map();
-        let HISTORY_MAP = new Map(); // Nueva estructura: 'código_orden' -> { user, timestamp, date, obc }
+        let VALIDATION_HISTORY = new Map();
         let STATE = {
             activeOBC: null,
             tabs: {},
@@ -644,14 +636,13 @@
         let lastScanned = null;
         let typingTimer = null;
         let scannerBuffer = '';
+        let pendingOBC = null;
 
-        // === INIT ===
         document.addEventListener('DOMContentLoaded', async () => {
             initAudio();
             await loadFromStorage();
             setupListeners();
             renderValidation();
-            // Cargar GAPI, que llamará a initGAPI al terminar
             gapi.load('client', initGAPI);
         });
 
@@ -664,10 +655,7 @@
 
         async function initGAPI() {
             try {
-                // 1. Inicializa el cliente principal de GAPI
                 await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
-                
-                // 2. Inicializa el cliente de token de Google Identity
                 TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
                     client_id: CLIENT_ID,
                     scope: SCOPES,
@@ -680,19 +668,8 @@
                         }
                     }
                 });
-                
-                // 3. Verifica el estado de conexión al inicio si hay token guardado
-                if (gapi.client.getToken()) {
-                    updateConnectionStatus(true);
-                    loadDatabase(); // Intentar cargar BD si hay un token válido.
-                } else {
-                    updateConnectionStatus(false);
-                }
-
             } catch (e) {
-                // Si falla la inicialización de GAPI, muestra la notificación y desactiva el inicio
-                showNotification('Error al inicializar Google API. Verifique su ID de Cliente y Conexión.', 'error');
-                updateConnectionStatus(false);
+                showNotification('Error al inicializar Google API', 'error');
             }
         }
 
@@ -709,7 +686,6 @@
             }
         }
 
-        // === STORAGE ===
         async function loadFromStorage() {
             try {
                 const stateRes = await window.storage.get('wms_state');
@@ -727,8 +703,13 @@
                     OBC_MAP = new Map(cached.obcMap?.map(([k, v]) => [k, new Set(v)]));
                     OBC_TOTALS = new Map(cached.totals);
                     OBC_INFO = new Map(cached.info);
-                    HISTORY_MAP = new Map(cached.history);
                     updateDashboardStats();
+                }
+                
+                const historyRes = await window.storage.get('wms_history');
+                if (historyRes?.value) {
+                    const cached = JSON.parse(historyRes.value);
+                    VALIDATION_HISTORY = new Map(cached.history);
                 }
             } catch (e) {}
         }
@@ -745,71 +726,41 @@
                     codes: Array.from(BD_CODES),
                     obcMap: Array.from(OBC_MAP.entries()).map(([k, v]) => [k, Array.from(v)]),
                     totals: Array.from(OBC_TOTALS.entries()),
-                    info: Array.from(OBC_INFO.entries()),
-                    history: Array.from(HISTORY_MAP.entries())
+                    info: Array.from(OBC_INFO.entries())
                 }));
             } catch (e) {}
         }
-        
+
         async function saveHistory() {
             try {
-                const bdRes = await window.storage.get('wms_bd');
-                let cached = {};
-                if (bdRes?.value) cached = JSON.parse(bdRes.value);
-                
-                cached.history = Array.from(HISTORY_MAP.entries());
-                await window.storage.set('wms_bd', JSON.stringify(cached));
+                await window.storage.set('wms_history', JSON.stringify({
+                    history: Array.from(VALIDATION_HISTORY.entries())
+                }));
             } catch (e) {}
         }
 
-        // === AUTHENTICATION ===
         function handleAuthClick() {
-            // CORRECCIÓN: Verifica si gapi.client existe antes de intentar getToken
-            if (gapi.client && gapi.client.getToken && gapi.client.getToken()) {
-                // Si existe token, intenta revocar (Cerrar Sesión)
-                google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
-                    gapi.client.setToken(null);
-                    updateConnectionStatus(false);
-                    showNotification('Sesión cerrada correctamente.', 'info');
-                });
-            } else if (TOKEN_CLIENT) {
-                // Si no hay token pero el cliente está inicializado, solicita acceso
-                TOKEN_CLIENT.requestAccessToken();
-            } else {
-                // Mensaje de advertencia si la librería no está lista.
-                showNotification('El sistema de Google no está listo. Recargue la página y reintente.', 'warning');
-            }
+            gapi.client.getToken() ? google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
+                gapi.client.setToken(null);
+                updateConnectionStatus(false);
+            }) : TOKEN_CLIENT.requestAccessToken();
         }
 
         function updateConnectionStatus(connected) {
             document.getElementById('status-conn').className = `status-indicator ${connected ? 'status-ok' : 'status-error'}`;
             document.getElementById('conn-label').textContent = connected ? 'Conectado' : 'Desconectado';
-            document.getElementById('connect-btn').textContent = connected ? '🔓 Cerrar Sesión' : '🔗 Conectar con Google Sheets';
+            document.getElementById('connect-btn').textContent = connected ? '🔓 Cerrar Sesión' : '🔗 Conectar';
             document.getElementById('load-bd-btn').style.display = connected ? 'block' : 'none';
-            
-            // Actualizar estado del botón de inicio
             updateStartButton();
         }
 
         function updateStartButton() {
-            // CORRECCIÓN: Maneja el caso en que gapi.client no está listo
-            const hasToken = gapi.client && gapi.client.getToken ? !!gapi.client.getToken() : false;
-            const canStart = hasToken && BD_CODES.size > 0;
+            const canStart = gapi.client.getToken() && BD_CODES.size > 0;
             document.getElementById('start-btn').disabled = !canStart;
-            
-            if (!hasToken) {
-                document.getElementById('start-btn').textContent = '🚀 Conecte Google Sheets para iniciar';
-            } else if (BD_CODES.size === 0) {
-                document.getElementById('start-btn').textContent = '📊 Cargue la Base de Datos para iniciar';
-            } else {
-                document.getElementById('start-btn').textContent = '🚀 Iniciar Validación';
-            }
         }
 
-        // === DATABASE LOADING ===
         async function loadDatabase() {
-            // CORRECCIÓN: Verifica el token antes de intentar cargar
-            if (!gapi.client || !gapi.client.getToken || !gapi.client.getToken()) {
+            if (!gapi.client.getToken()) {
                 showNotification('Conecta primero con Google Sheets', 'warning');
                 return;
             }
@@ -817,7 +768,32 @@
             showNotification('Cargando base de datos...', 'info');
             
             try {
-                // 1. Carga de Resumen (OBC_TOTALS, OBC_INFO)
+                try {
+                    const historyRes = await gapi.client.sheets.spreadsheets.values.get({
+                        spreadsheetId: SPREADSHEET_WRITE,
+                        range: 'Val3!A:E'
+                    });
+
+                    const historyRows = historyRes.result.values;
+                    if (historyRows?.length > 1) {
+                        VALIDATION_HISTORY.clear();
+                        
+                        for (let i = 1; i < historyRows.length; i++) {
+                            const [fecha, timestamp, usuario, obc, codigo] = historyRows[i];
+                            if (obc && codigo) {
+                                const normalized = normalizeCode(codigo);
+                                const key = `${normalized}_${obc.toLowerCase()}`;
+                                VALIDATION_HISTORY.set(key, { usuario, timestamp, fecha, obc });
+                            }
+                        }
+                        
+                        await saveHistory();
+                        showNotification(`📚 Historial cargado: ${VALIDATION_HISTORY.size} validaciones previas`, 'info');
+                    }
+                } catch (e) {
+                    console.warn('No se pudo cargar historial Val3:', e);
+                }
+
                 const resRes = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: SPREADSHEET_BD,
                     range: 'Resumen!A:E'
@@ -837,26 +813,6 @@
                     }
                 }
 
-                // 2. Carga del Historial (HISTORY_MAP)
-                const histRes = await gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: SPREADSHEET_WRITE,
-                    range: 'Val3!A:G' // Date, Time, User, OBC, Code, Location, Note
-                });
-                
-                const histRows = histRes.result.values;
-                if (histRows?.length > 1) {
-                    HISTORY_MAP.clear();
-                    for (let i = 1; i < histRows.length; i++) {
-                        const [date, timestamp, user, obc, code, , ] = histRows[i];
-                        if (obc && code) {
-                            const key = normalizeCode(code) + obc.toLowerCase();
-                            HISTORY_MAP.set(key, { user, timestamp, date, obc });
-                        }
-                    }
-                    await saveHistory();
-                }
-
-                // 3. Carga de BD (BD_CODES, OBC_MAP)
                 const sheets = ['BD', 'Outbound_出库单', 'Sheet1'];
                 for (const sheet of sheets) {
                     try {
@@ -886,7 +842,7 @@
                             document.getElementById('status-bd').className = 'status-indicator status-ok';
                             document.getElementById('bd-label').textContent = 'Cargada';
                             updateStartButton();
-                            showNotification(`✅ BD cargada: ${BD_CODES.size} códigos en ${OBC_TOTALS.size} órdenes (Historial: ${HISTORY_MAP.size} validaciones)`, 'success');
+                            showNotification(`✅ BD cargada: ${BD_CODES.size} códigos en ${OBC_TOTALS.size} órdenes`, 'success');
                             playSound('ok');
                             return;
                         }
@@ -915,7 +871,6 @@
             document.getElementById('dash-validated').textContent = totalValidated || '-';
         }
 
-        // === CODE EXTRACTION ===
         function extractCode(raw) {
             const code = raw.trim();
             
@@ -939,17 +894,14 @@
             return code ? code.replace(/-/g, '/').toLowerCase().trim() : '';
         }
 
-        // === VALIDATION LOGIC ===
         function setupListeners() {
             const scanner = document.getElementById('scanner');
             const location = document.getElementById('location-input');
             
-            // Scanner handling - detect typing vs scanning with 500ms delay
             scanner.addEventListener('input', (e) => {
                 clearTimeout(typingTimer);
                 scannerBuffer = e.target.value;
                 
-                // Detect manual typing (slow input) - 500ms threshold
                 typingTimer = setTimeout(() => {
                     if (scanner.value.length > 0 && scanner.value.length < 15) {
                         showMiniAlert('⚠️ Use solo escaneo o botón Manual');
@@ -992,7 +944,7 @@
             setTimeout(() => alert.remove(), 400);
         }
 
-        async function processScan(raw, isManual = false, manualNote = '') {
+        async function processScan(raw, isManual = false) {
             if (BD_CODES.size === 0) {
                 showNotification('⚠️ Carga la BD primero', 'warning');
                 playSound('error');
@@ -1024,55 +976,35 @@
             console.log('Concatenated:', concatenated);
             console.log('Is Manual:', isManual);
             
-            // 1. ❌ ¿Existe en BD?
             if (!BD_CODES.has(concatenated)) {
                 await handleRejection('NO_EXISTE_EN_BD', raw, normalized, activeOBC);
                 return;
             }
             
-            // 2. 🔔 ¿Ya validado en Google Sheets?
-            const histData = HISTORY_MAP.get(concatenated);
-            if (histData) {
-                lastScanned = { 
-                    raw, 
-                    code: normalized, 
-                    obc: activeOBC, 
-                    location: tab.location, 
-                    history: histData,
-                    isManual,
-                    manualNote // Sólo se usa si viene de flujo manual
-                };
-                showPopup('history', normalized, histData);
+            const historyKey = `${normalized}_${activeOBC.toLowerCase()}`;
+            const previousValidation = VALIDATION_HISTORY.get(historyKey);
+            if (previousValidation) {
+                lastScanned = { raw, code: normalized, obc: activeOBC, location: tab.location, isManual, previousValidation };
+                showPopup('history', normalized, previousValidation);
                 playSound('duplicate');
                 return;
             }
-
-            // 3. ⚠️ ¿Ya validado en sesión actual?
+            
             const isDup = tab.validations.find(v => v.code === normalized);
             if (isDup) {
-                lastScanned = { 
-                    raw, 
-                    code: normalized, 
-                    obc: activeOBC, 
-                    location: tab.location, 
-                    duplicate: isDup, 
-                    isManual,
-                    manualNote // Sólo se usa si viene de flujo manual
-                };
+                lastScanned = { raw, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup, isManual };
                 showPopup('dup', normalized, isDup);
                 playSound('duplicate');
                 return;
             }
             
-            // 4. ✅ Todo OK
-            await handleValidationOK(raw, normalized, activeOBC, tab.location, manualNote, isManual);
+            await handleValidationOK(raw, normalized, activeOBC, tab.location, '', isManual);
         }
-
-        async function handleValidationOK(raw, code, obc, location, note = '', isManual = false) {
+async function handleValidationOK(raw, code, obc, location, note = '', isManual = false) {
             const tab = STATE.tabs[obc];
             const now = new Date();
             
-            const finalNote = isManual && note ? `CODIGO ESCRITO MANUALMENTE: ${note}` : note;
+            const finalNote = isManual && note ? `Codigo Escrito Manualmente: ${note}` : note;
             
             const log = {
                 id: now.getTime(),
@@ -1081,17 +1013,17 @@
                 user: CURRENT_USER, obc, raw, code, location, note: finalNote
             };
             
-            // Actualizar HISTORY_MAP
-            const key = code + obc.toLowerCase();
-            HISTORY_MAP.set(key, { 
-                user: CURRENT_USER, 
-                timestamp: log.timestamp, 
-                date: log.date, 
-                obc
+            tab.validations.unshift(log);
+            
+            const historyKey = `${code}_${obc.toLowerCase()}`;
+            VALIDATION_HISTORY.set(historyKey, {
+                usuario: CURRENT_USER,
+                timestamp: log.timestamp,
+                fecha: log.date,
+                obc: obc
             });
             await saveHistory();
-
-            tab.validations.unshift(log);
+            
             playSound('ok');
             flashInput('success');
             
@@ -1104,8 +1036,7 @@
             renderValidation();
             await saveState();
             
-            // CORRECCIÓN: Verifica si gapi.client existe antes de escribir
-            if (gapi.client && gapi.client.getToken && gapi.client.getToken()) await writeToSheets('Val3', log);
+            if (gapi.client.getToken()) await writeToSheets('Val3', log);
         }
 
         async function handleRejection(reason, raw, code, obc) {
@@ -1126,8 +1057,7 @@
             renderValidation();
             await saveState();
             
-            // CORRECCIÓN: Verifica si gapi.client existe antes de escribir
-            if (gapi.client && gapi.client.getToken && gapi.client.getToken()) await writeToSheets('Validaciones_RECHAZADAS', log);
+            if (gapi.client.getToken()) await writeToSheets('Validaciones_RECHAZADAS', log);
         }
 
         async function writeToSheets(sheet, log) {
@@ -1148,7 +1078,6 @@
             }
         }
 
-        // === RENDERING ===
         function renderValidation() {
             const activeOBC = STATE.activeOBC;
             const hasOrders = Object.keys(STATE.tabs).length > 0;
@@ -1262,77 +1191,40 @@
             updateDashboardStats();
         }
 
+        function updateSidebar() {
+            const obcList = document.getElementById('obc-list');
+            obcList.innerHTML = '';
+            
+            Object.keys(STATE.tabs).forEach(obc => {
+                const tab = STATE.tabs[obc];
+                const total = OBC_TOTALS.get(obc) || 0;
+                const count = tab.validations.length;
+                const pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
+                
+                const div = document.createElement('div');
+                div.style.cssText = `padding: 8px; margin-bottom: 8px; background: ${tab.completed ? 'rgba(76,175,80,0.2)' : 'rgba(255,255,255,0.1)'}; border-radius: 6px; font-size: 0.8em; cursor: pointer;`;
+                div.innerHTML = `
+                    <div style="font-weight: 700; font-size: 0.9em;">${obc} ${tab.completed ? '✅' : ''}</div>
+                    <div style="opacity: 0.8; font-size: 0.85em;">${count}/${total} (${pct}%)</div>
+                `;
+                div.onclick = () => {
+                    if (document.getElementById('validation').style.display === 'block') {
+                        switchOBC(obc);
+                    }
+                };
+                obcList.appendChild(div);
+            });
+        }
+
         function switchOBC(obc) {
             STATE.activeOBC = obc;
             renderValidation();
             document.getElementById('location-input').focus();
             saveState();
         }
-        
-        // Función auxiliar para validación previa a la apertura
-        function checkOBCCompletion(obc) {
-            const total = OBC_TOTALS.get(obc) || 0;
-            if (total === 0) return false;
 
-            const obcConcatenatedCodes = OBC_MAP.get(obc); 
-            
-            if (!obcConcatenatedCodes) return false;
-
-            let validatedCount = 0;
-            
-            for (const code of obcConcatenatedCodes) {
-                if (HISTORY_MAP.has(code)) {
-                    validatedCount++;
-                }
-            }
-            
-            return validatedCount >= total;
-        }
-
-        function addOBC() {
-            const obc = prompt('Ingresa el número de la nueva orden:');
-            if (!obc) return;
-            
-            const obcName = obc.toUpperCase().trim();
-            
-            // 1. Check if the OBC already exists in the current session (tabs)
-            if (STATE.tabs[obcName]) {
-                showNotification('⚠️ Esta orden ya existe y está activa', 'warning');
-                switchOBC(obcName);
-                return;
-            }
-
-            // 2. Validación previa a la apertura: ¿Ya completada al 100%?
-            if (checkOBCCompletion(obcName)) {
-                showNotification(`❌ Orden ${obcName} ya completada al 100% según la BD. Evitando apertura.`, 'error');
-                playSound('error');
-                return;
-            }
-            
-            // 3. Check if the OBC already exists in closed sessions
-            if (STATE.closedTabs[obcName]) {
-                // If it was closed, re-open it
-                STATE.tabs[obcName] = STATE.closedTabs[obcName];
-                delete STATE.closedTabs[obcName];
-                showNotification(`✅ Orden ${obcName} reabierta`, 'success');
-            } else {
-                // 4. Create new OBC
-                STATE.tabs[obcName] = {
-                    location: '',
-                    validations: [],
-                    rejections: [],
-                    completed: false
-                };
-                showNotification(`✅ Orden ${obcName} creada`, 'success');
-            }
-            
-            switchOBC(obcName);
-        }
-
-        function closeTab(obc, isCompletion = false) {
-            if (!isCompletion) {
-                if (!confirm(`¿Cerrar la orden ${obc}? Los datos se mantendrán en el historial.`)) return;
-            }
+        function closeTab(obc) {
+            if (!confirm(`¿Cerrar la orden ${obc}? Los datos se mantendrán en el historial.`)) return;
             
             STATE.closedTabs[obc] = STATE.tabs[obc];
             delete STATE.tabs[obc];
@@ -1347,6 +1239,93 @@
             showNotification(`Orden ${obc} cerrada`, 'info');
         }
 
+        function checkIfOrderValidated(obcName) {
+            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
+            
+            if (allOrders[obcName]) {
+                const orderData = allOrders[obcName];
+                const total = OBC_TOTALS.get(obcName) || 0;
+                const validated = orderData.validations.length;
+                
+                if (validated >= total && total > 0) {
+                    const pct = ((validated / total) * 100).toFixed(0);
+                    
+                    document.getElementById('validated-obc').textContent = obcName;
+                    document.getElementById('validated-total').textContent = total;
+                    document.getElementById('validated-count').textContent = validated;
+                    document.getElementById('validated-progress').textContent = `${pct}% completado`;
+                    
+                    pendingOBC = obcName;
+                    document.getElementById('popup-order-validated').style.display = 'flex';
+                    playSound('duplicate');
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function forceOpenValidatedOrder() {
+            if (pendingOBC) {
+                const obcName = pendingOBC;
+                pendingOBC = null;
+                closePopup('order-validated');
+                
+                if (STATE.tabs[obcName]) {
+                    showNotification('⚠️ Esta orden ya existe en las pestañas activas', 'warning');
+                    switchOBC(obcName);
+                    return;
+                }
+                
+                if (STATE.closedTabs[obcName]) {
+                    STATE.tabs[obcName] = STATE.closedTabs[obcName];
+                    delete STATE.closedTabs[obcName];
+                } else {
+                    STATE.tabs[obcName] = {
+                        location: '',
+                        validations: [],
+                        rejections: [],
+                        completed: false
+                    };
+                }
+                
+                switchOBC(obcName);
+                showNotification(`✅ Orden ${obcName} abierta (ya validada)`, 'info');
+            }
+        }
+
+        function addOBC() {
+            const obc = prompt('Ingresa el número de la nueva orden:');
+            if (!obc) return;
+            
+            const obcName = obc.toUpperCase().trim();
+            
+            if (STATE.tabs[obcName]) {
+                showNotification('⚠️ Esta orden ya existe en las pestañas activas', 'warning');
+                switchOBC(obcName);
+                return;
+            }
+            
+            if (checkIfOrderValidated(obcName)) {
+                return;
+            }
+            
+            if (STATE.closedTabs[obcName]) {
+                STATE.tabs[obcName] = STATE.closedTabs[obcName];
+                delete STATE.closedTabs[obcName];
+            } else {
+                STATE.tabs[obcName] = {
+                    location: '',
+                    validations: [],
+                    rejections: [],
+                    completed: false
+                };
+            }
+            
+            switchOBC(obcName);
+            showNotification(`✅ Orden ${obcName} creada`, 'success');
+        }
+
         function updateState() {
             if (!STATE.activeOBC) return;
             const tab = STATE.tabs[STATE.activeOBC];
@@ -1354,7 +1333,6 @@
             saveState();
         }
 
-        // === NAVIGATION ===
         function startValidation() {
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('validation').style.display = 'block';
@@ -1393,7 +1371,6 @@
             document.getElementById('validation').style.display = 'block';
         }
 
-        // === RESUMEN MODULE ===
         function renderResumen() {
             const tbody = document.getElementById('resumen-tbody');
             tbody.innerHTML = '';
@@ -1429,7 +1406,6 @@
             });
         }
 
-        // === FALTANTES MODULE ===
         function populateFaltantesOrders() {
             const select = document.getElementById('faltantes-order-select');
             select.innerHTML = '<option value="">Seleccionar orden...</option>';
@@ -1468,9 +1444,7 @@
             
             const validated = new Set(tab.validations.map(v => v.code));
             
-            // Extract only the code part (column H) without OBC concatenation
             const codesArray = Array.from(obcCodes).map(concatenated => {
-                // Remove the OBC suffix to get original code
                 const obcLower = selectedOBC.toLowerCase();
                 if (concatenated.endsWith(obcLower)) {
                     return concatenated.slice(0, -obcLower.length);
@@ -1478,7 +1452,6 @@
                 return concatenated;
             });
             
-            // Filter to show only pending codes
             const pendingCodes = codesArray.filter(code => !validated.has(code));
             
             if (pendingCodes.length === 0) {
@@ -1504,7 +1477,6 @@
             });
         }
 
-        // === POPUPS ===
         function showPopup(type, code, data) {
             if (type === 'error') {
                 document.getElementById('err-code').textContent = code;
@@ -1516,10 +1488,11 @@
                 document.getElementById('dup-user').textContent = data.user;
                 document.getElementById('popup-dup').style.display = 'flex';
             } else if (type === 'history') {
-                document.getElementById('hist-code').textContent = code;
-                document.getElementById('hist-obc').textContent = data.obc;
-                document.getElementById('hist-when').textContent = `${data.date} ${data.timestamp}`;
-                document.getElementById('hist-user').textContent = data.user;
+                document.getElementById('history-code').textContent = code;
+                document.getElementById('history-obc').textContent = data.obc;
+                document.getElementById('history-date').textContent = data.fecha;
+                document.getElementById('history-time').textContent = data.timestamp;
+                document.getElementById('history-user').textContent = data.usuario;
                 document.getElementById('popup-history').style.display = 'flex';
             }
             document.getElementById('scanner').blur();
@@ -1531,40 +1504,44 @@
                 document.getElementById('scanner').focus();
             }
             lastScanned = null;
+            pendingOBC = null;
         }
 
-        function forceValidation(source) {
-            const note = prompt('Justificación obligatoria para la re-validación:');
-            if (!note) {
-                showNotification('⚠️ La justificación es obligatoria', 'error');
-                return;
-            }
-
+        function forceDuplicate() {
+            const note = prompt('Justificación del duplicado:') || 'Sin justificación';
             if (lastScanned) {
-                let baseNote = '';
-                let isManual = lastScanned.isManual;
-                
-                if (source === 'history') {
-                    // Force from previous Google Sheet Validation
-                    const hist = lastScanned.history;
-                    baseNote = `RE-VALIDACIÓN FORZADA - Validado previamente en ${hist.obc} el ${hist.date} por ${hist.user}. Justificación: ${note}`;
-                } else if (source === 'dup') {
-                    // Force from current session duplicate
-                    const dup = lastScanned.duplicate;
-                    baseNote = `DUPLICADO EN SESIÓN FORZADO - Validado en la sesión actual el ${dup.date} ${dup.timestamp}. Justificación: ${note}`;
+                let finalNote;
+                if (lastScanned.isManual && lastScanned.manualNote) {
+                    finalNote = `DUPLICADO FORZADO - Codigo Escrito Manualmente: ${lastScanned.manualNote} - ${note}`;
+                } else if (lastScanned.isManual) {
+                    finalNote = `DUPLICADO FORZADO - Codigo Escrito Manualmente: ${note}`;
+                } else {
+                    finalNote = `DUPLICADO FORZADO: ${note}`;
                 }
-
-                let finalNote = baseNote;
-                if (isManual) {
-                    finalNote = `CODIGO ESCRITO MANUALMENTE: ${lastScanned.manualNote}. ${baseNote}`;
-                }
-                
-                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, finalNote, isManual);
+                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, finalNote, false);
             }
-            closePopup(source);
+            closePopup('dup');
         }
 
-        // === MANUAL INPUT ===
+        function forceHistoryValidation() {
+            const note = prompt('Justificación para re-validar este código:') || 'Sin justificación';
+            if (lastScanned) {
+                let finalNote;
+                const prevVal = lastScanned.previousValidation;
+                const historyInfo = `Validado previamente: ${prevVal.fecha} ${prevVal.timestamp} por ${prevVal.usuario} en ${prevVal.obc}`;
+                
+                if (lastScanned.isManual && lastScanned.manualNote) {
+                    finalNote = `RE-VALIDACION FORZADA - ${historyInfo} - Codigo Escrito Manualmente: ${lastScanned.manualNote} - ${note}`;
+                } else if (lastScanned.isManual) {
+                    finalNote = `RE-VALIDACION FORZADA - ${historyInfo} - Codigo Escrito Manualmente: ${note}`;
+                } else {
+                    finalNote = `RE-VALIDACION FORZADA - ${historyInfo} - ${note}`;
+                }
+                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, finalNote, false);
+            }
+            closePopup('history');
+        }
+
         function toggleManualOtherNote() {
             const reason = document.getElementById('manual-reason').value;
             const otherContainer = document.getElementById('manual-other-container');
@@ -1615,51 +1592,34 @@
             
             closePopup('manual');
             
-            // Re-ejecutar el flujo de validación con flag isManual=true y la nota
-            await processScan(code, true, finalNote);
-        }
-
-        // === QUICK ACCESS TO FALTANTES ===
-        function quickFaltantes() {
-            showFaltantes();
-            document.getElementById('faltantes-order-select').value = STATE.activeOBC || '';
-            renderFaltantes();
-        }
-
-        // === ORDER COMPLETION BUTTONS LOGIC ===
-        
-        /**
-         * [Nuevo Botón 1: "Nueva Orden"]
-         * Cierra la orden actual (mueve a closedTabs) y luego pide una nueva.
-         */
-        function openNewAndCloseCurrent(obc) {
-            closePopup('completed');
-            // Cierra la orden actual (mueve a closedTabs, sin pedir confirmación)
-            closeTab(obc, true); 
-            // Pide una nueva OBC
-            addOBC();
-        }
-
-        /**
-         * [Nuevo Botón 2: "Guardar y Continuar"]
-         * Cierra el popup, deja la orden actual abierta (verde), y luego pide una nueva.
-         */
-        function saveAndContinue() {
-            closePopup('completed');
-            // La orden actual (ya completada) permanece en STATE.tabs (verde)
-            addOBC(); // Cambia el contexto a una nueva orden
-        }
-
-        /**
-         * [Nuevo Botón 3: "Cerrar Validación"]
-         * Cierra la orden actual (mueve a closedTabs) y regresa al dashboard.
-         */
-        function closeValidationAndReturnToDashboard(obc) {
-            closePopup('completed');
-            // Cierra la orden actual (mueve a closedTabs, sin pedir confirmación)
-            closeTab(obc, true); 
-            // Regresa al dashboard
-            returnToDashboard();
+            const activeOBC = STATE.activeOBC;
+            const tab = STATE.tabs[activeOBC];
+            const normalized = normalizeCode(code);
+            const concatenated = normalized + activeOBC.toLowerCase();
+            
+            if (!BD_CODES.has(concatenated)) {
+                await handleRejection('NO_EXISTE_EN_BD', code, normalized, activeOBC);
+                return;
+            }
+            
+            const historyKey = `${normalized}_${activeOBC.toLowerCase()}`;
+            const previousValidation = VALIDATION_HISTORY.get(historyKey);
+            if (previousValidation) {
+                lastScanned = { raw: code, code: normalized, obc: activeOBC, location: tab.location, isManual: true, manualNote: finalNote, previousValidation };
+                showPopup('history', normalized, previousValidation);
+                playSound('duplicate');
+                return;
+            }
+            
+            const isDup = tab.validations.find(v => v.code === normalized);
+            if (isDup) {
+                lastScanned = { raw: code, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup, isManual: true, manualNote: finalNote };
+                showPopup('dup', normalized, isDup);
+                playSound('duplicate');
+                return;
+            }
+            
+            await handleValidationOK(code, normalized, activeOBC, tab.location, finalNote, true);
         }
 
         function showOrderCompleted(obc) {
@@ -1667,17 +1627,55 @@
             document.getElementById('completed-obc').textContent = obc;
             document.getElementById('completed-count').textContent = tab.validations.length;
             document.getElementById('completed-user').textContent = CURRENT_USER;
-            
-            // Establecer el OBC para los botones
-            document.getElementById('btn-new-order-and-close').setAttribute('onclick', `openNewAndCloseCurrent('${obc}')`);
-            document.getElementById('btn-close-validation').setAttribute('onclick', `closeValidationAndReturnToDashboard('${obc}')`);
-            
             document.getElementById('popup-completed').style.display = 'flex';
             playSound('ok');
             showNotification(`🎉 Orden ${obc} completada!`, 'success');
         }
 
-        // === AUDIO ===
+        function newOrderAndClose() {
+            const currentOBC = STATE.activeOBC;
+            closePopup('completed');
+            
+            if (currentOBC && STATE.tabs[currentOBC]) {
+                STATE.closedTabs[currentOBC] = STATE.tabs[currentOBC];
+                delete STATE.tabs[currentOBC];
+            }
+            
+            const remaining = Object.keys(STATE.tabs);
+            STATE.activeOBC = remaining.length > 0 ? remaining[0] : null;
+            
+            renderValidation();
+            saveState();
+            
+            addOBC();
+        }
+
+        function saveAndContinue() {
+            closePopup('completed');
+            addOBC();
+        }
+
+        function closeCurrentOrder() {
+            const currentOBC = STATE.activeOBC;
+            closePopup('completed');
+            
+            if (currentOBC && STATE.tabs[currentOBC]) {
+                STATE.closedTabs[currentOBC] = STATE.tabs[currentOBC];
+                delete STATE.tabs[currentOBC];
+            }
+            
+            const remaining = Object.keys(STATE.tabs);
+            STATE.activeOBC = remaining.length > 0 ? remaining[0] : null;
+            
+            renderValidation();
+            saveState();
+            showNotification(`Orden ${currentOBC} cerrada`, 'info');
+        }
+
+        function closePopupAndContinue() {
+            closePopup('completed');
+        }
+
         function playSound(type) {
             if (!audioCtx) return;
             try {
@@ -1697,23 +1695,19 @@
                     osc.start();
                     osc.stop(audioCtx.currentTime + 0.35);
                 } else if (type === 'duplicate') {
-                    // Pattern for duplicate/warning
-                    const t = audioCtx.currentTime;
-                    osc.frequency.setValueAtTime(600, t);
-                    gain.gain.setValueAtTime(0.3, t);
-                    gain.gain.linearRampToValueAtTime(0.01, t + 0.1);
-                    osc.start(t);
-                    osc.stop(t + 0.1);
-
-                    const osc2 = audioCtx.createOscillator();
-                    const gain2 = audioCtx.createGain();
-                    osc2.connect(gain2);
-                    gain2.connect(audioCtx.destination);
-                    gain2.gain.setValueAtTime(0.3, t + 0.15);
-                    osc2.frequency.setValueAtTime(600, t + 0.15);
-                    gain2.gain.linearRampToValueAtTime(0.01, t + 0.25);
-                    osc2.start(t + 0.15);
-                    osc2.stop(t + 0.25);
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.1);
+                    setTimeout(() => {
+                        const osc2 = audioCtx.createOscillator();
+                        const gain2 = audioCtx.createGain();
+                        osc2.connect(gain2);
+                        gain2.connect(audioCtx.destination);
+                        gain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                        osc2.frequency.setValueAtTime(600, audioCtx.currentTime);
+                        osc2.start();
+                        osc2.stop(audioCtx.currentTime + 0.1);
+                    }, 150);
                 }
             } catch (e) {}
         }
@@ -1724,7 +1718,6 @@
             setTimeout(() => input.style.borderColor = '#ddd', 300);
         }
 
-        // === NOTIFICATIONS ===
         function showNotification(msg, type) {
             const container = document.getElementById('notifications');
             const div = document.createElement('div');
@@ -1734,7 +1727,6 @@
             setTimeout(() => div.remove(), 4000);
         }
 
-        // === EXPORT ===
         function exportData() {
             const rows = [];
             rows.push('Fecha,Hora,Usuario,Orden,Código,Ubicación,Nota');
@@ -1747,13 +1739,15 @@
             }
             
             const csv = rows.join('\n');
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `validaciones_${new Date().toISOString().slice(0, 10)}.csv`;
-            link.click();
-            showNotification('📥 Datos exportados', 'success');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = validaciones_${new Date().toISOString().slice(0, 10)}.csv;
+        link.click();
+        showNotification('📥 Datos exportados', 'success');
         }
     </script>
 </body>
 </html>
+
+
