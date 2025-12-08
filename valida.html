@@ -613,10 +613,10 @@
         </div>
     </div>
 
-    <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script>
-const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
+        const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
         const SPREADSHEET_BD = '1nKqd0mqEkZ1l8wqW83_d5fyarp5BKbV1nXSNJBk4-Ck';
         const SPREADSHEET_WRITE = '1gU5yDb0R4_Mf1fE-lOA7vwYmTUBR0wV7EPGg5zUt2Xo';
         const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.profile';
@@ -637,6 +637,33 @@ const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleuse
         let typingTimer = null;
         let scannerBuffer = '';
         let pendingOBC = null;
+
+        // FUNCIONES GLOBALES PARA onclick
+        window.handleAuthClick = handleAuthClick;
+        window.loadDatabase = loadDatabase;
+        window.startValidation = startValidation;
+        window.returnToDashboard = returnToDashboard;
+        window.showResumen = showResumen;
+        window.hideResumen = hideResumen;
+        window.showFaltantes = showFaltantes;
+        window.hideFaltantes = hideFaltantes;
+        window.addOBC = addOBC;
+        window.updateState = updateState;
+        window.openManualInput = openManualInput;
+        window.exportData = exportData;
+        window.closePopup = closePopup;
+        window.forceDuplicate = forceDuplicate;
+        window.forceHistoryValidation = forceHistoryValidation;
+        window.toggleManualOtherNote = toggleManualOtherNote;
+        window.submitManualCode = submitManualCode;
+        window.newOrderAndClose = newOrderAndClose;
+        window.saveAndContinue = saveAndContinue;
+        window.closeCurrentOrder = closeCurrentOrder;
+        window.closePopupAndContinue = closePopupAndContinue;
+        window.forceOpenValidatedOrder = forceOpenValidatedOrder;
+        window.filterResumen = filterResumen;
+        window.renderFaltantes = renderFaltantes;
+        window.filterFaltantes = filterFaltantes;
 
         document.addEventListener('DOMContentLoaded', async () => {
             initAudio();
