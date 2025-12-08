@@ -321,7 +321,7 @@
                     <span id="bd-label">No cargada</span>
                 </div>
             </div>
-            <button id="connect-btn" class="btn btn-google" onclick="handleAuthClick()">🔗 Conectar con Google Sheets</button>
+            <button id="connect-btn" class="btn btn-google">🔗 Conectar con Google Sheets</button>
             <button id="load-bd-btn" class="btn btn-secondary" onclick="loadDatabase()" style="display:none; margin-top:10px;">📊 Cargar Base de Datos</button>
         </div>
 
@@ -897,6 +897,8 @@ const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleuse
         function setupListeners() {
             const scanner = document.getElementById('scanner');
             const location = document.getElementById('location-input');
+            const connectBtn = document.getElementById('connect-btn');
+            connectBtn.addEventListener('click', handleAuthClick);
             
             scanner.addEventListener('input', (e) => {
                 clearTimeout(typingTimer);
