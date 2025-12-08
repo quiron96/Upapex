@@ -80,11 +80,54 @@
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #fff, #ffd966); transition: width 0.5s; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         .progress-bar-fill.completed { background: linear-gradient(90deg, #fff, #81c784) !important; }
         
+        /* Link to faltantes */
+        .faltantes-link {
+            color: white;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 2px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        .faltantes-link:hover {
+            text-decoration-thickness: 3px;
+            transform: scale(1.05);
+        }
+        
         /* Inputs en línea */
         .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85em; }
         .input-group input, .input-group select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; }
+        .input-group textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; font-family: inherit; resize: vertical; }
         .scanner-input { font-size: 1.6em !important; text-transform: uppercase; font-weight: bold; text-align: center; background: #fff5ed !important; }
+        
+        /* Scanner section with manual button */
+        .scanner-section {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .scanner-wrapper {
+            flex: 1;
+        }
+        .btn-manual {
+            padding: 10px 15px;
+            background: var(--warning);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-manual:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,152,0,0.3);
+        }
         
         /* Stats */
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
@@ -171,6 +214,27 @@
         .popup-header { font-size: 1.4em; font-weight: 700; margin-bottom: 15px; }
         .popup-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         
+        /* Mini alert */
+        .mini-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(244, 67, 54, 0.95);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 10000;
+            animation: fadeInOut 0.4s ease-in-out;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+        
         /* Resumen Module */
         #resumen-module { display: none; }
         .search-bar { padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px; width: 100%; font-size: 1em; }
@@ -223,7 +287,6 @@
 <body>
     <div class="notification-container" id="notifications"></div>
 
-    <!-- DASHBOARD -->
     <div id="dashboard">
         <div class="dash-header">
             <h1>🏭 Sistema de Validación WMS</h1>
@@ -275,7 +338,6 @@
         </button>
     </div>
 
-    <!-- VALIDATION SCREEN -->
     <div id="validation">
         <div class="container">
             <div class="sidebar">
@@ -298,14 +360,12 @@
                 </div>
 
                 <div id="content-area">
-                    <!-- Empty state -->
                     <div id="empty-state" class="empty-state">
                         <div class="empty-state-icon">📦</div>
                         <div class="empty-state-text">No hay órdenes activas</div>
                         <button class="btn btn-primary" onclick="addOBC()" style="width: auto; padding: 12px 30px;">+ Nueva Orden</button>
                     </div>
 
-                    <!-- Validation content -->
                     <div id="validation-content" style="display: none;">
                         <div class="tab-bar" id="tab-bar"></div>
 
@@ -352,9 +412,14 @@
                                     <input type="text" id="location-input" placeholder="Ej: PLEC123" onchange="updateState()">
                                 </div>
                             </div>
-                            <div class="input-group">
-                                <label style="font-size: 1.1em; color: var(--primary);">📷 ESCANEAR CÓDIGO:</label>
-                                <input type="text" id="scanner" class="scanner-input" placeholder="Escanea aquí..." autofocus>
+                            <div class="scanner-section">
+                                <div class="scanner-wrapper">
+                                    <div class="input-group">
+                                        <label style="font-size: 1.1em; color: var(--primary);">📷 ESCANEAR CÓDIGO:</label>
+                                        <input type="text" id="scanner" class="scanner-input" placeholder="Escanea aquí..." autofocus>
+                                    </div>
+                                </div>
+                                <button class="btn-manual" onclick="openManualInput()">✏️ Manual</button>
                             </div>
                         </div>
 
@@ -385,7 +450,6 @@
         </div>
     </div>
 
-    <!-- RESUMEN MODULE -->
     <div id="resumen-module">
         <div class="container">
             <div class="main-content" style="max-width: 100%;">
@@ -415,7 +479,6 @@
         </div>
     </div>
 
-    <!-- FALTANTES MODULE -->
     <div id="faltantes-module">
         <div class="container">
             <div class="main-content" style="max-width: 100%;">
@@ -437,7 +500,6 @@
         </div>
     </div>
 
-    <!-- POPUPS -->
     <div id="popup-error" class="popup-overlay">
         <div class="popup-content">
             <div class="popup-header" style="color: var(--error);">❌ CÓDIGO RECHAZADO</div>
@@ -451,17 +513,35 @@
         </div>
     </div>
 
+    <div id="popup-history" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--warning);">🔔 VALIDACIÓN PREVIA DETECTADA</div>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                <p style="margin-bottom: 15px; color: #e65100;"><strong>Este código ya fue validado en Google Sheets.</strong></p>
+                <strong>Código:</strong> <span id="hist-code"></span><br>
+                <strong>Orden Previa:</strong> <span id="hist-obc"></span><br>
+                <strong>Validado:</strong> <span id="hist-when"></span><br>
+                <strong>Usuario:</strong> <span id="hist-user"></span>
+            </div>
+            <div class="popup-buttons">
+                <button class="btn btn-secondary" onclick="closePopup('history')">Cancelar</button>
+                <button class="btn btn-primary" onclick="forceValidation('history')">Forzar Validación con Nota</button>
+            </div>
+        </div>
+    </div>
+
     <div id="popup-dup" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--warning);">⚠️ DUPLICADO</div>
-            <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin: 15px 0;">
+            <div class="popup-header" style="color: var(--warning);">⚠️ DUPLICADO EN SESIÓN</div>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                <p style="margin-bottom: 15px; color: #e65100;"><strong>Este código ya fue validado en la orden actual.</strong></p>
                 <strong>Código:</strong> <span id="dup-code"></span><br>
                 <strong>Validado:</strong> <span id="dup-when"></span><br>
                 <strong>Usuario:</strong> <span id="dup-user"></span>
             </div>
             <div class="popup-buttons">
                 <button class="btn btn-secondary" onclick="closePopup('dup')">Ignorar</button>
-                <button class="btn btn-primary" onclick="forceDuplicate()">Forzar con Nota</button>
+                <button class="btn btn-primary" onclick="forceValidation('dup')">Forzar con Nota</button>
             </div>
         </div>
     </div>
@@ -483,6 +563,37 @@
         </div>
     </div>
 
+    <div id="popup-manual" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--warning);">✏️ INGRESO MANUAL DE CÓDIGO</div>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                <p style="margin-bottom: 15px; color: #e65100;"><strong>⚠️ Advertencia:</strong> Solo usar para casos excepcionales</p>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>Código:</label>
+                    <input type="text" id="manual-code" placeholder="Ingresa el código">
+                </div>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>Motivo:</label>
+                    <select id="manual-reason" onchange="toggleManualOtherNote()">
+                        <option value="">Seleccionar motivo...</option>
+                        <option value="Codigo Borroso">Código Borroso</option>
+                        <option value="Etiqueta Dañada">Etiqueta Dañada</option>
+                        <option value="Error Surtido">Error Surtido</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="input-group" id="manual-other-container" style="display: none;">
+                    <label>Especificar motivo (obligatorio):</label>
+                    <textarea id="manual-other-note" rows="3" placeholder="Describe el motivo..."></textarea>
+                </div>
+            </div>
+            <div class="popup-buttons">
+                <button class="btn btn-secondary" onclick="closePopup('manual')">Cancelar</button>
+                <button class="btn btn-primary" onclick="submitManualCode()">Validar Código</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script>
@@ -496,6 +607,7 @@
         let OBC_MAP = new Map();
         let OBC_TOTALS = new Map();
         let OBC_INFO = new Map();
+        let HISTORY_MAP = new Map(); // Nueva estructura: 'código_orden' -> { user, timestamp, date, obc }
         let STATE = {
             activeOBC: null,
             tabs: {},
@@ -503,6 +615,8 @@
         };
         let TOKEN_CLIENT, audioCtx;
         let lastScanned = null;
+        let typingTimer = null;
+        let scannerBuffer = '';
 
         // === INIT ===
         document.addEventListener('DOMContentLoaded', async () => {
@@ -571,6 +685,7 @@
                     OBC_MAP = new Map(cached.obcMap?.map(([k, v]) => [k, new Set(v)]));
                     OBC_TOTALS = new Map(cached.totals);
                     OBC_INFO = new Map(cached.info);
+                    HISTORY_MAP = new Map(cached.history);
                     updateDashboardStats();
                 }
             } catch (e) {}
@@ -588,8 +703,20 @@
                     codes: Array.from(BD_CODES),
                     obcMap: Array.from(OBC_MAP.entries()).map(([k, v]) => [k, Array.from(v)]),
                     totals: Array.from(OBC_TOTALS.entries()),
-                    info: Array.from(OBC_INFO.entries())
+                    info: Array.from(OBC_INFO.entries()),
+                    history: Array.from(HISTORY_MAP.entries())
                 }));
+            } catch (e) {}
+        }
+        
+        async function saveHistory() {
+            try {
+                const bdRes = await window.storage.get('wms_bd');
+                let cached = {};
+                if (bdRes?.value) cached = JSON.parse(bdRes.value);
+                
+                cached.history = Array.from(HISTORY_MAP.entries());
+                await window.storage.set('wms_bd', JSON.stringify(cached));
             } catch (e) {}
         }
 
@@ -624,6 +751,7 @@
             showNotification('Cargando base de datos...', 'info');
             
             try {
+                // 1. Carga de Resumen (OBC_TOTALS, OBC_INFO)
                 const resRes = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: SPREADSHEET_BD,
                     range: 'Resumen!A:E'
@@ -643,6 +771,26 @@
                     }
                 }
 
+                // 2. Carga del Historial (HISTORY_MAP)
+                const histRes = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_WRITE,
+                    range: 'Val3!A:G' // Date, Time, User, OBC, Code, Location, Note
+                });
+                
+                const histRows = histRes.result.values;
+                if (histRows?.length > 1) {
+                    HISTORY_MAP.clear();
+                    for (let i = 1; i < histRows.length; i++) {
+                        const [date, timestamp, user, obc, code, , ] = histRows[i];
+                        if (obc && code) {
+                            const key = normalizeCode(code) + obc.toLowerCase();
+                            HISTORY_MAP.set(key, { user, timestamp, date, obc });
+                        }
+                    }
+                    await saveHistory();
+                }
+
+                // 3. Carga de BD (BD_CODES, OBC_MAP)
                 const sheets = ['BD', 'Outbound_出库单', 'Sheet1'];
                 for (const sheet of sheets) {
                     try {
@@ -672,7 +820,7 @@
                             document.getElementById('status-bd').className = 'status-indicator status-ok';
                             document.getElementById('bd-label').textContent = 'Cargada';
                             updateStartButton();
-                            showNotification(`✅ BD cargada: ${BD_CODES.size} códigos en ${OBC_TOTALS.size} órdenes`, 'success');
+                            showNotification(`✅ BD cargada: ${BD_CODES.size} códigos en ${OBC_TOTALS.size} órdenes (Historial: ${HISTORY_MAP.size} validaciones)`, 'success');
                             playSound('ok');
                             return;
                         }
@@ -730,17 +878,35 @@
             const scanner = document.getElementById('scanner');
             const location = document.getElementById('location-input');
             
+            // Scanner handling - detect typing vs scanning with 500ms delay
+            scanner.addEventListener('input', (e) => {
+                clearTimeout(typingTimer);
+                scannerBuffer = e.target.value;
+                
+                // Detect manual typing (slow input) - 500ms threshold
+                typingTimer = setTimeout(() => {
+                    if (scanner.value.length > 0 && scanner.value.length < 15) {
+                        showMiniAlert('⚠️ Use solo escaneo o botón Manual');
+                        scanner.value = '';
+                        scannerBuffer = '';
+                    }
+                }, 500);
+            });
+            
             scanner.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && scanner.value.trim()) {
                     e.preventDefault();
+                    clearTimeout(typingTimer);
+                    
                     if (!STATE.activeOBC) {
                         showNotification('⚠️ Crea una orden primero', 'warning');
                         playSound('error');
                         scanner.value = '';
                         return;
                     }
-                    processScan(scanner.value.trim());
+                    processScan(scanner.value.trim(), false);
                     scanner.value = '';
+                    scannerBuffer = '';
                 }
             });
             
@@ -752,7 +918,15 @@
             });
         }
 
-        async function processScan(raw) {
+        function showMiniAlert(message) {
+            const alert = document.createElement('div');
+            alert.className = 'mini-alert';
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 400);
+        }
+
+        async function processScan(raw, isManual = false, manualNote = '') {
             if (BD_CODES.size === 0) {
                 showNotification('⚠️ Carga la BD primero', 'warning');
                 playSound('error');
@@ -782,34 +956,75 @@
             console.log('Extracted:', extracted);
             console.log('Normalized:', normalized);
             console.log('Concatenated:', concatenated);
+            console.log('Is Manual:', isManual);
             
+            // 1. ❌ ¿Existe en BD?
             if (!BD_CODES.has(concatenated)) {
                 await handleRejection('NO_EXISTE_EN_BD', raw, normalized, activeOBC);
                 return;
             }
             
+            // 2. 🔔 ¿Ya validado en Google Sheets?
+            const histData = HISTORY_MAP.get(concatenated);
+            if (histData) {
+                lastScanned = { 
+                    raw, 
+                    code: normalized, 
+                    obc: activeOBC, 
+                    location: tab.location, 
+                    history: histData,
+                    isManual,
+                    manualNote // Sólo se usa si viene de flujo manual
+                };
+                showPopup('history', normalized, histData);
+                playSound('duplicate');
+                return;
+            }
+
+            // 3. ⚠️ ¿Ya validado en sesión actual?
             const isDup = tab.validations.find(v => v.code === normalized);
             if (isDup) {
-                lastScanned = { raw, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup };
+                lastScanned = { 
+                    raw, 
+                    code: normalized, 
+                    obc: activeOBC, 
+                    location: tab.location, 
+                    duplicate: isDup, 
+                    isManual,
+                    manualNote // Sólo se usa si viene de flujo manual
+                };
                 showPopup('dup', normalized, isDup);
                 playSound('duplicate');
                 return;
             }
             
-            await handleValidationOK(raw, normalized, activeOBC, tab.location);
+            // 4. ✅ Todo OK
+            await handleValidationOK(raw, normalized, activeOBC, tab.location, manualNote, isManual);
         }
 
-        async function handleValidationOK(raw, code, obc, location, note = '') {
+        async function handleValidationOK(raw, code, obc, location, note = '', isManual = false) {
             const tab = STATE.tabs[obc];
             const now = new Date();
+            
+            const finalNote = isManual && note ? `CODIGO ESCRITO MANUALMENTE: ${note}` : note;
             
             const log = {
                 id: now.getTime(),
                 timestamp: now.toLocaleTimeString('es-MX'),
                 date: now.toISOString().slice(0, 10),
-                user: CURRENT_USER, obc, raw, code, location, note
+                user: CURRENT_USER, obc, raw, code, location, note: finalNote
             };
             
+            // Actualizar HISTORY_MAP
+            const key = code + obc.toLowerCase();
+            HISTORY_MAP.set(key, { 
+                user: CURRENT_USER, 
+                timestamp: log.timestamp, 
+                date: log.date, 
+                obc
+            });
+            await saveHistory();
+
             tab.validations.unshift(log);
             playSound('ok');
             flashInput('success');
@@ -1167,11 +1382,28 @@
             }
             
             const validated = new Set(tab.validations.map(v => v.code));
-            const codesArray = Array.from(obcCodes);
             
-            codesArray.forEach(code => {
+            // Extract only the code part (column H) without OBC concatenation
+            const codesArray = Array.from(obcCodes).map(concatenated => {
+                // Remove the OBC suffix to get original code
+                const obcLower = selectedOBC.toLowerCase();
+                if (concatenated.endsWith(obcLower)) {
+                    return concatenated.slice(0, -obcLower.length);
+                }
+                return concatenated;
+            });
+            
+            // Filter to show only pending codes
+            const pendingCodes = codesArray.filter(code => !validated.has(code));
+            
+            if (pendingCodes.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--success);">✅ ¡Todos los códigos han sido validados!</div>';
+                return;
+            }
+            
+            pendingCodes.forEach(code => {
                 const div = document.createElement('div');
-                div.className = `faltante-item ${validated.has(code) ? 'faltante-ok' : 'faltante-pending'}`;
+                div.className = 'faltante-item faltante-pending';
                 div.textContent = code;
                 div.dataset.code = code;
                 grid.appendChild(div);
@@ -1198,6 +1430,12 @@
                 document.getElementById('dup-when').textContent = `${data.date} ${data.timestamp}`;
                 document.getElementById('dup-user').textContent = data.user;
                 document.getElementById('popup-dup').style.display = 'flex';
+            } else if (type === 'history') {
+                document.getElementById('hist-code').textContent = code;
+                document.getElementById('hist-obc').textContent = data.obc;
+                document.getElementById('hist-when').textContent = `${data.date} ${data.timestamp}`;
+                document.getElementById('hist-user').textContent = data.user;
+                document.getElementById('popup-history').style.display = 'flex';
             }
             document.getElementById('scanner').blur();
         }
@@ -1210,12 +1448,97 @@
             lastScanned = null;
         }
 
-        function forceDuplicate() {
-            const note = prompt('Justificación del duplicado:') || 'Sin justificación';
-            if (lastScanned) {
-                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, `DUPLICADO FORZADO: ${note}`);
+        function forceValidation(source) {
+            const note = prompt('Justificación obligatoria para la re-validación:');
+            if (!note) {
+                showNotification('⚠️ La justificación es obligatoria', 'error');
+                return;
             }
-            closePopup('dup');
+
+            if (lastScanned) {
+                let baseNote = '';
+                let isManual = lastScanned.isManual;
+                
+                if (source === 'history') {
+                    // Force from previous Google Sheet Validation
+                    const hist = lastScanned.history;
+                    baseNote = `RE-VALIDACIÓN FORZADA - Validado previamente en ${hist.obc} el ${hist.date} por ${hist.user}. Justificación: ${note}`;
+                } else if (source === 'dup') {
+                    // Force from current session duplicate
+                    const dup = lastScanned.duplicate;
+                    baseNote = `DUPLICADO EN SESIÓN FORZADO - Validado en la sesión actual el ${dup.date} ${dup.timestamp}. Justificación: ${note}`;
+                }
+
+                let finalNote = baseNote;
+                if (isManual) {
+                    finalNote = `CODIGO ESCRITO MANUALMENTE: ${lastScanned.manualNote}. ${baseNote}`;
+                }
+                
+                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, finalNote, isManual);
+            }
+            closePopup(source);
+        }
+
+        // === MANUAL INPUT ===
+        function toggleManualOtherNote() {
+            const reason = document.getElementById('manual-reason').value;
+            const otherContainer = document.getElementById('manual-other-container');
+            otherContainer.style.display = reason === 'Otro' ? 'block' : 'none';
+        }
+
+        function openManualInput() {
+            if (!STATE.activeOBC) {
+                showNotification('⚠️ Crea una orden primero', 'warning');
+                return;
+            }
+            
+            const tab = STATE.tabs[STATE.activeOBC];
+            if (tab.completed) {
+                showNotification('⚠️ Esta orden ya está completada', 'warning');
+                return;
+            }
+            
+            document.getElementById('manual-code').value = '';
+            document.getElementById('manual-reason').value = '';
+            document.getElementById('manual-other-note').value = '';
+            document.getElementById('manual-other-container').style.display = 'none';
+            document.getElementById('popup-manual').style.display = 'flex';
+            document.getElementById('manual-code').focus();
+        }
+
+        async function submitManualCode() {
+            const code = document.getElementById('manual-code').value.trim();
+            const reason = document.getElementById('manual-reason').value;
+            const otherNote = document.getElementById('manual-other-note').value.trim();
+            
+            if (!code) {
+                showNotification('⚠️ Ingresa un código', 'warning');
+                return;
+            }
+            
+            if (!reason) {
+                showNotification('⚠️ Selecciona un motivo', 'warning');
+                return;
+            }
+            
+            if (reason === 'Otro' && !otherNote) {
+                showNotification('⚠️ Especifica el motivo', 'warning');
+                return;
+            }
+            
+            const finalNote = reason === 'Otro' ? `Otro: ${otherNote}` : reason;
+            
+            closePopup('manual');
+            
+            // Re-ejecutar el flujo de validación con flag isManual=true y la nota
+            await processScan(code, true, finalNote);
+        }
+
+        // === QUICK ACCESS TO FALTANTES ===
+        function quickFaltantes() {
+            showFaltantes();
+            document.getElementById('faltantes-order-select').value = STATE.activeOBC || '';
+            renderFaltantes();
         }
 
         // === ORDER COMPLETION ===
@@ -1259,19 +1582,23 @@
                     osc.start();
                     osc.stop(audioCtx.currentTime + 0.35);
                 } else if (type === 'duplicate') {
-                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.1);
-                    setTimeout(() => {
-                        const osc2 = audioCtx.createOscillator();
-                        const gain2 = audioCtx.createGain();
-                        osc2.connect(gain2);
-                        gain2.connect(audioCtx.destination);
-                        gain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                        osc2.frequency.setValueAtTime(600, audioCtx.currentTime);
-                        osc2.start();
-                        osc2.stop(audioCtx.currentTime + 0.1);
-                    }, 150);
+                    // Pattern for duplicate/warning
+                    const t = audioCtx.currentTime;
+                    osc.frequency.setValueAtTime(600, t);
+                    gain.gain.setValueAtTime(0.3, t);
+                    gain.gain.linearRampToValueAtTime(0.01, t + 0.1);
+                    osc.start(t);
+                    osc.stop(t + 0.1);
+
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    gain2.gain.setValueAtTime(0.3, t + 0.15);
+                    osc2.frequency.setValueAtTime(600, t + 0.15);
+                    gain2.gain.linearRampToValueAtTime(0.01, t + 0.25);
+                    osc2.start(t + 0.15);
+                    osc2.stop(t + 0.25);
                 }
             } catch (e) {}
         }
