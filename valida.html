@@ -651,6 +651,7 @@
             await loadFromStorage();
             setupListeners();
             renderValidation();
+            // Cargar GAPI, que llamará a initGAPI al terminar
             gapi.load('client', initGAPI);
         });
 
@@ -663,7 +664,10 @@
 
         async function initGAPI() {
             try {
+                // 1. Inicializa el cliente principal de GAPI
                 await gapi.client.init({ discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"] });
+                
+                // 2. Inicializa el cliente de token de Google Identity
                 TOKEN_CLIENT = google.accounts.oauth2.initTokenClient({
                     client_id: CLIENT_ID,
                     scope: SCOPES,
@@ -676,8 +680,19 @@
                         }
                     }
                 });
+                
+                // 3. Verifica el estado de conexión al inicio si hay token guardado
+                if (gapi.client.getToken()) {
+                    updateConnectionStatus(true);
+                    loadDatabase(); // Intentar cargar BD si hay un token válido.
+                } else {
+                    updateConnectionStatus(false);
+                }
+
             } catch (e) {
-                showNotification('Error al inicializar Google API', 'error');
+                // Si falla la inicialización de GAPI, muestra la notificación y desactiva el inicio
+                showNotification('Error al inicializar Google API. Verifique su ID de Cliente y Conexión.', 'error');
+                updateConnectionStatus(false);
             }
         }
 
@@ -749,28 +764,52 @@
 
         // === AUTHENTICATION ===
         function handleAuthClick() {
-            gapi.client.getToken() ? google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
-                gapi.client.setToken(null);
-                updateConnectionStatus(false);
-            }) : TOKEN_CLIENT.requestAccessToken();
+            // CORRECCIÓN: Verifica si gapi.client existe antes de intentar getToken
+            if (gapi.client && gapi.client.getToken && gapi.client.getToken()) {
+                // Si existe token, intenta revocar (Cerrar Sesión)
+                google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
+                    gapi.client.setToken(null);
+                    updateConnectionStatus(false);
+                    showNotification('Sesión cerrada correctamente.', 'info');
+                });
+            } else if (TOKEN_CLIENT) {
+                // Si no hay token pero el cliente está inicializado, solicita acceso
+                TOKEN_CLIENT.requestAccessToken();
+            } else {
+                // Mensaje de advertencia si la librería no está lista.
+                showNotification('El sistema de Google no está listo. Recargue la página y reintente.', 'warning');
+            }
         }
 
         function updateConnectionStatus(connected) {
             document.getElementById('status-conn').className = `status-indicator ${connected ? 'status-ok' : 'status-error'}`;
             document.getElementById('conn-label').textContent = connected ? 'Conectado' : 'Desconectado';
-            document.getElementById('connect-btn').textContent = connected ? '🔓 Cerrar Sesión' : '🔗 Conectar';
+            document.getElementById('connect-btn').textContent = connected ? '🔓 Cerrar Sesión' : '🔗 Conectar con Google Sheets';
             document.getElementById('load-bd-btn').style.display = connected ? 'block' : 'none';
+            
+            // Actualizar estado del botón de inicio
             updateStartButton();
         }
 
         function updateStartButton() {
-            const canStart = gapi.client.getToken() && BD_CODES.size > 0;
+            // CORRECCIÓN: Maneja el caso en que gapi.client no está listo
+            const hasToken = gapi.client && gapi.client.getToken ? !!gapi.client.getToken() : false;
+            const canStart = hasToken && BD_CODES.size > 0;
             document.getElementById('start-btn').disabled = !canStart;
+            
+            if (!hasToken) {
+                document.getElementById('start-btn').textContent = '🚀 Conecte Google Sheets para iniciar';
+            } else if (BD_CODES.size === 0) {
+                document.getElementById('start-btn').textContent = '📊 Cargue la Base de Datos para iniciar';
+            } else {
+                document.getElementById('start-btn').textContent = '🚀 Iniciar Validación';
+            }
         }
 
         // === DATABASE LOADING ===
         async function loadDatabase() {
-            if (!gapi.client.getToken()) {
+            // CORRECCIÓN: Verifica el token antes de intentar cargar
+            if (!gapi.client || !gapi.client.getToken || !gapi.client.getToken()) {
                 showNotification('Conecta primero con Google Sheets', 'warning');
                 return;
             }
@@ -1065,7 +1104,8 @@
             renderValidation();
             await saveState();
             
-            if (gapi.client.getToken()) await writeToSheets('Val3', log);
+            // CORRECCIÓN: Verifica si gapi.client existe antes de escribir
+            if (gapi.client && gapi.client.getToken && gapi.client.getToken()) await writeToSheets('Val3', log);
         }
 
         async function handleRejection(reason, raw, code, obc) {
@@ -1086,7 +1126,8 @@
             renderValidation();
             await saveState();
             
-            if (gapi.client.getToken()) await writeToSheets('Validaciones_RECHAZADAS', log);
+            // CORRECCIÓN: Verifica si gapi.client existe antes de escribir
+            if (gapi.client && gapi.client.getToken && gapi.client.getToken()) await writeToSheets('Validaciones_RECHAZADAS', log);
         }
 
         async function writeToSheets(sheet, log) {
