@@ -22,6 +22,7 @@
             color: var(--text);
         }
 
+        /* === DASHBOARD === */
         #dashboard { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
         .dash-header { text-align: center; margin-bottom: 40px; }
         .dash-header h1 { font-size: 2.2em; color: var(--primary); margin-bottom: 8px; }
@@ -46,6 +47,7 @@
         .btn-secondary { background: #6c757d; color: white; }
         .btn-small { padding: 8px 15px; font-size: 0.85em; width: auto; }
 
+        /* === VALIDATION SCREEN === */
         #validation { display: none; min-height: 100vh; }
         .container { display: flex; height: 100vh; }
         .sidebar { width: 200px; background: #333; color: white; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; }
@@ -56,6 +58,7 @@
         
         .card { background: white; padding: 18px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
         
+        /* Progress Card */
         .progress-card { 
             background: linear-gradient(135deg, #ffa07a 0%, #ff8a52 100%); 
             color: white; 
@@ -77,12 +80,30 @@
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #fff, #ffd966); transition: width 0.5s; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         .progress-bar-fill.completed { background: linear-gradient(90deg, #fff, #81c784) !important; }
         
+        /* Link to faltantes */
+        .faltantes-link {
+            color: white;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 2px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        .faltantes-link:hover {
+            text-decoration-thickness: 3px;
+            transform: scale(1.05);
+        }
+        
+        /* Inputs en línea */
         .inline-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85em; }
         .input-group input, .input-group select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; }
         .input-group textarea { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95em; font-family: inherit; resize: vertical; }
         .scanner-input { font-size: 1.6em !important; text-transform: uppercase; font-weight: bold; text-align: center; background: #fff5ed !important; }
         
+        /* Scanner section with manual button */
         .scanner-section {
             display: flex;
             gap: 10px;
@@ -108,12 +129,14 @@
             box-shadow: 0 4px 12px rgba(255,152,0,0.3);
         }
         
+        /* Stats */
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .stat-box { text-align: center; padding: 15px; border-radius: 8px; }
         .stat-number { font-size: 2em; font-weight: 700; margin-top: 5px; }
         .stat-ok { background: #e8f5e9; border: 2px solid var(--success); color: var(--success); }
         .stat-error { background: #ffebee; border: 2px solid var(--error); color: var(--error); }
         
+        /* Logs con numeración */
         .logs-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
         .log-list { max-height: 350px; overflow-y: auto; list-style: none; background: #fafafa; padding: 10px; border-radius: 8px; counter-reset: log-counter; }
         .log-item { display: flex; gap: 8px; padding: 8px; margin-bottom: 6px; background: white; border-radius: 4px; border-left: 4px solid; }
@@ -125,6 +148,7 @@
         .log-info { flex: 1; }
         .log-code { font-weight: 600; }
         
+        /* Tabs */
         .tab-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
         .tab { 
             padding: 8px 12px; 
@@ -156,6 +180,7 @@
             opacity: 1;
         }
         
+        /* Empty state */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -174,6 +199,7 @@
             margin-bottom: 20px;
         }
         
+        /* Notificaciones */
         .notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 350px; }
         .notification { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border-left: 4px solid; animation: slideIn 0.3s; }
         .notification.success { border-color: var(--success); }
@@ -182,32 +208,34 @@
         .notification.info { border-color: #2196F3; }
         @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
+        /* Popups */
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .popup-content { background: white; padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative; }
         .popup-header { font-size: 1.4em; font-weight: 700; margin-bottom: 15px; }
-        .popup-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .popup-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .popup-close-x {
             position: absolute;
             top: 10px;
-            right: 15px;
-            background: none;
+            right: 10px;
+            background: #e0e0e0;
             border: none;
-            font-size: 1.8em;
-            color: #999;
-            cursor: pointer;
-            padding: 0;
+            border-radius: 50%;
             width: 30px;
             height: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: #666;
             transition: all 0.2s;
         }
         .popup-close-x:hover {
+            background: #d0d0d0;
             color: #333;
-            transform: scale(1.1);
         }
         
+        /* Mini alert */
         .mini-alert {
             position: fixed;
             top: 50%;
@@ -228,12 +256,14 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
         
+        /* Resumen Module */
         #resumen-module { display: none; }
         .search-bar { padding: 12px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px; width: 100%; font-size: 1em; }
         .resumen-table { width: 100%; border-collapse: collapse; background: white; }
         .resumen-table th, .resumen-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         .resumen-table th { background: #f5f5f5; font-weight: 700; }
         
+        /* Faltantes Module */
         #faltantes-module { display: none; }
         .faltantes-controls {
             display: flex;
@@ -263,6 +293,25 @@
         .faltante-ok { background: #e8f5e9; color: var(--success); }
         .faltante-pending { background: #ffebee; color: var(--error); }
         
+        /* Sync status indicator */
+        .sync-status {
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 0.85em;
+            text-align: center;
+        }
+        .sync-ok {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        .sync-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+        
         @media (max-width: 1024px) {
             .sidebar { width: 180px; }
         }
@@ -272,13 +321,13 @@
             .sidebar { width: 100%; }
             .inline-inputs { grid-template-columns: 1fr; }
             .faltantes-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
-            .popup-buttons { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="notification-container" id="notifications"></div>
 
+    <!-- DASHBOARD -->
     <div id="dashboard">
         <div class="dash-header">
             <h1>🏭 Sistema de Validación WMS</h1>
@@ -321,7 +370,7 @@
                     <span id="bd-label">No cargada</span>
                 </div>
             </div>
-            <button id="connect-btn" class="btn btn-google">🔗 Conectar con Google Sheets</button>
+            <button id="connect-btn" class="btn btn-google" onclick="handleAuthClick()">🔗 Conectar con Google Sheets</button>
             <button id="load-bd-btn" class="btn btn-secondary" onclick="loadDatabase()" style="display:none; margin-top:10px;">📊 Cargar Base de Datos</button>
         </div>
 
@@ -329,6 +378,8 @@
             🚀 Iniciar Validación
         </button>
     </div>
+
+    <!-- VALIDATION SCREEN -->
     <div id="validation">
         <div class="container">
             <div class="sidebar">
@@ -337,6 +388,10 @@
                 <button class="btn btn-secondary btn-small" onclick="showResumen()" style="margin-bottom: 10px; width: 100%;">📋 Resumen</button>
                 <button class="btn btn-secondary btn-small" onclick="showFaltantes()" style="margin-bottom: 10px; width: 100%;">🔍 Faltantes</button>
                 <hr style="border-color: #555; margin: 15px 0;">
+                <div id="sync-status-sidebar" class="sync-status sync-ok" style="display: none;">
+                    ✅ Sincronizado
+                </div>
+                <button class="btn btn-secondary btn-small" onclick="forceSync()" style="margin-bottom: 10px; width: 100%;">🔄 Sincronizar</button>
                 <div style="text-align: center; margin-bottom: 15px;">
                     <div style="font-size: 1.3em; font-weight: 700; color: var(--primary);" id="bd-count-sidebar">0</div>
                     <div style="font-size: 0.75em; opacity: 0.8;">códigos en BD</div>
@@ -351,12 +406,14 @@
                 </div>
 
                 <div id="content-area">
+                    <!-- Empty state -->
                     <div id="empty-state" class="empty-state">
                         <div class="empty-state-icon">📦</div>
                         <div class="empty-state-text">No hay órdenes activas</div>
                         <button class="btn btn-primary" onclick="addOBC()" style="width: auto; padding: 12px 30px;">+ Nueva Orden</button>
                     </div>
 
+                    <!-- Validation content -->
                     <div id="validation-content" style="display: none;">
                         <div class="tab-bar" id="tab-bar"></div>
 
@@ -391,7 +448,7 @@
                                     <input type="text" id="obc-display" disabled>
                                 </div>
                                 <div class="input-group">
-                                    <label>📍 Destino:</label>
+                                    <label>🏢 Destino:</label>
                                     <input type="text" id="recipient-display" disabled>
                                 </div>
                                 <div class="input-group">
@@ -441,6 +498,7 @@
         </div>
     </div>
 
+    <!-- RESUMEN MODULE -->
     <div id="resumen-module">
         <div class="container">
             <div class="main-content" style="max-width: 100%;">
@@ -470,6 +528,7 @@
         </div>
     </div>
 
+    <!-- FALTANTES MODULE -->
     <div id="faltantes-module">
         <div class="container">
             <div class="main-content" style="max-width: 100%;">
@@ -491,14 +550,16 @@
         </div>
     </div>
 
+    <!-- POPUPS -->
     <div id="popup-error" class="popup-overlay">
         <div class="popup-content">
+            <button class="popup-close-x" onclick="closePopup('error')">×</button>
             <div class="popup-header" style="color: var(--error);">❌ CÓDIGO RECHAZADO</div>
             <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin: 15px 0;">
                 <strong>Código:</strong> <span id="err-code"></span><br>
                 <strong>Motivo:</strong> <span id="err-reason" style="color: var(--error);"></span>
             </div>
-            <div class="popup-buttons" style="grid-template-columns: 1fr;">
+            <div class="popup-buttons">
                 <button class="btn btn-primary" onclick="closePopup('error')">Continuar</button>
             </div>
         </div>
@@ -506,36 +567,31 @@
 
     <div id="popup-history" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: #FF9800;">🔔 VALIDACIÓN PREVIA DETECTADA</div>
-            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #FF9800;">
-                <p style="margin-bottom: 15px; color: #e65100; font-weight: 600;">⚠️ Este código ya fue validado anteriormente en Google Sheets</p>
-                <div style="background: white; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
-                    <strong>Código:</strong> <span id="history-code"></span><br>
-                    <strong>Orden:</strong> <span id="history-obc"></span><br>
-                    <strong>Fecha:</strong> <span id="history-date"></span><br>
-                    <strong>Hora:</strong> <span id="history-time"></span><br>
-                    <strong>Usuario:</strong> <span id="history-user"></span>
-                </div>
-                <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                    💡 <strong>Recomendación:</strong> Verifica si este código debería estar en esta orden o si es un error.
-                </p>
+            <button class="popup-close-x" onclick="closePopup('history')">×</button>
+            <div class="popup-header" style="color: var(--warning);">⚠️ CÓDIGO YA VALIDADO EN HISTORIAL</div>
+            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                <strong>Código:</strong> <span id="hist-code"></span><br>
+                <strong>Orden Original:</strong> <span id="hist-obc"></span><br>
+                <strong>Validado:</strong> <span id="hist-when"></span><br>
+                <strong>Usuario:</strong> <span id="hist-user"></span>
             </div>
-            <div class="popup-buttons" style="grid-template-columns: 1fr 1fr;">
+            <div class="popup-buttons">
                 <button class="btn btn-secondary" onclick="closePopup('history')">Cancelar</button>
-                <button class="btn btn-primary" onclick="forceHistoryValidation()">Forzar Validación</button>
+                <button class="btn btn-primary" onclick="forceHistoryValidation()">Forzar Validación con Nota</button>
             </div>
         </div>
     </div>
 
     <div id="popup-dup" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--warning);">⚠️ DUPLICADO EN SESIÓN ACTUAL</div>
+            <button class="popup-close-x" onclick="closePopup('dup')">×</button>
+            <div class="popup-header" style="color: var(--warning);">⚠️ DUPLICADO</div>
             <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin: 15px 0;">
                 <strong>Código:</strong> <span id="dup-code"></span><br>
                 <strong>Validado:</strong> <span id="dup-when"></span><br>
                 <strong>Usuario:</strong> <span id="dup-user"></span>
             </div>
-            <div class="popup-buttons" style="grid-template-columns: 1fr 1fr;">
+            <div class="popup-buttons">
                 <button class="btn btn-secondary" onclick="closePopup('dup')">Ignorar</button>
                 <button class="btn btn-primary" onclick="forceDuplicate()">Forzar con Nota</button>
             </div>
@@ -544,7 +600,7 @@
 
     <div id="popup-completed" class="popup-overlay">
         <div class="popup-content">
-            <button class="popup-close-x" onclick="closePopupAndContinue()">×</button>
+            <button class="popup-close-x" onclick="continueViewing()">×</button>
             <div class="popup-header" style="color: var(--success);">✅ ORDEN COMPLETADA</div>
             <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin: 15px 0; text-align: center;">
                 <div style="font-size: 1.8em; font-weight: 700; color: var(--success); margin-bottom: 10px;">🎉</div>
@@ -553,15 +609,16 @@
                 <strong>Usuario:</strong> <span id="completed-user"></span>
             </div>
             <div class="popup-buttons">
-                <button class="btn btn-primary" onclick="newOrderAndClose()">Nueva Orden</button>
+                <button class="btn btn-primary" onclick="continueToNewOrder()" style="background: var(--warning);">Nueva Orden</button>
                 <button class="btn btn-success" onclick="saveAndContinue()">Guardar y Continuar</button>
-                <button class="btn btn-secondary" onclick="closeCurrentOrder()">Cerrar Validación</button>
+                <button class="btn btn-secondary" onclick="saveAndClose()">Cerrar Validación</button>
             </div>
         </div>
     </div>
 
     <div id="popup-manual" class="popup-overlay">
         <div class="popup-content">
+            <button class="popup-close-x" onclick="closePopup('manual')">×</button>
             <div class="popup-header" style="color: var(--warning);">✏️ INGRESO MANUAL DE CÓDIGO</div>
             <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0;">
                 <p style="margin-bottom: 15px; color: #e65100;"><strong>⚠️ Advertencia:</strong> Solo usar para casos excepcionales</p>
@@ -576,6 +633,7 @@
                         <option value="Codigo Borroso">Código Borroso</option>
                         <option value="Etiqueta Dañada">Etiqueta Dañada</option>
                         <option value="Error Surtido">Error Surtido</option>
+                        <option value="Mercancia Reetiquetada">Mercancía Reetiquetada</option>
                         <option value="Otro">Otro</option>
                     </select>
                 </div>
@@ -584,36 +642,46 @@
                     <textarea id="manual-other-note" rows="3" placeholder="Describe el motivo..."></textarea>
                 </div>
             </div>
-            <div class="popup-buttons" style="grid-template-columns: 1fr 1fr;">
+            <div class="popup-buttons">
                 <button class="btn btn-secondary" onclick="closePopup('manual')">Cancelar</button>
                 <button class="btn btn-primary" onclick="submitManualCode()">Validar Código</button>
             </div>
         </div>
     </div>
 
-    <div id="popup-order-validated" class="popup-overlay">
+    <div id="popup-reload-order" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--warning);">⚠️ ORDEN YA VALIDADA</div>
-            <div style="background: #fff3e0; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #FF9800;">
-                <p style="margin-bottom: 15px; color: #e65100; font-weight: 600;">Esta orden ya ha sido completada previamente</p>
-                <div style="background: white; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
-                    <strong>Orden:</strong> <span id="validated-obc"></span><br>
-                    <strong>Total de cajas:</strong> <span id="validated-total"></span><br>
-                    <strong>Validadas:</strong> <span id="validated-count"></span><br>
-                    <strong>Progreso:</strong> <span id="validated-progress"></span>
-                </div>
-                <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                    💡 <strong>Recomendación:</strong> Esta orden ya está al 100%. Considera abrir una orden diferente.
-                </p>
+            <div class="popup-header" style="color: var(--primary);">📦 ORDEN PARCIALMENTE VALIDADA</div>
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                <strong>Orden:</strong> <span id="reload-obc"></span><br>
+                <strong>Ya validadas:</strong> <span id="reload-validated"></span><br>
+                <strong>Total:</strong> <span id="reload-total"></span><br>
+                <strong>Pendientes:</strong> <span id="reload-pending"></span>
             </div>
-            <div class="popup-buttons" style="grid-template-columns: 1fr 1fr;">
-                <button class="btn btn-secondary" onclick="closePopup('order-validated')">Cancelar</button>
-                <button class="btn btn-primary" onclick="forceOpenValidatedOrder()">Abrir de Todos Modos</button>
+            <p style="margin: 15px 0; color: #666;">Esta orden ya tiene validaciones previas. ¿Deseas continuar donde se dejó?</p>
+            <div class="popup-buttons">
+                <button class="btn btn-secondary" onclick="cancelReloadOrder()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmReloadOrder()">Continuar Validación</button>
             </div>
         </div>
     </div>
 
-  <script src="https://apis.google.com/js/api.js"></script>
+    <div id="popup-already-complete" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-header" style="color: var(--success);">✅ ORDEN YA COMPLETADA</div>
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin: 15px 0; text-align: center;">
+                <div style="font-size: 1.8em; margin-bottom: 10px;">🎉</div>
+                <strong>Orden:</strong> <span id="complete-obc"></span><br>
+                <strong>Validadas:</strong> <span id="complete-count"></span><br>
+                <p style="margin-top: 10px; color: #666;">Esta orden ya fue validada al 100%</p>
+            </div>
+            <div class="popup-buttons">
+                <button class="btn btn-primary" onclick="closePopup('already-complete')">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
     <script>
         const CLIENT_ID = '1013623813866-70ovrtt690fbka3a97h4fenpp54hm7j8.apps.googleusercontent.com';
@@ -626,7 +694,7 @@
         let OBC_MAP = new Map();
         let OBC_TOTALS = new Map();
         let OBC_INFO = new Map();
-        let VALIDATION_HISTORY = new Map();
+        let HISTORY = new Map(); // codigo_obc -> {user, timestamp, date, obc}
         let STATE = {
             activeOBC: null,
             tabs: {},
@@ -636,35 +704,9 @@
         let lastScanned = null;
         let typingTimer = null;
         let scannerBuffer = '';
-        let pendingOBC = null;
+        let pendingReloadOBC = null;
 
-        // FUNCIONES GLOBALES PARA onclick
-        window.handleAuthClick = handleAuthClick;
-        window.loadDatabase = loadDatabase;
-        window.startValidation = startValidation;
-        window.returnToDashboard = returnToDashboard;
-        window.showResumen = showResumen;
-        window.hideResumen = hideResumen;
-        window.showFaltantes = showFaltantes;
-        window.hideFaltantes = hideFaltantes;
-        window.addOBC = addOBC;
-        window.updateState = updateState;
-        window.openManualInput = openManualInput;
-        window.exportData = exportData;
-        window.closePopup = closePopup;
-        window.forceDuplicate = forceDuplicate;
-        window.forceHistoryValidation = forceHistoryValidation;
-        window.toggleManualOtherNote = toggleManualOtherNote;
-        window.submitManualCode = submitManualCode;
-        window.newOrderAndClose = newOrderAndClose;
-        window.saveAndContinue = saveAndContinue;
-        window.closeCurrentOrder = closeCurrentOrder;
-        window.closePopupAndContinue = closePopupAndContinue;
-        window.forceOpenValidatedOrder = forceOpenValidatedOrder;
-        window.filterResumen = filterResumen;
-        window.renderFaltantes = renderFaltantes;
-        window.filterFaltantes = filterFaltantes;
-
+        // === INIT ===
         document.addEventListener('DOMContentLoaded', async () => {
             initAudio();
             await loadFromStorage();
@@ -713,6 +755,7 @@
             }
         }
 
+        // === STORAGE ===
         async function loadFromStorage() {
             try {
                 const stateRes = await window.storage.get('wms_state');
@@ -732,11 +775,11 @@
                     OBC_INFO = new Map(cached.info);
                     updateDashboardStats();
                 }
-                
-                const historyRes = await window.storage.get('wms_history');
-                if (historyRes?.value) {
-                    const cached = JSON.parse(historyRes.value);
-                    VALIDATION_HISTORY = new Map(cached.history);
+
+                const histRes = await window.storage.get('wms_history');
+                if (histRes?.value) {
+                    const cached = JSON.parse(histRes.value);
+                    HISTORY = new Map(cached.history);
                 }
             } catch (e) {}
         }
@@ -761,11 +804,12 @@
         async function saveHistory() {
             try {
                 await window.storage.set('wms_history', JSON.stringify({
-                    history: Array.from(VALIDATION_HISTORY.entries())
+                    history: Array.from(HISTORY.entries())
                 }));
             } catch (e) {}
         }
 
+        // === AUTHENTICATION ===
         function handleAuthClick() {
             gapi.client.getToken() ? google.accounts.oauth2.revoke(gapi.client.getToken().access_token, () => {
                 gapi.client.setToken(null);
@@ -779,6 +823,20 @@
             document.getElementById('connect-btn').textContent = connected ? '🔓 Cerrar Sesión' : '🔗 Conectar';
             document.getElementById('load-bd-btn').style.display = connected ? 'block' : 'none';
             updateStartButton();
+            updateSyncStatus(connected);
+        }
+
+        function updateSyncStatus(synced) {
+            const syncEl = document.getElementById('sync-status-sidebar');
+            if (synced) {
+                syncEl.className = 'sync-status sync-ok';
+                syncEl.textContent = '✅ Sincronizado';
+                syncEl.style.display = 'block';
+            } else {
+                syncEl.className = 'sync-status sync-error';
+                syncEl.textContent = '❌ Sin conexión';
+                syncEl.style.display = 'block';
+            }
         }
 
         function updateStartButton() {
@@ -786,6 +844,7 @@
             document.getElementById('start-btn').disabled = !canStart;
         }
 
+        // === DATABASE LOADING ===
         async function loadDatabase() {
             if (!gapi.client.getToken()) {
                 showNotification('Conecta primero con Google Sheets', 'warning');
@@ -795,32 +854,7 @@
             showNotification('Cargando base de datos...', 'info');
             
             try {
-                try {
-                    const historyRes = await gapi.client.sheets.spreadsheets.values.get({
-                        spreadsheetId: SPREADSHEET_WRITE,
-                        range: 'Val3!A:E'
-                    });
-
-                    const historyRows = historyRes.result.values;
-                    if (historyRows?.length > 1) {
-                        VALIDATION_HISTORY.clear();
-                        
-                        for (let i = 1; i < historyRows.length; i++) {
-                            const [fecha, timestamp, usuario, obc, codigo] = historyRows[i];
-                            if (obc && codigo) {
-                                const normalized = normalizeCode(codigo);
-                                const key = `${normalized}_${obc.toLowerCase()}`;
-                                VALIDATION_HISTORY.set(key, { usuario, timestamp, fecha, obc });
-                            }
-                        }
-                        
-                        await saveHistory();
-                        showNotification(`📚 Historial cargado: ${VALIDATION_HISTORY.size} validaciones previas`, 'info');
-                    }
-                } catch (e) {
-                    console.warn('No se pudo cargar historial Val3:', e);
-                }
-
+                // Load Resumen
                 const resRes = await gapi.client.sheets.spreadsheets.values.get({
                     spreadsheetId: SPREADSHEET_BD,
                     range: 'Resumen!A:E'
@@ -840,6 +874,7 @@
                     }
                 }
 
+                // Load BD codes
                 const sheets = ['BD', 'Outbound_出库单', 'Sheet1'];
                 for (const sheet of sheets) {
                     try {
@@ -865,21 +900,69 @@
                             }
                             
                             await saveBD();
-                            updateDashboardStats();
-                            document.getElementById('status-bd').className = 'status-indicator status-ok';
-                            document.getElementById('bd-label').textContent = 'Cargada';
-                            updateStartButton();
-                            showNotification(`✅ BD cargada: ${BD_CODES.size} códigos en ${OBC_TOTALS.size} órdenes`, 'success');
-                            playSound('ok');
-                            return;
+                            break;
                         }
                     } catch (e) {}
                 }
+
+                // Load history from Val3
+                try {
+                    const histRes = await gapi.client.sheets.spreadsheets.values.get({
+                        spreadsheetId: SPREADSHEET_WRITE,
+                        range: 'Val3!A:G'
+                    });
+
+                    const histRows = histRes.result.values;
+                    if (histRows?.length > 1) {
+                        HISTORY.clear();
+                        
+                        for (let i = 1; i < histRows.length; i++) {
+                            const [date, timestamp, user, obc, code, location, note] = histRows[i];
+                            if (code && obc) {
+                                const key = `${normalizeCode(code)}_${obc.toLowerCase()}`;
+                                HISTORY.set(key, {
+                                    user: user || 'Usuario',
+                                    timestamp: timestamp || '',
+                                    date: date || '',
+                                    obc: obc || ''
+                                });
+                            }
+                        }
+                        
+                        await saveHistory();
+                        showNotification(`📚 Historial cargado: ${HISTORY.size} validaciones`, 'info');
+                    }
+                } catch (e) {
+                    console.error('Error loading history:', e);
+                }
                 
-                throw new Error('No se pudo cargar la BD');
+                updateDashboardStats();
+                document.getElementById('status-bd').className = 'status-indicator status-ok';
+                document.getElementById('bd-label').textContent = 'Cargada';
+                updateStartButton();
+                showNotification(`✅ BD cargada: ${BD_CODES.size} códigos en ${OBC_TOTALS.size} órdenes`, 'success');
+                playSound('ok');
             } catch (err) {
                 showNotification('❌ Error al cargar BD', 'error');
                 console.error(err);
+            }
+        }
+
+        async function forceSync() {
+            if (!gapi.client.getToken()) {
+                showNotification('⚠️ No hay conexión con Google Sheets', 'warning');
+                return;
+            }
+
+            showNotification('🔄 Sincronizando...', 'info');
+            
+            try {
+                await loadDatabase();
+                updateSyncStatus(true);
+                showNotification('✅ Sincronización completada', 'success');
+            } catch (e) {
+                updateSyncStatus(false);
+                showNotification('❌ Error en sincronización', 'error');
             }
         }
 
@@ -898,6 +981,7 @@
             document.getElementById('dash-validated').textContent = totalValidated || '-';
         }
 
+        // === CODE EXTRACTION ===
         function extractCode(raw) {
             const code = raw.trim();
             
@@ -921,11 +1005,10 @@
             return code ? code.replace(/-/g, '/').toLowerCase().trim() : '';
         }
 
+        // === VALIDATION LOGIC ===
         function setupListeners() {
             const scanner = document.getElementById('scanner');
             const location = document.getElementById('location-input');
-            const connectBtn = document.getElementById('connect-btn');
-            connectBtn.addEventListener('click', handleAuthClick);
             
             scanner.addEventListener('input', (e) => {
                 clearTimeout(typingTimer);
@@ -1009,16 +1092,18 @@
                 await handleRejection('NO_EXISTE_EN_BD', raw, normalized, activeOBC);
                 return;
             }
-            
-            const historyKey = `${normalized}_${activeOBC.toLowerCase()}`;
-            const previousValidation = VALIDATION_HISTORY.get(historyKey);
-            if (previousValidation) {
-                lastScanned = { raw, code: normalized, obc: activeOBC, location: tab.location, isManual, previousValidation };
-                showPopup('history', normalized, previousValidation);
+
+            // Check history first
+            const histKey = concatenated;
+            if (HISTORY.has(histKey)) {
+                const histData = HISTORY.get(histKey);
+                lastScanned = { raw, code: normalized, obc: activeOBC, location: tab.location, isManual, histData };
+                showPopup('history', normalized, histData);
                 playSound('duplicate');
                 return;
             }
             
+            // Check current session
             const isDup = tab.validations.find(v => v.code === normalized);
             if (isDup) {
                 lastScanned = { raw, code: normalized, obc: activeOBC, location: tab.location, duplicate: isDup, isManual };
@@ -1029,7 +1114,8 @@
             
             await handleValidationOK(raw, normalized, activeOBC, tab.location, '', isManual);
         }
-async function handleValidationOK(raw, code, obc, location, note = '', isManual = false) {
+
+        async function handleValidationOK(raw, code, obc, location, note = '', isManual = false) {
             const tab = STATE.tabs[obc];
             const now = new Date();
             
@@ -1044,11 +1130,12 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             
             tab.validations.unshift(log);
             
-            const historyKey = `${code}_${obc.toLowerCase()}`;
-            VALIDATION_HISTORY.set(historyKey, {
-                usuario: CURRENT_USER,
+            // Add to history
+            const histKey = `${code}_${obc.toLowerCase()}`;
+            HISTORY.set(histKey, {
+                user: CURRENT_USER,
                 timestamp: log.timestamp,
-                fecha: log.date,
+                date: log.date,
                 obc: obc
             });
             await saveHistory();
@@ -1065,7 +1152,10 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             renderValidation();
             await saveState();
             
-            if (gapi.client.getToken()) await writeToSheets('Val3', log);
+            if (gapi.client.getToken()) {
+                await writeToSheets('Val3', log);
+                updateSyncStatus(true);
+            }
         }
 
         async function handleRejection(reason, raw, code, obc) {
@@ -1104,9 +1194,11 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
                 });
             } catch (e) {
                 console.error('Error writing to sheets:', e);
+                updateSyncStatus(false);
             }
         }
 
+        // === RENDERING ===
         function renderValidation() {
             const activeOBC = STATE.activeOBC;
             const hasOrders = Object.keys(STATE.tabs).length > 0;
@@ -1268,91 +1360,104 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             showNotification(`Orden ${obc} cerrada`, 'info');
         }
 
-        function checkIfOrderValidated(obcName) {
-            const allOrders = { ...STATE.tabs, ...STATE.closedTabs };
-            
-            if (allOrders[obcName]) {
-                const orderData = allOrders[obcName];
-                const total = OBC_TOTALS.get(obcName) || 0;
-                const validated = orderData.validations.length;
-                
-                if (validated >= total && total > 0) {
-                    const pct = ((validated / total) * 100).toFixed(0);
-                    
-                    document.getElementById('validated-obc').textContent = obcName;
-                    document.getElementById('validated-total').textContent = total;
-                    document.getElementById('validated-count').textContent = validated;
-                    document.getElementById('validated-progress').textContent = `${pct}% completado`;
-                    
-                    pendingOBC = obcName;
-                    document.getElementById('popup-order-validated').style.display = 'flex';
-                    playSound('duplicate');
-                    return true;
-                }
-            }
-            
-            return false;
-        }
-
-        function forceOpenValidatedOrder() {
-            if (pendingOBC) {
-                const obcName = pendingOBC;
-                pendingOBC = null;
-                closePopup('order-validated');
-                
-                if (STATE.tabs[obcName]) {
-                    showNotification('⚠️ Esta orden ya existe en las pestañas activas', 'warning');
-                    switchOBC(obcName);
-                    return;
-                }
-                
-                if (STATE.closedTabs[obcName]) {
-                    STATE.tabs[obcName] = STATE.closedTabs[obcName];
-                    delete STATE.closedTabs[obcName];
-                } else {
-                    STATE.tabs[obcName] = {
-                        location: '',
-                        validations: [],
-                        rejections: [],
-                        completed: false
-                    };
-                }
-                
-                switchOBC(obcName);
-                showNotification(`✅ Orden ${obcName} abierta (ya validada)`, 'info');
-            }
-        }
-
-        function addOBC() {
+        async function addOBC() {
             const obc = prompt('Ingresa el número de la nueva orden:');
             if (!obc) return;
             
             const obcName = obc.toUpperCase().trim();
             
+            // Check if already exists in active tabs
             if (STATE.tabs[obcName]) {
-                showNotification('⚠️ Esta orden ya existe en las pestañas activas', 'warning');
-                switchOBC(obcName);
+                showNotification('⚠️ Esta orden ya está abierta', 'warning');
                 return;
             }
+
+            // Check if order exists in history and is partially or fully validated
+            const total = OBC_TOTALS.get(obcName) || 0;
+            let validatedCount = 0;
             
-            if (checkIfOrderValidated(obcName)) {
+            // Count validations from history for this OBC
+            for (const [key, data] of HISTORY.entries()) {
+                if (data.obc === obcName) {
+                    validatedCount++;
+                }
+            }
+
+            // Check if 100% validated
+            if (total > 0 && validatedCount >= total) {
+                document.getElementById('complete-obc').textContent = obcName;
+                document.getElementById('complete-count').textContent = `${validatedCount}/${total}`;
+                document.getElementById('popup-already-complete').style.display = 'flex';
+                playSound('error');
                 return;
             }
-            
-            if (STATE.closedTabs[obcName]) {
-                STATE.tabs[obcName] = STATE.closedTabs[obcName];
-                delete STATE.closedTabs[obcName];
-            } else {
-                STATE.tabs[obcName] = {
-                    location: '',
-                    validations: [],
-                    rejections: [],
-                    completed: false
-                };
+
+            // If partially validated, show reload popup
+            if (validatedCount > 0) {
+                pendingReloadOBC = obcName;
+                document.getElementById('reload-obc').textContent = obcName;
+                document.getElementById('reload-validated').textContent = validatedCount;
+                document.getElementById('reload-total').textContent = total;
+                document.getElementById('reload-pending').textContent = total - validatedCount;
+                document.getElementById('popup-reload-order').style.display = 'flex';
+                return;
             }
-            
+
+            // Create new order
+            createNewOBC(obcName);
+        }
+
+        function createNewOBC(obcName) {
+            STATE.tabs[obcName] = {
+                location: '',
+                validations: [],
+                rejections: [],
+                completed: false
+            };
             switchOBC(obcName);
             showNotification(`✅ Orden ${obcName} creada`, 'success');
+        }
+
+        function confirmReloadOrder() {
+            if (!pendingReloadOBC) return;
+            
+            const obcName = pendingReloadOBC;
+            
+            // Create tab with existing validations from history
+            const validations = [];
+            for (const [key, data] of HISTORY.entries()) {
+                if (data.obc === obcName) {
+                    const code = key.replace(`_${obcName.toLowerCase()}`, '');
+                    validations.push({
+                        id: Date.now() + Math.random(),
+                        timestamp: data.timestamp,
+                        date: data.date,
+                        user: data.user,
+                        obc: obcName,
+                        raw: code,
+                        code: code,
+                        location: '',
+                        note: 'Cargado desde historial'
+                    });
+                }
+            }
+            
+            STATE.tabs[obcName] = {
+                location: '',
+                validations: validations,
+                rejections: [],
+                completed: false
+            };
+            
+            closePopup('reload-order');
+            pendingReloadOBC = null;
+            switchOBC(obcName);
+            showNotification(`✅ Orden ${obcName} recargada con ${validations.length} validaciones`, 'success');
+        }
+
+        function cancelReloadOrder() {
+            closePopup('reload-order');
+            pendingReloadOBC = null;
         }
 
         function updateState() {
@@ -1362,6 +1467,7 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             saveState();
         }
 
+        // === NAVIGATION ===
         function startValidation() {
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('validation').style.display = 'block';
@@ -1400,6 +1506,7 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             document.getElementById('validation').style.display = 'block';
         }
 
+        // === RESUMEN MODULE ===
         function renderResumen() {
             const tbody = document.getElementById('resumen-tbody');
             tbody.innerHTML = '';
@@ -1435,6 +1542,7 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             });
         }
 
+        // === FALTANTES MODULE ===
         function populateFaltantesOrders() {
             const select = document.getElementById('faltantes-order-select');
             select.innerHTML = '<option value="">Seleccionar orden...</option>';
@@ -1506,34 +1614,50 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             });
         }
 
+        // === POPUPS ===
         function showPopup(type, code, data) {
             if (type === 'error') {
                 document.getElementById('err-code').textContent = code;
                 document.getElementById('err-reason').textContent = data;
                 document.getElementById('popup-error').style.display = 'flex';
+            } else if (type === 'history') {
+                document.getElementById('hist-code').textContent = code;
+                document.getElementById('hist-obc').textContent = data.obc;
+                document.getElementById('hist-when').textContent = `${data.date} ${data.timestamp}`;
+                document.getElementById('hist-user').textContent = data.user;
+                document.getElementById('popup-history').style.display = 'flex';
             } else if (type === 'dup') {
                 document.getElementById('dup-code').textContent = code;
                 document.getElementById('dup-when').textContent = `${data.date} ${data.timestamp}`;
                 document.getElementById('dup-user').textContent = data.user;
                 document.getElementById('popup-dup').style.display = 'flex';
-            } else if (type === 'history') {
-                document.getElementById('history-code').textContent = code;
-                document.getElementById('history-obc').textContent = data.obc;
-                document.getElementById('history-date').textContent = data.fecha;
-                document.getElementById('history-time').textContent = data.timestamp;
-                document.getElementById('history-user').textContent = data.usuario;
-                document.getElementById('popup-history').style.display = 'flex';
             }
             document.getElementById('scanner').blur();
         }
 
         function closePopup(type) {
             document.getElementById(`popup-${type}`).style.display = 'none';
-            if (type !== 'completed') {
+            if (!['completed', 'already-complete', 'reload-order'].includes(type)) {
                 document.getElementById('scanner').focus();
             }
             lastScanned = null;
-            pendingOBC = null;
+        }
+
+        function forceHistoryValidation() {
+            const note = prompt('Justificación de la revalidación:') || 'Sin justificación';
+            if (lastScanned) {
+                const histInfo = `REVALIDACION - Original: ${lastScanned.histData.obc} por ${lastScanned.histData.user} el ${lastScanned.histData.date}`;
+                let finalNote;
+                if (lastScanned.isManual && lastScanned.manualNote) {
+                    finalNote = `${histInfo} - Codigo Escrito Manualmente: ${lastScanned.manualNote} - ${note}`;
+                } else if (lastScanned.isManual) {
+                    finalNote = `${histInfo} - Codigo Escrito Manualmente: ${note}`;
+                } else {
+                    finalNote = `${histInfo} - ${note}`;
+                }
+                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, finalNote, false);
+            }
+            closePopup('history');
         }
 
         function forceDuplicate() {
@@ -1552,25 +1676,7 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             closePopup('dup');
         }
 
-        function forceHistoryValidation() {
-            const note = prompt('Justificación para re-validar este código:') || 'Sin justificación';
-            if (lastScanned) {
-                let finalNote;
-                const prevVal = lastScanned.previousValidation;
-                const historyInfo = `Validado previamente: ${prevVal.fecha} ${prevVal.timestamp} por ${prevVal.usuario} en ${prevVal.obc}`;
-                
-                if (lastScanned.isManual && lastScanned.manualNote) {
-                    finalNote = `RE-VALIDACION FORZADA - ${historyInfo} - Codigo Escrito Manualmente: ${lastScanned.manualNote} - ${note}`;
-                } else if (lastScanned.isManual) {
-                    finalNote = `RE-VALIDACION FORZADA - ${historyInfo} - Codigo Escrito Manualmente: ${note}`;
-                } else {
-                    finalNote = `RE-VALIDACION FORZADA - ${historyInfo} - ${note}`;
-                }
-                handleValidationOK(lastScanned.raw, lastScanned.code, lastScanned.obc, lastScanned.location, finalNote, false);
-            }
-            closePopup('history');
-        }
-
+        // === MANUAL INPUT ===
         function toggleManualOtherNote() {
             const reason = document.getElementById('manual-reason').value;
             const otherContainer = document.getElementById('manual-other-container');
@@ -1630,12 +1736,12 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
                 await handleRejection('NO_EXISTE_EN_BD', code, normalized, activeOBC);
                 return;
             }
-            
-            const historyKey = `${normalized}_${activeOBC.toLowerCase()}`;
-            const previousValidation = VALIDATION_HISTORY.get(historyKey);
-            if (previousValidation) {
-                lastScanned = { raw: code, code: normalized, obc: activeOBC, location: tab.location, isManual: true, manualNote: finalNote, previousValidation };
-                showPopup('history', normalized, previousValidation);
+
+            // Check history
+            if (HISTORY.has(concatenated)) {
+                const histData = HISTORY.get(concatenated);
+                lastScanned = { raw: code, code: normalized, obc: activeOBC, location: tab.location, isManual: true, manualNote: finalNote, histData };
+                showPopup('history', normalized, histData);
                 playSound('duplicate');
                 return;
             }
@@ -1651,6 +1757,7 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             await handleValidationOK(code, normalized, activeOBC, tab.location, finalNote, true);
         }
 
+        // === ORDER COMPLETION ===
         function showOrderCompleted(obc) {
             const tab = STATE.tabs[obc];
             document.getElementById('completed-obc').textContent = obc;
@@ -1661,21 +1768,18 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             showNotification(`🎉 Orden ${obc} completada!`, 'success');
         }
 
-        function newOrderAndClose() {
+        function continueToNewOrder() {
             const currentOBC = STATE.activeOBC;
             closePopup('completed');
             
+            // Close current order
             if (currentOBC && STATE.tabs[currentOBC]) {
                 STATE.closedTabs[currentOBC] = STATE.tabs[currentOBC];
                 delete STATE.tabs[currentOBC];
             }
             
-            const remaining = Object.keys(STATE.tabs);
-            STATE.activeOBC = remaining.length > 0 ? remaining[0] : null;
-            
-            renderValidation();
+            STATE.activeOBC = null;
             saveState();
-            
             addOBC();
         }
 
@@ -1684,7 +1788,7 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             addOBC();
         }
 
-        function closeCurrentOrder() {
+        function saveAndClose() {
             const currentOBC = STATE.activeOBC;
             closePopup('completed');
             
@@ -1693,18 +1797,16 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
                 delete STATE.tabs[currentOBC];
             }
             
-            const remaining = Object.keys(STATE.tabs);
-            STATE.activeOBC = remaining.length > 0 ? remaining[0] : null;
-            
-            renderValidation();
+            STATE.activeOBC = null;
             saveState();
-            showNotification(`Orden ${currentOBC} cerrada`, 'info');
+            returnToDashboard();
         }
 
-        function closePopupAndContinue() {
+        function continueViewing() {
             closePopup('completed');
         }
 
+        // === AUDIO ===
         function playSound(type) {
             if (!audioCtx) return;
             try {
@@ -1747,6 +1849,7 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             setTimeout(() => input.style.borderColor = '#ddd', 300);
         }
 
+        // === NOTIFICATIONS ===
         function showNotification(msg, type) {
             const container = document.getElementById('notifications');
             const div = document.createElement('div');
@@ -1756,6 +1859,7 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             setTimeout(() => div.remove(), 4000);
         }
 
+        // === EXPORT ===
         function exportData() {
             const rows = [];
             rows.push('Fecha,Hora,Usuario,Orden,Código,Ubicación,Nota');
@@ -1768,15 +1872,13 @@ async function handleValidationOK(raw, code, obc, location, note = '', isManual 
             }
             
             const csv = rows.join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = validaciones_${new Date().toISOString().slice(0, 10)}.csv;
-        link.click();
-        showNotification('📥 Datos exportados', 'success');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `validaciones_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+            showNotification('📥 Datos exportados', 'success');
         }
     </script>
 </body>
 </html>
-
-
