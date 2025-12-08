@@ -211,8 +211,31 @@
         /* Popups */
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .popup-content { background: white; padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-        .popup-header { font-size: 1.4em; font-weight: 700; margin-bottom: 15px; }
+        .popup-header { 
+            font-size: 1.4em; 
+            font-weight: 700; 
+            margin: 0; 
+            text-align: center; 
+            flex-grow: 1;
+        }
         .popup-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        /* New close button for popups */
+        .popup-close-x {
+            background: none;
+            border: none;
+            font-size: 2em;
+            font-weight: 200;
+            color: #666;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            margin-right: 10px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .popup-close-x:hover {
+            opacity: 1;
+        }
         
         /* Mini alert */
         .mini-alert {
@@ -548,7 +571,11 @@
 
     <div id="popup-completed" class="popup-overlay">
         <div class="popup-content">
-            <div class="popup-header" style="color: var(--success);">✅ ORDEN COMPLETADA</div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                <button class="popup-close-x" onclick="closePopup('completed')">×</button>
+                <div class="popup-header" style="color: var(--success); margin: 0; text-align: center; flex-grow: 1;">✅ ORDEN COMPLETADA</div>
+                <div style="width: 2em;"></div> </div>
+            
             <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin: 15px 0; text-align: center;">
                 <div style="font-size: 1.8em; font-weight: 700; color: var(--success); margin-bottom: 10px;">🎉</div>
                 <strong>Orden:</strong> <span id="completed-obc"></span><br>
@@ -556,9 +583,9 @@
                 <strong>Usuario:</strong> <span id="completed-user"></span>
             </div>
             <div class="popup-buttons">
-                <button class="btn btn-primary" onclick="continueToNewOrder()">Nueva Orden</button>
-                <button class="btn btn-success" onclick="saveAndClose()">Guardar y Cerrar</button>
-                <button class="btn btn-secondary" onclick="closePopup('completed')">Continuar Visualizando</button>
+                <button class="btn btn-primary" id="btn-new-order-and-close" onclick="openNewAndCloseCurrent(STATE.activeOBC)" style="background: var(--primary);">Nueva Orden</button>
+                <button class="btn btn-primary" id="btn-save-and-continue" onclick="saveAndContinue()">Guardar y Continuar</button>
+                <button class="btn btn-secondary" id="btn-close-validation" onclick="closeValidationAndReturnToDashboard(STATE.activeOBC)">Cerrar Validación</button>
             </div>
         </div>
     </div>
@@ -1194,40 +1221,77 @@
             updateDashboardStats();
         }
 
-        function updateSidebar() {
-            const obcList = document.getElementById('obc-list');
-            obcList.innerHTML = '';
-            
-            Object.keys(STATE.tabs).forEach(obc => {
-                const tab = STATE.tabs[obc];
-                const total = OBC_TOTALS.get(obc) || 0;
-                const count = tab.validations.length;
-                const pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
-                
-                const div = document.createElement('div');
-                div.style.cssText = `padding: 8px; margin-bottom: 8px; background: ${tab.completed ? 'rgba(76,175,80,0.2)' : 'rgba(255,255,255,0.1)'}; border-radius: 6px; font-size: 0.8em; cursor: pointer;`;
-                div.innerHTML = `
-                    <div style="font-weight: 700; font-size: 0.9em;">${obc} ${tab.completed ? '✅' : ''}</div>
-                    <div style="opacity: 0.8; font-size: 0.85em;">${count}/${total} (${pct}%)</div>
-                `;
-                div.onclick = () => {
-                    if (document.getElementById('validation').style.display === 'block') {
-                        switchOBC(obc);
-                    }
-                };
-                obcList.appendChild(div);
-            });
-        }
-
         function switchOBC(obc) {
             STATE.activeOBC = obc;
             renderValidation();
             document.getElementById('location-input').focus();
             saveState();
         }
+        
+        // Función auxiliar para validación previa a la apertura
+        function checkOBCCompletion(obc) {
+            const total = OBC_TOTALS.get(obc) || 0;
+            if (total === 0) return false;
 
-        function closeTab(obc) {
-            if (!confirm(`¿Cerrar la orden ${obc}? Los datos se mantendrán en el historial.`)) return;
+            const obcConcatenatedCodes = OBC_MAP.get(obc); 
+            
+            if (!obcConcatenatedCodes) return false;
+
+            let validatedCount = 0;
+            
+            for (const code of obcConcatenatedCodes) {
+                if (HISTORY_MAP.has(code)) {
+                    validatedCount++;
+                }
+            }
+            
+            return validatedCount >= total;
+        }
+
+        function addOBC() {
+            const obc = prompt('Ingresa el número de la nueva orden:');
+            if (!obc) return;
+            
+            const obcName = obc.toUpperCase().trim();
+            
+            // 1. Check if the OBC already exists in the current session (tabs)
+            if (STATE.tabs[obcName]) {
+                showNotification('⚠️ Esta orden ya existe y está activa', 'warning');
+                switchOBC(obcName);
+                return;
+            }
+
+            // 2. Validación previa a la apertura: ¿Ya completada al 100%?
+            if (checkOBCCompletion(obcName)) {
+                showNotification(`❌ Orden ${obcName} ya completada al 100% según la BD. Evitando apertura.`, 'error');
+                playSound('error');
+                return;
+            }
+            
+            // 3. Check if the OBC already exists in closed sessions
+            if (STATE.closedTabs[obcName]) {
+                // If it was closed, re-open it
+                STATE.tabs[obcName] = STATE.closedTabs[obcName];
+                delete STATE.closedTabs[obcName];
+                showNotification(`✅ Orden ${obcName} reabierta`, 'success');
+            } else {
+                // 4. Create new OBC
+                STATE.tabs[obcName] = {
+                    location: '',
+                    validations: [],
+                    rejections: [],
+                    completed: false
+                };
+                showNotification(`✅ Orden ${obcName} creada`, 'success');
+            }
+            
+            switchOBC(obcName);
+        }
+
+        function closeTab(obc, isCompletion = false) {
+            if (!isCompletion) {
+                if (!confirm(`¿Cerrar la orden ${obc}? Los datos se mantendrán en el historial.`)) return;
+            }
             
             STATE.closedTabs[obc] = STATE.tabs[obc];
             delete STATE.tabs[obc];
@@ -1240,26 +1304,6 @@
             renderValidation();
             saveState();
             showNotification(`Orden ${obc} cerrada`, 'info');
-        }
-
-        function addOBC() {
-            const obc = prompt('Ingresa el número de la nueva orden:');
-            if (!obc) return;
-            
-            const obcName = obc.toUpperCase().trim();
-            if (STATE.tabs[obcName]) {
-                showNotification('⚠️ Esta orden ya existe', 'warning');
-                return;
-            }
-            
-            STATE.tabs[obcName] = {
-                location: '',
-                validations: [],
-                rejections: [],
-                completed: false
-            };
-            switchOBC(obcName);
-            showNotification(`✅ Orden ${obcName} creada`, 'success');
         }
 
         function updateState() {
@@ -1541,25 +1585,55 @@
             renderFaltantes();
         }
 
-        // === ORDER COMPLETION ===
+        // === ORDER COMPLETION BUTTONS LOGIC ===
+        
+        /**
+         * [Nuevo Botón 1: "Nueva Orden"]
+         * Cierra la orden actual (mueve a closedTabs) y luego pide una nueva.
+         */
+        function openNewAndCloseCurrent(obc) {
+            closePopup('completed');
+            // Cierra la orden actual (mueve a closedTabs, sin pedir confirmación)
+            closeTab(obc, true); 
+            // Pide una nueva OBC
+            addOBC();
+        }
+
+        /**
+         * [Nuevo Botón 2: "Guardar y Continuar"]
+         * Cierra el popup, deja la orden actual abierta (verde), y luego pide una nueva.
+         */
+        function saveAndContinue() {
+            closePopup('completed');
+            // La orden actual (ya completada) permanece en STATE.tabs (verde)
+            addOBC(); // Cambia el contexto a una nueva orden
+        }
+
+        /**
+         * [Nuevo Botón 3: "Cerrar Validación"]
+         * Cierra la orden actual (mueve a closedTabs) y regresa al dashboard.
+         */
+        function closeValidationAndReturnToDashboard(obc) {
+            closePopup('completed');
+            // Cierra la orden actual (mueve a closedTabs, sin pedir confirmación)
+            closeTab(obc, true); 
+            // Regresa al dashboard
+            returnToDashboard();
+        }
+
         function showOrderCompleted(obc) {
             const tab = STATE.tabs[obc];
             document.getElementById('completed-obc').textContent = obc;
             document.getElementById('completed-count').textContent = tab.validations.length;
             document.getElementById('completed-user').textContent = CURRENT_USER;
+            
+            // Establecer el OBC para los botones
+            document.getElementById('btn-new-order-and-close').setAttribute('onclick', `openNewAndCloseCurrent('${obc}')`);
+            document.getElementById('btn-close-validation').setAttribute('onclick', `closeValidationAndReturnToDashboard('${obc}')`);
+            
             document.getElementById('popup-completed').style.display = 'flex';
             playSound('ok');
             showNotification(`🎉 Orden ${obc} completada!`, 'success');
-        }
-
-        function continueToNewOrder() {
-            closePopup('completed');
-            addOBC();
-        }
-
-        function saveAndClose() {
-            closePopup('completed');
-            returnToDashboard();
         }
 
         // === AUDIO ===
