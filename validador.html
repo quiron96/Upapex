@@ -2092,7 +2092,7 @@
                                     <label>📍 Ubicación:</label>
                                     <input type="text" id="location-input" placeholder="Ej: PLEC123" onchange="updateState()">
                                 </div>
-                            </div>
+                           </div>
                             <div class="scanner-section">
                                 <div class="scanner-wrapper">
                                     <div class="input-group">
@@ -2103,3 +2103,30 @@
                                 <button class="btn-manual" onclick="openManualInput()">✏️ Manual</button>
                             </div>
                         </div>
+
+                        <div class="stats">
+                            <div class="stat-box stat-ok">
+                                VALIDADAS
+                                <div class="stat-number" id="stat-ok">0</div>
+                            </div>
+                            <div class="stat-box stat-error">
+                                RECHAZADAS
+                                <div class="stat-number" id="stat-error">0</div>
+                            </div>
+                        </div>
+
+                        <div class="logs-container">
+                            <div class="card">
+                                <h3>✅ Validaciones OK</h3>
+                                <ul id="log-ok" class="log-list"></ul>
+                            </div>
+                            <div class="card">
+                                <h3>❌ Rechazos</h3>
+                                <ul id="log-reject" class="log-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
