@@ -1124,7 +1124,7 @@
             const log = {
                 id: now.getTime(),
                 timestamp: now.toLocaleTimeString('es-MX'),
-                date: now.toISOString().slice(0, 10),
+                date: new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 10),
                 user: CURRENT_USER, obc, raw, code, location, note: finalNote
             };
             
@@ -1165,7 +1165,7 @@
             const log = {
                 id: now.getTime(),
                 timestamp: now.toLocaleTimeString('es-MX'),
-                date: now.toISOString().slice(0, 10),
+                date: new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 10),
                 user: CURRENT_USER, obc, raw, code, reason
             };
             
